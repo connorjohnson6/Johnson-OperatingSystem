@@ -285,13 +285,13 @@ var TSOS;
                 // Check if the element exists before updating its content
                 if (statusContainer) {
                     // Create an <h1> element
-                    const h1Element = document.createElement("h1");
+                    const pElement = document.createElement("p");
                     // Set the text content of the <h1> element to the status text
-                    h1Element.textContent = "Status: " + _OsShell.promptStr;
+                    pElement.textContent = _OsShell.promptStr;
                     // Clear the previous content of the statusContainer
                     statusContainer.innerHTML = "";
                     // Append the <h1> element to the statusContainer
-                    statusContainer.appendChild(h1Element);
+                    statusContainer.appendChild(pElement);
                 }
             }
             else {

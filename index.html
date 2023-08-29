@@ -4,6 +4,7 @@
    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
    <meta name="author"             content="Alan G. Labouseur" />
    <link rel="stylesheet" href="tsos.css" type="text/css" media="screen" />
+   <link href="https://fonts.cdnfonts.com/css/star-wars" rel="stylesheet">
    <title>
       TSOS - a browser-based virtual Operating System in TypeScript
    </title>
@@ -38,6 +39,12 @@
 <body onload="onDocumentLoad()">
 
 <div id="divMain" style="width:100%;">
+
+   <div id="divBanner">
+      <div>Date: <span id="date"></span></div>
+      <div>Status: <span id="statusContainer"></span></div>
+    </div>
+    
 
    <div id="divButtonBar" style="margin:4px;">
       <input type="button"
@@ -75,7 +82,7 @@
       </canvas>
    </div>
 
-   <div id="divLog" style="margin-left:520px;">
+   <div id="divLog" style="margin-left:520px; color: white;">
       <label>
          Host Log
          <br>
@@ -87,7 +94,7 @@
       </label>
    </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
+   <div id="divUserProgramInput" style="margin-left:520px; color: white;">
       <label>
          User Program Input
          <br>
@@ -100,16 +107,6 @@
    </div>
 
 </div>
-
-<div id="date">
-   <h1>Date: </h1>
-</div>
-
-<div id="statusContainer">
-   <h1>Status: </h1>
-</div>
-
-
 
 
 
@@ -147,7 +144,7 @@
        const formattedDate = currentDate.toLocaleDateString('en-US', options);
 
        // Update the content of the 'date' div with the formatted date and time
-       dateDiv.innerHTML = `<h1>${formattedDate}</h1>`;
+       dateDiv.innerHTML = `<p>${formattedDate}</p>`;
    }
 
    // display the date when the page loads

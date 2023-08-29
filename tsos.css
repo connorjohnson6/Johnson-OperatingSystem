@@ -1,7 +1,7 @@
 /* TSOS.css */
 
 body {
-  background: #909193 url(distrib/images/linen.png) repeat;
+  background: #909193 url(distrib/images/deathstar.jpg) repeat;
   font-family: Helvetica, Verdana, Arial, sans-serif;
   font-size: 12pt;
   font-weight: normal;
@@ -9,15 +9,15 @@ body {
 }
 
 h1 {
-  color: black;
+  color: white;
   font-size: 24pt;
   font-weight: normal;
   font-style: normal;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid white;
 }
 
 h2 {
-  color: black;
+  color: white;
   font-size: 20pt;
   font-weight: normal;
   font-style: normal;
@@ -41,8 +41,37 @@ h3 {
 }
 
 .footerText {
-  color: black;
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   text-align: center;
+}
+
+
+#divBanner {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center; /* Center content vertically */
+
+  /* Create the lightsaber background */
+  background: linear-gradient(90deg, transparent 50%, #00f0ff 50%, #00f0ff);
+  background-size: 200% 100%; /* Make the gradient twice as wide as the container */
+  animation: lightsaber 2s linear infinite; /* Create a moving effect */
+
+  border: 1px solid black;
+  font-weight: bold;
+  font-family: 'Star Wars', sans-serif;
+  padding: 10px; /* Add padding for spacing */
+  color: white; /* Text color */
+}
+
+/* Create a keyframe animation for the lightsaber effect */
+@keyframes lightsaber {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

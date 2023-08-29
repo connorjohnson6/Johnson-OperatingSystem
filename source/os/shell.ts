@@ -73,6 +73,25 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            //date
+            sc = new ShellCommand(this.shellDate,
+                                 "date",
+                                 "- Displays the current date.");
+            this.commandList[this.commandList.length] = sc;
+
+
+            //whereami
+            sc = new ShellCommand(this.shellWhereami,
+                                  "whereami",
+                                  "- Displays the current whereami");
+            this.commandList[this.commandList.length] = sc;
+
+            //temp
+            sc = new ShellCommand(this.shellGame,
+                                "game",
+                                "- roll my dice :)");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -284,5 +303,39 @@ module TSOS {
             }
         }
 
+        public shellDate(args: string[]) {
+
+            //suprisingly, google's AI actually helped me with this when I was looking up the date function
+
+            const today = new Date();
+
+            const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+            const time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+            const dateTime = date + ' ' + time;
+            _StdOut.putText(dateTime); 
+
+        }
+
+        public shellWhereami(args: string[]) {
+
+            //TODO 
+            _StdOut.putText('Finish later, you want to use the ipapi')
+            //https://ipapi.medium.com/ip-address-location-javascript-examples-82dd5d6da9cb
+
+        }
+
+        public shellGame(args: string[]) {
+            let min = 1;
+            let max = 12;
+        
+            // Generate a random number between min and max (inclusive)
+            let roll = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+            if (roll == 1){
+                _StdOut.putText("You rolled a " + roll.toString());
+            }
+            
+        }
+        
     }
 }

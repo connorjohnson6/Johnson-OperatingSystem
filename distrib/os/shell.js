@@ -45,6 +45,16 @@ var TSOS;
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
+            //date
+            sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date.");
+            this.commandList[this.commandList.length] = sc;
+            //whereami
+            sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "- Displays the current whereami");
+            this.commandList[this.commandList.length] = sc;
+            //temp
+            sc = new TSOS.ShellCommand(this.shellGame, "No", "- Did you ever hear the tragedy of Darth Plagueis The Wise?)");
+            'The Wise?';
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
@@ -243,6 +253,21 @@ var TSOS;
             else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+        shellDate(args) {
+            //suprisingly, google's AI actually helped me with this when I was looking up the date function
+            const today = new Date();
+            const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+            const time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+            const dateTime = date + ' ' + time;
+            _StdOut.putText(dateTime);
+        }
+        shellWhereami(args) {
+            //TODO 
+            _StdOut.putText('Finish later, you want to use the ipapi');
+            //https://ipapi.medium.com/ip-address-location-javascript-examples-82dd5d6da9cb
+        }
+        shellGame(args) {
         }
     }
     TSOS.Shell = Shell;

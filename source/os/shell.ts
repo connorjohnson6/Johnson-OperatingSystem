@@ -92,6 +92,12 @@ module TSOS {
                                 "- roll my dice :)");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellStatus,
+                                  "status",
+                                  "- status <string>");
+            this.commandList[this.commandList.length] = sc;
+
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -336,6 +342,35 @@ module TSOS {
             }
             
         }
+        public shellStatus(args: string[]) {
+            if (args.length > 0) {
+                _OsShell.promptStr = args[0];
+        
+                // Get the HTML element with the id "statusContainer"
+                const statusContainer = document.getElementById("statusContainer");
+        
+                // Check if the element exists before updating its content
+                if (statusContainer) {
+                    // Create an <h1> element
+                    const h1Element = document.createElement("h1");
+                    
+                    // Set the text content of the <h1> element to the status text
+                    h1Element.textContent = "Status: " + _OsShell.promptStr;
+                    
+                    // Clear the previous content of the statusContainer
+                    statusContainer.innerHTML = "";
+                    
+                    // Append the <h1> element to the statusContainer
+                    statusContainer.appendChild(h1Element);
+                }
+            } else {
+                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        }
+        
+
+        
+        
         
     }
 }

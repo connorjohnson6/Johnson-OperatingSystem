@@ -98,7 +98,20 @@
          ></textarea>
       </label>
    </div>
+
 </div>
+
+<div id="date">
+   <h1>Date: </h1>
+</div>
+
+<div id="statusContainer">
+   <h1>Status: </h1>
+</div>
+
+
+
+
 
 <p class="footerText" style="clear:both;">
    <br>
@@ -110,3 +123,36 @@
 
 </body>
 </html>
+
+
+<script>
+   function updateDate() {
+       // Get the 'date' div element by its ID
+       const dateDiv = document.getElementById("date");
+
+       const currentDate = new Date();
+
+       // formatting options for the date and time
+       const options = {
+           weekday: 'long',   
+           year: 'numeric',  
+           month: 'long',    
+           day: 'numeric',    
+           hour: 'numeric',   
+           minute: 'numeric',
+           second: 'numeric'  
+       };
+
+       // Format the current date and time as a string
+       const formattedDate = currentDate.toLocaleDateString('en-US', options);
+
+       // Update the content of the 'date' div with the formatted date and time
+       dateDiv.innerHTML = `<h1>${formattedDate}</h1>`;
+   }
+
+   // display the date when the page loads
+   updateDate();
+   
+   // (1000 milliseconds)
+   setInterval(updateDate, 1000); // Update every 1 second
+</script>

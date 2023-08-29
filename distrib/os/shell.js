@@ -52,8 +52,9 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "- Displays the current whereami");
             this.commandList[this.commandList.length] = sc;
             //temp
-            sc = new TSOS.ShellCommand(this.shellGame, "No", "- Did you ever hear the tragedy of Darth Plagueis The Wise?)");
-            'The Wise?';
+            sc = new TSOS.ShellCommand(this.shellGame, "game", "- roll my dice :)");
+            this.commandList[this.commandList.length] = sc;
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "- status <string>");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -268,6 +269,34 @@ var TSOS;
             //https://ipapi.medium.com/ip-address-location-javascript-examples-82dd5d6da9cb
         }
         shellGame(args) {
+            let min = 1;
+            let max = 12;
+            // Generate a random number between min and max (inclusive)
+            let roll = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (roll == 1) {
+                _StdOut.putText("You rolled a " + roll.toString());
+            }
+        }
+        shellStatus(args) {
+            if (args.length > 0) {
+                _OsShell.promptStr = args[0];
+                // Get the HTML element with the id "statusContainer"
+                const statusContainer = document.getElementById("statusContainer");
+                // Check if the element exists before updating its content
+                if (statusContainer) {
+                    // Create an <h1> element
+                    const h1Element = document.createElement("h1");
+                    // Set the text content of the <h1> element to the status text
+                    h1Element.textContent = "Status: " + _OsShell.promptStr;
+                    // Clear the previous content of the statusContainer
+                    statusContainer.innerHTML = "";
+                    // Append the <h1> element to the statusContainer
+                    statusContainer.appendChild(h1Element);
+                }
+            }
+            else {
+                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
         }
     }
     TSOS.Shell = Shell;

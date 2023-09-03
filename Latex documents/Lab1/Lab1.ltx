@@ -1,0 +1,102 @@
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Connor Johnson
+% CMPT 424N
+% Fall 2023
+% Lab1/ Git/LaTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{fontspec,xltxtra,polyglossia,titling,graphicx}
+\usepackage{verbatim,gb4e,synttree,multicol} % choose or add what you need
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\setmainfont[Mapping=tex-text]{Times New Roman} % or another similar font
+\setdefaultlanguage{english}
+\setotherlanguages{norsk}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\frenchspacing
+\newcommand{\tig}[1] {\fontspec{Abyssinica SIL} #1} 
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\title{Lab1: OS} 
+\author{Connor H. Johnson \\ connor.johnson1@marist.edu}
+\hyphenation{lem-mat-iz-at-ion uni-code}
+
+\begin{document}
+\begin{center} \vfill
+\textbf{\Large Marist College}
+
+{\large BS in Computer Science
+
+School of Computer Science and Mathematics \vfill
+
+CMPT-424N Operating System 
+
+Alan Labouseur
+
+Fall 2023 
+
+\vfill
+\includegraphics[width=0.5\textwidth]{Marist.png} \vfill
+
+\emph{\Large\thetitle} \vfill 
+\theauthor} \vfill
+
+\end{center} \clearpage
+\maketitle
+
+\begin{center}
+\begin{large}
+    Overview
+\end{large}    
+\end{center}
+
+\begin{center} \noindent
+Within this document, I will be answering the questions providing in the Lab1 document found on \url{https://www.labouseur.com/courses/os/}
+\end{center}
+
+\begin{center}
+    -----------------------------------------------------------------------
+\end{center}
+
+\begin{center}
+\begin{large}
+    Questions
+\end{large}
+\end{center}
+
+
+
+\begin{footnotesize}
+For more information regarding my code, please visit my repository\footnote{GitHub: \url{https://github.com/connorjohnson6/Johnson-OperatingSystem}} 
+\end{footnotesize}
+
+\section{What are the advantages and disadvantages of using the same system call interface for manipulating both files and devices?}
+
+\begin{itemize}
+  \item If I were to give three advantages on using the same system call interface in regards of manipulating files and devices, those advantages would be: Simplicity, Consistency, and the flexibility within the design. The main advantage that I would want to focus on would be the flexibility it gives the developer. A common challenge for developers is the constant need to learn and adapt to new software. However, with this approach, we can focus on designing a more versatile file-device structure.
+  \item Three main disadvantages of using the same system call interface are: Potential Errors, Complexity, and Security. My focus within the disadvantages would be the security aspect in this new design. As we add more features to a unified system, it raises concerns about ensuring the security of applications to protect users. 
+\end{itemize}
+
+\section{Would it be possible for the user to develop a new command interpreter using the	system call interface provide by the operating system? How?}
+
+\begin{itemize}
+  \item I believe that developing a new command interpreter using the system call interface would be completely possible to do. This task has already been done before, which we can see from various company's like Microsoft when they created Powershell. However, the way you would complete this would be by utilizing the system calls to customize how you want your command interpreter to communicate with your operating system.
+\end{itemize}
+
+
+\end{document}

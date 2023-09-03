@@ -252,14 +252,49 @@ module TSOS {
             _StdOut.resetXY();
         }
 
+
+        //make more descriptions for the user
         public shellMan(args: string[]) {
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
+                    case "ver":
+                        _StdOut.putText("Will give you the current version of the JohnsonTSOS");
+                        break;
                     case "help":
                         _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
-                    // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "shutdown":
+                        _StdOut.putText("Will kill the whole terminal");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Will clear the terminal");
+                        break;
+                    case "man":
+                        _StdOut.putText("well... you are using this command so you know what you are doing");
+                        break;
+                    case "trace":
+                        _StdOut.putText("I know what you are doing, check the host log ;)");
+                        break;
+                    case "rot13":
+                        _StdOut.putText("Its almost like a ceasar cipher, becasue it is");
+                        break;
+                    case "prompt":
+                        _StdOut.putText("You say something, and I'll spit it right back");
+                        break;
+                    case "date":
+                        _StdOut.putText("Just the current date and time");
+                        break;
+                    case "whereami":
+                        _StdOut.putText("Where are you? Where am I? ");
+                        break;
+                    case "game":
+                        _StdOut.putText("A simple dice roll for bragging rights");
+                        break;
+                    case "status":
+                        _StdOut.putText("tell me the status of your life, I'll display it for the world");
+                        break;
+
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -324,8 +359,9 @@ module TSOS {
 
         public shellWhereami(args: string[]) {
 
-            //TODO 
-            _StdOut.putText('Finish later, you want to use the ipapi')
+   
+            _StdOut.putText('In a galaxy... far far away...');
+            //I want to see if I can use the api to actually track IP addresses
             //https://ipapi.medium.com/ip-address-location-javascript-examples-82dd5d6da9cb
 
         }
@@ -334,11 +370,18 @@ module TSOS {
             let min = 1;
             let max = 12;
         
-            // Generate a random number between min and max (inclusive)
-            let roll = Math.floor(Math.random() * (max - min + 1)) + min;
+            // Generate a random number between min and max
+            let userRoll = Math.floor(Math.random() * (max - min + 1)) + min;
+            let computerRoll = Math.floor(Math.random() * (max - min + 1)) + min;
         
-            if (roll == 1){
-                _StdOut.putText("You rolled a " + roll.toString());
+            if (userRoll > computerRoll) {
+                _StdOut.putText("You rolled a " + userRoll.toString() +  " you beat me :(");
+            }
+            else if (userRoll < computerRoll) {
+                _StdOut.putText("You rolled a " + userRoll.toString() + " but I beat you this time ;)");
+            }
+            else {
+                _StdOut.putText("Well, I guess we are equally good at this game");
             }
             
         }

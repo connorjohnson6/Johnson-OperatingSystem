@@ -69,6 +69,8 @@
                 }
              }
     
+    
+
             public advanceLine(): void {
                 this.currentXPosition = 0;
                 /*
@@ -76,18 +78,36 @@
                  * Font descent measures from the baseline to the lowest point in the font.
                  * Font height margin is extra spacing between the lines.
                  */
-                let lineHeight = _DefaultFontSize + 
+
+                //using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
+                let lineHeight = Math.round(_DefaultFontSize + 
                                  _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                                 _FontHeightMargin;
+                                 _FontHeightMargin);
+
 
                 // Check if the new Y position would exceed the canvas height
                 if (this.currentYPosition + lineHeight > _Canvas.height) {
-                    // Shift the entire canvas content upwards by one line's height
-                    _DrawingContext.drawImage(_Canvas, 0, lineHeight, _Canvas.width, _Canvas.height - lineHeight, 0, 0, _Canvas.width, _Canvas.height - lineHeight);
-                    // Clear the last line of the canvas
-                    _DrawingContext.clearRect(0, _Canvas.height - lineHeight, _Canvas.width, _Canvas.height);
+
+                    //inspiration for offscreenCanvas : https://stackoverflow.com/questions/6608996/is-it-possible-to-create-an-html-canvas-without-a-dom-element
+                    let offscreenCanvas = document.createElement('canvas');
+                    
+                    offscreenCanvas.width = _Canvas.width;
+                    offscreenCanvas.height = _Canvas.height;
+
+                    let offscreenCtx = offscreenCanvas.getContext('2d');
+
+
+                    //chatGPT suggested code
+                    // Copy the visible content of the main canvas onto the offscreen canvas
+                    offscreenCtx.drawImage(_Canvas, 0, 0);
+            
+                    // Clear the main canvas
+                    _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+            
+                    // Draw the content from the offscreen canvas back onto the main canvas, but shifted upwards by one line
+                    _DrawingContext.drawImage(offscreenCanvas, 0, -lineHeight);
+            
                 } else {
-                    // If not exceeding, just advance the Y position as usual
                     this.currentYPosition += lineHeight;
                 }
     

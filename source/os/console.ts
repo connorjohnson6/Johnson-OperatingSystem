@@ -41,6 +41,12 @@
                         _OsShell.handleInput(this.buffer);
                         // ... and reset our buffer.
                         this.buffer = "";
+                    }else if(chr === String.fromCharCode(8)){ 
+                        //handles the backsapce command
+                    }else if(chr === String.fromCharCode(38)){
+                        //handles up arrow
+                    }else if(chr === String.fromCharCode(40)){
+                        //handles down arrow   
                     } else {
                         // This is a "normal" character, so ...
                         // ... draw it on the screen...

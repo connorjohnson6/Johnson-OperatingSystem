@@ -21,6 +21,8 @@ module TSOS {
             this.isr = this.krnKbdDispatchKeyPress;
         }
 
+
+
         public krnKbdDriverEntry() {
             // Initialization routine for this, the kernel-mode Keyboard Device Driver.
             this.status = "loaded";
@@ -33,21 +35,49 @@ module TSOS {
             var isShifted = params[1];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
-            // Check to see if we even want to deal with the key that was pressed.
-            if ((keyCode >= 65) && (keyCode <= 90)) { // letter
-                if (isShifted === true) { 
+
+            //thought this would be better then a bunch of if-else if statements
+            const SHIFTED_CHAR_MAPPING = {
+                '48': ')',
+                '49': '!',
+                '50': '@',
+                '51': '#',
+                '52': '$',
+                '53': '%',
+                '54': '^',
+                '55': '&',
+                '56': '*',
+                '57': '(',
+                // Add more special characters
+            };
+            
+            // Handling letters (A-Z)
+            if ((keyCode >= 65) && (keyCode <= 90)) {
+
+                if (isShifted) {
                     chr = String.fromCharCode(keyCode); // Uppercase A-Z
                 } else {
                     chr = String.fromCharCode(keyCode + 32); // Lowercase a-z
                 }
-                // TODO: Check for caps-lock and handle as shifted if so.
                 _KernelInputQueue.enqueue(chr);
-            } else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
-                        (keyCode == 32)                     ||   // space
-                        (keyCode == 13)) {                       // enter
+
+            //space, enter, backspace
+            }else if ((keyCode == 32) || (keyCode == 13) || (keyCode == 8)){ //TODO: backspace check
+                
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
+            
+            }else { // Handling other keys
+               
+                if (isShifted) {
+                    chr = SHIFTED_CHAR_MAPPING[keyCode] || String.fromCharCode(keyCode);
+                } else {
+                    chr = String.fromCharCode(keyCode);
+                }
+                _KernelInputQueue.enqueue(chr);
+
             }
+            
         }
     }
 }

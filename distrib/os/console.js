@@ -75,12 +75,12 @@ var TSOS;
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
              */
+            //using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
             let lineHeight = Math.round(_DefaultFontSize +
                 _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
                 _FontHeightMargin);
             // Check if the new Y position would exceed the canvas height
             if (this.currentYPosition + lineHeight > _Canvas.height) {
-                // Create an offscreen canvas
                 //inspiration for offscreenCanvas : https://stackoverflow.com/questions/6608996/is-it-possible-to-create-an-html-canvas-without-a-dom-element
                 let offscreenCanvas = document.createElement('canvas');
                 offscreenCanvas.width = _Canvas.width;

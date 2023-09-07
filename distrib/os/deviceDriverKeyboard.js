@@ -29,6 +29,8 @@ var TSOS;
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
             //thought this would be better then a bunch of if-else if statements
+            //some special charcters will not show up, checked HallOfFame for 
+            //ascii values too and they have the same
             const SHIFTED_CHAR_MAPPING = {
                 '48': ')',
                 '49': '!',

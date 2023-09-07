@@ -13,7 +13,7 @@
                         public currentFontSize = _DefaultFontSize,
                         public currentXPosition = 0,
                         public currentYPosition = _DefaultFontSize,
-                        public buffer = "") {
+                        public buffer = "") { // buffer handles on going senetnce in the console
             }
     
             public init(): void {
@@ -63,7 +63,8 @@
                     // TODO: Add a case for Ctrl-C that would allow the user to break the current program.
                 }
             }
-    
+
+    //creates the user's interative line
             public putText(text): void {
                 /*  My first inclination here was to write two functions: putChar() and putString().
                     Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
@@ -72,57 +73,69 @@
                     do the same thing, thereby encouraging confusion and decreasing readability, I
                     decided to write one function and use the term "text" to connote string or char.
                 */
-                if (text !== "") {
-                    // Draw the text at the current X and Y coordinates.
-                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                    // Move the current X position.
-                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                    this.currentXPosition = this.currentXPosition + offset;
-                }
+                    if (text !== "") {
+                        // Draw the text at the current X and Y coordinates.
+                            
+                        // Calculate the width of the text string that's about to be printed
+                        var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                        
+                        // Check if adding this width to the current X position exceeds the canvas width
+                        if (this.currentXPosition + textWidth > _Canvas.width) {
+                            // Reset the X position and increment the Y position to move to the next line
+                            this.currentXPosition = 0;
+                            this.currentYPosition += _DefaultFontSize + 5; //could change this to anything higher,
+                        }
+                        _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                            // Move the current X position.
+                        var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                        this.currentXPosition = this.currentXPosition + offset;
+                    }
+            }
+
+    //will implement the use of backspacing
+             public removeText(text): void{
+
              }
     
     
 
-            public advanceLine(): void {
+             public advanceLine(): void {
                 this.currentXPosition = 0;
                 /*
                  * Font size measures from the baseline to the highest point in the font.
                  * Font descent measures from the baseline to the lowest point in the font.
                  * Font height margin is extra spacing between the lines.
                  */
-
-                //using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
+            
+                // Using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
                 let lineHeight = Math.round(_DefaultFontSize + 
-                                 _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                                 _FontHeightMargin);
+                                            _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                                            _FontHeightMargin);
+            
+                // Checks if the next two lines after the advance would still be within the canvas boundaries
+                //if I did not add the 2 line check, then the advance of the canvas and line wrapping would mess up the console
+                if (this.currentYPosition + (2 * lineHeight) > _Canvas.height) {
 
-
-                // Check if the new Y position would exceed the canvas height
-                if (this.currentYPosition + lineHeight > _Canvas.height) {
-
+                    // Create an offscreen canvas
                     //inspiration for offscreenCanvas : https://stackoverflow.com/questions/6608996/is-it-possible-to-create-an-html-canvas-without-a-dom-element
                     let offscreenCanvas = document.createElement('canvas');
-                    
                     offscreenCanvas.width = _Canvas.width;
                     offscreenCanvas.height = _Canvas.height;
-
                     let offscreenCtx = offscreenCanvas.getContext('2d');
-
-
+            
                     //chatGPT suggested code
                     // Copy the visible content of the main canvas onto the offscreen canvas
                     offscreenCtx.drawImage(_Canvas, 0, 0);
-            
                     // Clear the main canvas
                     _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
-            
-                    // Draw the content from the offscreen canvas back onto the main canvas, but shifted upwards by one line
-                    _DrawingContext.drawImage(offscreenCanvas, 0, -lineHeight);
-            
+                    // Draw the content from the offscreen canvas back onto the main canvas, but shifted upwards by two lines
+                    _DrawingContext.drawImage(offscreenCanvas, 0, -2 * lineHeight);
+                    // Adjust the current Y position
+                    this.currentYPosition -= lineHeight;
                 } else {
                     this.currentYPosition += lineHeight;
                 }
-    
             }
+            
         }
      }

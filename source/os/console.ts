@@ -47,8 +47,8 @@
 
                     }else if(chr === String.fromCharCode(8)){ 
                         //handles the backsapce command
-                        let lastChar = this.buffer.length - 1;
-                        this.removeText(this.buffer.charAt(lastChar));
+                        this.buffer = this.buffer.slice(0, -1);
+                        this.removeText();
 
                     }else if(chr === String.fromCharCode(38)){
                         //handles up arrow
@@ -152,9 +152,27 @@
 
 
                 //will implement the use of backspacing
-            public removeText(text): void{
-                console.log(text);
+            public removeText(): void{
+                //ateast it is working rn lol, not well but its working
 
+                //checks for user being at the start of the command
+                if(this.currentXPosition === 0){
+                    this.currentXPosition = _Canvas.width;
+                    //TODO: command looks for line wrapping, does not work at the moment
+                    this.currentYPosition -= (this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition)
+                }else{
+                    //move the cursor back by the width of the last character
+                    let lastCharWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
+                    this.currentXPosition -= lastCharWidth;   
+                }
+
+                //defines the charcters with
+                let characterWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer + 5);
+
+                _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, characterWidth, this.currentFontSize)
+
+
+ 
             }
             
         }

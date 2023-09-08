@@ -44,6 +44,8 @@ var TSOS;
                 }
                 else if (chr === String.fromCharCode(8)) {
                     //handles the backsapce command
+                    this.buffer = this.buffer.slice(0, -1);
+                    this.removeText();
                 }
                 else if (chr === String.fromCharCode(38)) {
                     //handles up arrow
@@ -64,9 +66,12 @@ var TSOS;
         //creates the user's interative line
         putText(text) {
             // Split the text into individual characters instead of words
+            // had to move away from orginal design due to spacebar not showing up on frontend side
+            // chatGPT suggested the use of an Array system and helped with code debugging issues
             let characters = Array.from(text);
             let line = '';
             for (let char of characters) {
+                //determine if the line will excedd canvas width
                 let testLine = line + char;
                 let testWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, testLine);
                 if (testWidth > _Canvas.width) {
@@ -83,11 +88,11 @@ var TSOS;
             if (line !== "") {
                 // Calculate the width of the text string that's about to be printed
                 var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, line);
-                // Check if adding this width to the current X position exceeds the canvas width
+                // Check the width plus the current X position exceeds the canvas width
                 if (this.currentXPosition + textWidth > _Canvas.width) {
                     // Reset the X position and increment the Y position to move to the next line
                     this.currentXPosition = 0;
-                    this.currentYPosition += _DefaultFontSize + 5;
+                    this.currentYPosition += _DefaultFontSize + 5; //can adjust this but nothing under 5
                 }
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
                 // Move the current X position.
@@ -130,7 +135,21 @@ var TSOS;
             }
         }
         //will implement the use of backspacing
-        removeText(text) {
+        removeText() {
+            //condition for that teh backspace is useless if there are no characters
+            if (this.buffer.length === 0) {
+                return;
+            }
+            if (this.currentXPosition === 0) {
+                this.currentXPosition = _Canvas.width;
+                this.currentYPosition -= (this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition);
+            }
+            else {
+                let lastCharWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
+                this.currentXPosition -= lastCharWidth;
+            }
+            let characterWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer + 5);
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, characterWidth, this.currentFontSize);
         }
     }
     TSOS.Console = Console;

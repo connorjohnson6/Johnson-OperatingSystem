@@ -46,8 +46,9 @@
                         this.buffer = "";
 
                     }else if(chr === String.fromCharCode(8)){ 
-
                         //handles the backsapce command
+                        let lastChar = this.buffer.length - 1;
+                        this.removeText(this.buffer.charAt(lastChar));
 
                     }else if(chr === String.fromCharCode(38)){
                         //handles up arrow
@@ -64,39 +65,50 @@
                 }
             }
 
-    //creates the user's interative line
-            public putText(text): void {
-                /*  My first inclination here was to write two functions: putChar() and putString().
-                    Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-                    between the two. (Although TypeScript would. But we're compiling to JavaScipt anyway.)
-                    So rather than be like PHP and write two (or more) functions that
-                    do the same thing, thereby encouraging confusion and decreasing readability, I
-                    decided to write one function and use the term "text" to connote string or char.
-                */
-                    if (text !== "") {
-                        // Draw the text at the current X and Y coordinates.
-                            
-                        // Calculate the width of the text string that's about to be printed
-                        var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                        
-                        // Check if adding this width to the current X position exceeds the canvas width
-                        if (this.currentXPosition + textWidth > _Canvas.width) {
-                            // Reset the X position and increment the Y position to move to the next line
-                            this.currentXPosition = 0;
-                            this.currentYPosition += _DefaultFontSize + 5; //could change this to anything higher,
-                        }
-                        _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                            // Move the current X position.
-                        var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                        this.currentXPosition = this.currentXPosition + offset;
+            
+
+            //creates the user's interative line
+            public putText(text: string): void {
+                // Split the text into individual characters instead of words
+                // had to move away from orginal design due to spacebar not showing up on frontend side
+                // chatGPT suggested the use of an Array system and helped with code debugging issues
+                let characters = Array.from(text);
+                let line = '';
+            
+                for (let char of characters) {
+                    //determine if the line will excedd canvas width
+                    let testLine = line + char;
+                    let testWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, testLine);
+            
+                    if (testWidth > _Canvas.width) {
+                        // Draw the current line and reset for the next line
+                        _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
+                        this.advanceLine();
+                        line = char;
+                    } else {
+                        line += char;
                     }
+                }
+            
+                // Draw any remaining text
+                if (line !== "") {
+                    // Calculate the width of the text string that's about to be printed
+                    var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, line);
+            
+                    // Check the width plus the current X position exceeds the canvas width
+                    if (this.currentXPosition + textWidth > _Canvas.width) {
+                        // Reset the X position and increment the Y position to move to the next line
+                        this.currentXPosition = 0;
+                        this.currentYPosition += _DefaultFontSize + 5;//can adjust this but nothing under 5
+                    }
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
+                    // Move the current X position.
+                    this.currentXPosition += textWidth;
+                }
             }
+            
 
-    //will implement the use of backspacing
-             public removeText(text): void{
-
-             }
-    
+            
     
 
              public advanceLine(): void {
@@ -133,8 +145,16 @@
                     // Adjust the current Y position
                     this.currentYPosition -= lineHeight;
                 } else {
+                    // If not exceeding, just advance the Y position as usual
                     this.currentYPosition += lineHeight;
                 }
+            }
+
+
+                //will implement the use of backspacing
+            public removeText(text): void{
+                console.log(text);
+
             }
             
         }

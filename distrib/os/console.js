@@ -63,31 +63,36 @@ var TSOS;
         }
         //creates the user's interative line
         putText(text) {
-            /*  My first inclination here was to write two functions: putChar() and putString().
-                Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
-                between the two. (Although TypeScript would. But we're compiling to JavaScipt anyway.)
-                So rather than be like PHP and write two (or more) functions that
-                do the same thing, thereby encouraging confusion and decreasing readability, I
-                decided to write one function and use the term "text" to connote string or char.
-            */
-            if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
+            // Split the text into individual characters instead of words
+            let characters = Array.from(text);
+            let line = '';
+            for (let char of characters) {
+                let testLine = line + char;
+                let testWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, testLine);
+                if (testWidth > _Canvas.width) {
+                    // Draw the current line and reset for the next line
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
+                    this.advanceLine();
+                    line = char;
+                }
+                else {
+                    line += char;
+                }
+            }
+            // Draw any remaining text
+            if (line !== "") {
                 // Calculate the width of the text string that's about to be printed
-                var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                var textWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, line);
                 // Check if adding this width to the current X position exceeds the canvas width
                 if (this.currentXPosition + textWidth > _Canvas.width) {
                     // Reset the X position and increment the Y position to move to the next line
                     this.currentXPosition = 0;
-                    this.currentYPosition += _DefaultFontSize + 5; //could change this to anything higher,
+                    this.currentYPosition += _DefaultFontSize + 5;
                 }
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                this.currentXPosition += textWidth;
             }
-        }
-        //will implement the use of backspacing
-        removeText(text) {
         }
         advanceLine() {
             this.currentXPosition = 0;
@@ -118,24 +123,14 @@ var TSOS;
                 _DrawingContext.drawImage(offscreenCanvas, 0, -2 * lineHeight);
                 // Adjust the current Y position
                 this.currentYPosition -= lineHeight;
-                //still checks to see if the new Y position exceeds the canvas height
-                //}else if (this.currentYPosition + lineHeight > _Canvas.height) {
-                //     // Existing logic for shifting content upward by one line
-                //     // Create an offscreen canvas
-                //     let offscreenCanvas = document.createElement('canvas');
-                //     offscreenCanvas.width = _Canvas.width;
-                //     offscreenCanvas.height = _Canvas.height;
-                //     let offscreenCtx = offscreenCanvas.getContext('2d');
-                //     // Copy the visible content of the main canvas onto the offscreen canvas
-                //     offscreenCtx.drawImage(_Canvas, 0, 0);
-                //     // Clear the main canvas
-                //     _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
-                //     // Draw the content from the offscreen canvas back onto the main canvas, but shifted upwards by one line
-                //     _DrawingContext.drawImage(offscreenCanvas, 0, -lineHeight);
             }
             else {
+                // If not exceeding, just advance the Y position as usual
                 this.currentYPosition += lineHeight;
             }
+        }
+        //will implement the use of backspacing
+        removeText(text) {
         }
     }
     TSOS.Console = Console;

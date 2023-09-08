@@ -136,20 +136,26 @@ var TSOS;
         }
         //will implement the use of backspacing
         removeText() {
-            //condition for that teh backspace is useless if there are no characters
-            if (this.buffer.length === 0) {
-                return;
-            }
-            if (this.currentXPosition === 0) {
-                this.currentXPosition = _Canvas.width;
-                this.currentYPosition -= (this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition);
+            //This twas my origional code for this however
+            //every time I backspaced the first character printed would not
+            //be deleted visually but code wise would be still working
+            //exmaple: enter 'hhhhh' and delete the h's and it will stay as
+            //'h' but you can type 'help' and the help command will still work 
+            //Need to check for the start character as well as the lastChar variable would not work for the first character
+            // Get the width of the last character in the buffer.
+            let lastChar = this.buffer.slice(-1);
+            let lastCharWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, lastChar);
+            // Check for user being at the start of the command.
+            if (this.currentXPosition <= 0) {
+                this.currentXPosition = _Canvas.width - lastCharWidth; // Adjust this logic if there's padding or margins.
+                this.currentYPosition -= this.currentFontSize; // Adjust this logic for line height, if necessary.
             }
             else {
-                let lastCharWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
+                // Move the cursor back by the width of the last character.
                 this.currentXPosition -= lastCharWidth;
             }
-            let characterWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer + 5);
-            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, characterWidth, this.currentFontSize);
+            // Clear the character from the screen.
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, lastCharWidth, this.currentFontSize * 1.5); // Adjust the height if necessary.
         }
     }
     TSOS.Console = Console;

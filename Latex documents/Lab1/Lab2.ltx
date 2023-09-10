@@ -1,0 +1,96 @@
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Connor Johnson
+% CMPT 424N
+% Fall 2023
+% Lab1/ Git/LaTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{fontspec,xltxtra,polyglossia,titling,graphicx}
+\usepackage{verbatim,gb4e,synttree,multicol} % choose or add what you need
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\setmainfont[Mapping=tex-text]{Times New Roman} % or another similar font
+\setdefaultlanguage{english}
+\setotherlanguages{norsk}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\frenchspacing
+\newcommand{\tig}[1] {\fontspec{Abyssinica SIL} #1} 
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\title{Lab2: OS} 
+\author{Connor H. Johnson \\ connor.johnson1@marist.edu}
+\hyphenation{lem-mat-iz-at-ion uni-code}
+
+\begin{document}
+\begin{center} \vfill
+\textbf{\Large Marist College}
+
+{\large BS in Computer Science
+
+School of Computer Science and Mathematics \vfill
+
+CMPT-424N Operating System 
+
+Alan Labouseur
+
+Fall 2023 
+
+\vfill
+\includegraphics[width=0.5\textwidth]{Marist.png} \vfill
+
+\emph{\Large\thetitle} \vfill 
+\theauthor} \vfill
+
+\end{center} \clearpage
+\maketitle
+
+\begin{center}
+\begin{large}
+    Overview
+\end{large}    
+\end{center}
+
+\begin{center} \noindent
+Within this document, I will be answering the questions providing in the Lab1 document found on \url{https://www.labouseur.com/courses/os/}
+\end{center}
+
+\begin{center}
+    -----------------------------------------------------------------------
+\end{center}
+
+\begin{center}
+\begin{large}
+    Questions
+\end{large}
+\end{center}
+
+
+
+\begin{footnotesize}
+For more information regarding my code, please visit my repository\footnote{GitHub: \url{https://github.com/connorjohnson6/Johnson-OperatingSystem}} 
+\end{footnotesize}
+
+\section{How is your console like the ancient TTY subsystem in Unix as described in \url{https://www.linusakesson.net/programming/tty/?}}
+
+\begin{itemize}
+  \item After reviewing the history of the TTY subsystem, and specifically focusing on our virtual typescript console code, we can see basic functions that we have implemented share similarities with each other. We can see that the concepts behind buffering, command interpretation/completion, history, and line editing can be traced back to the legacy of the TTY subsystem.
+ 
+\end{itemize}
+
+
+\end{document}

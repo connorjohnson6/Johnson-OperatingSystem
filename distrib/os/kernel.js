@@ -150,6 +150,7 @@ var TSOS;
         }
         static krnTrapError(msg) {
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
+            //call for the console to update the CLI
             _Console.displayBSOD();
             this.krnShutdown();
         }

@@ -67,7 +67,7 @@
 
                     }else if(chr === String.fromCharCode(9)){
                         //handles the tab command
-                        let shellCommands: (string)[] = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'BSOD']
+                        let shellCommands: (string)[] = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'bsod', 'load']
                         this.tabCompletion(shellCommands);
                     }else if(chr === String.fromCharCode(38)){
                         //handles up arrow
@@ -288,7 +288,7 @@
                 public displayBSOD(): void {
                     // Load the BSOD image
                     let bsodImage = new Image();
-                    bsodImage.src = "./distrib/images/BSOD_Message.png"; // Replace with the actual path to your image
+                    bsodImage.src = "./distrib/images/BSOD_Message.png"; 
                 
                     bsodImage.onload = function() {
                         // Clear the console

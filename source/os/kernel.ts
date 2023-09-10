@@ -152,6 +152,7 @@ module TSOS {
         //
         // OS Utility Routines
         //
+        
         public krnTrace(msg: string) {
              // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
              if (_Trace) {
@@ -170,6 +171,7 @@ module TSOS {
 
         public static krnTrapError(msg) {
             Control.hostLog("OS ERROR - TRAP: " + msg);
+            //call for the console to update the CLI
             _Console.displayBSOD();
 
             this.krnShutdown();

@@ -89,19 +89,25 @@ module TSOS {
             //temp
             sc = new ShellCommand(this.shellGame,
                                 "game",
-                                "- roll my dice :)");
+                                "- Roll my dice :)");
             this.commandList[this.commandList.length] = sc;
 
             //status
             sc = new ShellCommand(this.shellStatus,
                                   "status",
-                                  "- status <string>");
+                                  "- Status <string>");
             this.commandList[this.commandList.length] = sc;
 
             //BSOD
             sc = new ShellCommand(this.shellBSOD,
                                 "bsod",
-                                "- displays when OS error occurred");
+                                "- Displays when OS error occurred");
+            this.commandList[this.commandList.length] = sc;
+
+            //load
+            sc = new ShellCommand(this.shellLoad,
+                                "load",
+                                "- See if your hex log is valid");
             this.commandList[this.commandList.length] = sc;
 
 
@@ -304,6 +310,9 @@ module TSOS {
                     case "bsod":
                         _StdOut.putText("Seems you have an OS error my good sir");
                         break;
+                    case "load":
+                         _StdOut.putText("Check to see if your hex log is valid");
+                        break;
 
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -422,12 +431,29 @@ module TSOS {
         }
 
         public shellBSOD(args: string[]) {
+            //this message isnt actually going to be displaying anything, you'll see
             Kernel.krnTrapError("test");
             
             
         }
         
-        
+        public shellLoad(args: string[]) {
+            //grab the html ID 
+            //https://www.tutorialspoint.com/access-an-element-in-type-script#:~:text=Using%20getElementById()%20method,a%20form%20of%20an%20object.
+            let taProgramInput = (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value;
+
+            //validates the numbers, letters, and spacces 
+            //google IA answered 'how to validade for certain numbers, letters, and space in typescript'
+            let hexValidate = /^[0-9A-Fa-f\s]*$/;
+
+            //.test does T or F
+            if(hexValidate.test(taProgramInput)){
+                _StdOut.putText("Hex is valid :)");
+            }else{
+                _StdOut.putText("Hex is not valid :(");
+            }
+
+        }
         
   
         

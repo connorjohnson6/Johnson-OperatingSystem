@@ -52,13 +52,16 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "- Displays the current whereami");
             this.commandList[this.commandList.length] = sc;
             //temp
-            sc = new TSOS.ShellCommand(this.shellGame, "game", "- roll my dice :)");
+            sc = new TSOS.ShellCommand(this.shellGame, "game", "- Roll my dice :)");
             this.commandList[this.commandList.length] = sc;
             //status
-            sc = new TSOS.ShellCommand(this.shellStatus, "status", "- status <string>");
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "- Status <string>");
             this.commandList[this.commandList.length] = sc;
             //BSOD
-            sc = new TSOS.ShellCommand(this.shellBSOD, "bsod", "- displays when OS error occurred");
+            sc = new TSOS.ShellCommand(this.shellBSOD, "bsod", "- Displays when OS error occurred");
+            this.commandList[this.commandList.length] = sc;
+            //load
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- See if your hex log is valid");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -245,6 +248,9 @@ var TSOS;
                     case "bsod":
                         _StdOut.putText("Seems you have an OS error my good sir");
                         break;
+                    case "load":
+                        _StdOut.putText("Check to see if your hex log is valid");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -346,7 +352,21 @@ var TSOS;
             }
         }
         shellBSOD(args) {
+            //this message isnt actually going to be displaying anything, you'll see
             TSOS.Kernel.krnTrapError("test");
+        }
+        shellLoad(args) {
+            //grab the html ID 
+            let inputContent = document.getElementById("taProgramInput").value;
+            //validates the numbers, letters, and spacces 
+            let hexRegex = /^[0-9A-Fa-f\s]*$/;
+            //.test does T or F
+            if (hexRegex.test(inputContent)) {
+                _StdOut.putText("Hex is valid :)");
+            }
+            else {
+                _StdOut.putText("Hex is not valid :(");
+            }
         }
     }
     TSOS.Shell = Shell;

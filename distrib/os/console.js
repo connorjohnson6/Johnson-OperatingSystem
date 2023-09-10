@@ -57,7 +57,7 @@ var TSOS;
                 }
                 else if (chr === String.fromCharCode(9)) {
                     //handles the tab command
-                    let shellCommands = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status'];
+                    let shellCommands = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'BSOD'];
                     this.tabCompletion(shellCommands);
                 }
                 else if (chr === String.fromCharCode(38)) {
@@ -90,7 +90,9 @@ var TSOS;
                         // Calculate the width to clear
                         const bufferWidth = charWidth * Math.max(...this.commandHistory.map(cmd => cmd.length)); // Max possible width
                         // Clear the entire buffer area
-                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight());
+                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight() * 1.5); //gotta *1.5 for larger characters for some reason
+                        //you would think the method would just work but figureing out the 
+                        //length of a character, you would think
                         // Reset the cursor position to the start of the buffer
                         this.currentXPosition = bufferStartX;
                         this.putText(this.buffer);
@@ -104,7 +106,7 @@ var TSOS;
                         // Calculate the width to clear
                         const bufferWidth = charWidth * Math.max(...this.commandHistory.map(cmd => cmd.length));
                         // Clear the entire buffer area
-                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight());
+                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight() * 1.5);
                     }
                 }
                 else {
@@ -162,7 +164,7 @@ var TSOS;
             // Using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
             return Math.round(_DefaultFontSize +
                 _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                _FontHeightMargin) * 1.5;
+                _FontHeightMargin);
         }
         advanceLine() {
             this.currentXPosition = 0;
@@ -231,6 +233,17 @@ var TSOS;
                 // Display the completed command on the console.
                 this.putText(this.buffer);
             }
+        }
+        displayBSOD() {
+            // Load the BSOD image
+            let bsodImage = new Image();
+            bsodImage.src = "./distrib/images/BSOD_Message.png"; // Replace with the actual path to your image
+            bsodImage.onload = function () {
+                // Clear the console
+                _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+                // Display the BSOD image
+                _DrawingContext.drawImage(bsodImage, 0, 0, _Canvas.width, _Canvas.height);
+            };
         }
     }
     TSOS.Console = Console;

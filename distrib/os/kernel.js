@@ -9,6 +9,7 @@
 var TSOS;
 (function (TSOS) {
     class Kernel {
+        static krnShutdown;
         //
         // OS Startup and Shutdown Routines
         //
@@ -106,7 +107,7 @@ var TSOS;
                     _StdIn.handleInput();
                     break;
                 default:
-                    this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
+                    Kernel.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
         }
         krnTimerISR() {
@@ -147,9 +148,9 @@ var TSOS;
                 }
             }
         }
-        krnTrapError(msg) {
+        static krnTrapError(msg) {
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
-            // TODO: Display error on console, perhaps in some sort of colored screen. (Maybe blue?)
+            _Console.displayBSOD();
             this.krnShutdown();
         }
     }

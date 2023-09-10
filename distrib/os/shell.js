@@ -54,7 +54,11 @@ var TSOS;
             //temp
             sc = new TSOS.ShellCommand(this.shellGame, "game", "- roll my dice :)");
             this.commandList[this.commandList.length] = sc;
+            //status
             sc = new TSOS.ShellCommand(this.shellStatus, "status", "- status <string>");
+            this.commandList[this.commandList.length] = sc;
+            //BSOD
+            sc = new TSOS.ShellCommand(this.shellBSOD, "bsod", "- displays when OS error occurred");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -238,6 +242,9 @@ var TSOS;
                     case "status":
                         _StdOut.putText("tell me the status of your life, I'll display it for the world");
                         break;
+                    case "bsod":
+                        _StdOut.putText("Seems you have an OS error my good sir");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -324,19 +331,22 @@ var TSOS;
                 const statusContainer = document.getElementById("statusContainer");
                 // Check if the element exists before updating its content
                 if (statusContainer) {
-                    // Create an <h1> element
+                    // Create an <p> element
                     const pElement = document.createElement("p");
-                    // Set the text content of the <h1> element to the status text
+                    // Set the text content of the <p> element to the status text
                     pElement.textContent = _OsShell.promptStr;
                     // Clear the previous content of the statusContainer
                     statusContainer.innerHTML = "";
-                    // Append the <h1> element to the statusContainer
+                    // Append the <p> element to the statusContainer
                     statusContainer.appendChild(pElement);
                 }
             }
             else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+        shellBSOD(args) {
+            TSOS.Kernel.krnTrapError("test");
         }
     }
     TSOS.Shell = Shell;

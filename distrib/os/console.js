@@ -19,6 +19,9 @@ var TSOS;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
         }
+        commandHistory = [];
+        // -1 = no command has been recalled yet
+        commandHistoryIndex = -1;
         init() {
             this.clearScreen();
             this.resetXY();
@@ -31,6 +34,7 @@ var TSOS;
             this.currentYPosition = this.currentFontSize;
         }
         handleInput() {
+            let charWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
@@ -39,6 +43,10 @@ var TSOS;
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
+                    // Add command to history
+                    this.commandHistory.push(this.buffer);
+                    // Reset the index
+                    this.commandHistoryIndex = this.commandHistory.length;
                     // ... and reset our buffer.
                     this.buffer = "";
                 }
@@ -47,11 +55,57 @@ var TSOS;
                     this.buffer = this.buffer.slice(0, -1);
                     this.removeText();
                 }
+                else if (chr === String.fromCharCode(9)) {
+                    //handles the tab command
+                    let shellCommands = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status'];
+                    this.tabCompletion(shellCommands);
+                }
                 else if (chr === String.fromCharCode(38)) {
                     //handles up arrow
+                    //This is basically a new way I am trying to implemenmt the .clearRect() 
+                    //method bc shit just doesnt wanna be erased
+                    //yes, me and chatGPT are doing this together. buddys the debugging god rn
+                    if (this.commandHistoryIndex > 0) {
+                        this.commandHistoryIndex--;
+                        this.buffer = this.commandHistory[this.commandHistoryIndex];
+                        const bufferStartX = 0;
+                        const bufferStartY = this.currentYPosition - this.getLineHeight();
+                        // Calculate the width to clear
+                        const bufferWidth = charWidth * Math.max(...this.commandHistory.map(cmd => cmd.length)); // Max possible width
+                        // Clear the entire buffer area
+                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight());
+                        // Reset the cursor position to the start of the buffer
+                        this.currentXPosition = bufferStartX;
+                        // Now, put the buffer text back
+                        this.putText(this.buffer);
+                    }
                 }
                 else if (chr === String.fromCharCode(40)) {
                     //handles down arrow   
+                    if (this.commandHistoryIndex < this.commandHistory.length - 1) {
+                        this.commandHistoryIndex++;
+                        this.buffer = this.commandHistory[this.commandHistoryIndex];
+                        const bufferStartX = 0;
+                        const bufferStartY = this.currentYPosition - this.getLineHeight();
+                        // Calculate the width to clear
+                        const bufferWidth = charWidth * Math.max(...this.commandHistory.map(cmd => cmd.length)); // Max possible width
+                        // Clear the entire buffer area
+                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight());
+                        // Reset the cursor position to the start of the buffer
+                        this.currentXPosition = bufferStartX;
+                        this.putText(this.buffer);
+                    }
+                    else {
+                        // If at the bottom of the history, clear the input
+                        this.commandHistoryIndex = this.commandHistory.length;
+                        this.buffer = "";
+                        const bufferStartX = 0;
+                        const bufferStartY = this.currentYPosition - this.getLineHeight();
+                        // Calculate the width to clear
+                        const bufferWidth = charWidth * Math.max(...this.commandHistory.map(cmd => cmd.length));
+                        // Clear the entire buffer area
+                        _DrawingContext.clearRect(bufferStartX, bufferStartY, bufferWidth, this.getLineHeight());
+                    }
                 }
                 else {
                     // This is a "normal" character, so ...
@@ -99,6 +153,17 @@ var TSOS;
                 this.currentXPosition += textWidth;
             }
         }
+        //insperation of function from jOSh due to my first charcter not deleting even though it was in 
+        //the original advanceLine() function but gotta give credit
+        //honestly getting really desperate to get that character deleted lol :(
+        //its been a very long time trying to debug this
+        //if I had a penny for the amount of times I edited the _DrawingContext.clearRect()...
+        getLineHeight() {
+            // Using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
+            return Math.round(_DefaultFontSize +
+                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                _FontHeightMargin) * 1.5;
+        }
         advanceLine() {
             this.currentXPosition = 0;
             /*
@@ -106,13 +171,9 @@ var TSOS;
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
              */
-            // Using Math.round so that the text is not blurred. If you are curious to see, just take away the Math.round
-            let lineHeight = Math.round(_DefaultFontSize +
-                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                _FontHeightMargin);
             // Checks if the next two lines after the advance would still be within the canvas boundaries
             //if I did not add the 2 line check, then the advance of the canvas and line wrapping would mess up the console
-            if (this.currentYPosition + (2 * lineHeight) > _Canvas.height) {
+            if (this.currentYPosition + (2 * this.getLineHeight()) > _Canvas.height) {
                 // Create an offscreen canvas
                 //inspiration for offscreenCanvas : https://stackoverflow.com/questions/6608996/is-it-possible-to-create-an-html-canvas-without-a-dom-element
                 let offscreenCanvas = document.createElement('canvas');
@@ -125,13 +186,13 @@ var TSOS;
                 // Clear the main canvas
                 _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
                 // Draw the content from the offscreen canvas back onto the main canvas, but shifted upwards by two lines
-                _DrawingContext.drawImage(offscreenCanvas, 0, -2 * lineHeight);
+                _DrawingContext.drawImage(offscreenCanvas, 0, -2 * this.getLineHeight());
                 // Adjust the current Y position
-                this.currentYPosition -= lineHeight;
+                this.currentYPosition -= this.getLineHeight();
             }
             else {
                 // If not exceeding, just advance the Y position as usual
-                this.currentYPosition += lineHeight;
+                this.currentYPosition += this.getLineHeight();
             }
         }
         //will implement the use of backspacing
@@ -145,17 +206,31 @@ var TSOS;
             // Get the width of the last character in the buffer.
             let lastChar = this.buffer.slice(-1);
             let lastCharWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, lastChar);
-            // Check for user being at the start of the command.
-            if (this.currentXPosition <= 0) {
-                this.currentXPosition = _Canvas.width - lastCharWidth; // Adjust this logic if there's padding or margins.
-                this.currentYPosition -= this.currentFontSize; // Adjust this logic for line height, if necessary.
+            // Adjust the currentXPosition
+            this.currentXPosition -= lastCharWidth;
+            // If the cursor is at the start of a line, adjust the currentYPosition and set currentXPosition to the end of the previous line.
+            if (this.currentXPosition < 0) {
+                this.currentYPosition -= this.getLineHeight();
+                this.currentXPosition = _Canvas.width;
             }
-            else {
-                // Move the cursor back by the width of the last character.
-                this.currentXPosition -= lastCharWidth;
+            // Clear the space previously occupied by the last character.
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize * 1.5, _Canvas.width, this.getLineHeight() * 1.5);
+        }
+        //_DrawingContext.clearRect(this.currentXPosition ,this.currentYPosition - this.currentFontSize * 1.5, _Canvas.width, this.getLineHeight());
+        //used for tab completion from the shell commands
+        tabCompletion(shellCommands) {
+            // Filter shellCommands to get commands that start with the current buffer.
+            let matchingCommands = shellCommands.filter(cmd => cmd.startsWith(this.buffer));
+            // If only one command matches, update the buffer and display the command.
+            //must do this due to commands starting with the same character
+            if (matchingCommands.length === 1) {
+                // Update the buffer with the matching command.
+                this.buffer = matchingCommands[0];
+                // Clear the current line on the console
+                _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, this.buffer, this.currentFontSize * 1.5); // Adjust the height if necessary.
+                // Display the completed command on the console.
+                this.putText(this.buffer);
             }
-            // Clear the character from the screen.
-            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, lastCharWidth, this.currentFontSize * 1.5); // Adjust the height if necessary.
         }
     }
     TSOS.Console = Console;

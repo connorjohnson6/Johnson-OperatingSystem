@@ -357,11 +357,13 @@ var TSOS;
         }
         shellLoad(args) {
             //grab the html ID 
-            let inputContent = document.getElementById("taProgramInput").value;
+            //https://www.tutorialspoint.com/access-an-element-in-type-script#:~:text=Using%20getElementById()%20method,a%20form%20of%20an%20object.
+            let taProgramInput = document.getElementById("taProgramInput").value;
             //validates the numbers, letters, and spacces 
-            let hexRegex = /^[0-9A-Fa-f\s]*$/;
+            //google IA answered 'how to validade for certain numbers, letters, and space in typescript'
+            let hexValidate = /^[0-9A-Fa-f\s]*$/;
             //.test does T or F
-            if (hexRegex.test(inputContent)) {
+            if (hexValidate.test(taProgramInput)) {
                 _StdOut.putText("Hex is valid :)");
             }
             else {

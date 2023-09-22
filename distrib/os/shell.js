@@ -15,6 +15,7 @@ var TSOS;
         commandList = [];
         curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         apologies = "[sorry]";
+        _MemoryAccessor;
         constructor() {
         }
         init() {
@@ -356,19 +357,35 @@ var TSOS;
             TSOS.Kernel.krnTrapError("test");
         }
         shellLoad(args) {
-            //grab the html ID 
             //https://www.tutorialspoint.com/access-an-element-in-type-script#:~:text=Using%20getElementById()%20method,a%20form%20of%20an%20object.
             let taProgramInput = document.getElementById("taProgramInput").value;
-            //validates the numbers, letters, and spacces 
-            //google IA answered 'how to validade for certain numbers, letters, and space in typescript'
             let hexValidate = /^[0-9A-Fa-f\s]*$/;
-            //.test does T or F
             if (hexValidate.test(taProgramInput)) {
-                _StdOut.putText("Hex is valid :)");
+                _StdOut.putText("Hex is valid. Loading into memory...");
+                _StdOut.advanceLine();
+                // Split the input by spaces to get individual op codes
+                let opCodes = taProgramInput.split(/\s+/);
+                // Load the op codes into memory
+                for (let i = 0; i < opCodes.length; i++) {
+                    this._MemoryAccessor.write(i, parseInt(opCodes[i], 16));
+                }
+                _StdOut.putText("Op codes loaded into memory.");
             }
             else {
-                _StdOut.putText("Hex is not valid :(");
+                _StdOut.putText("Hex is not valid.");
             }
+        }
+        shellRun(args) {
+            if (_CPU.isExecuting) {
+                _StdOut.putText("CPU is already executing a program.");
+                return;
+            }
+            _StdOut.putText("Starting program execution...");
+            _StdOut.advanceLine();
+            // Reset the CPU properties
+            _CPU.init();
+            // Start the CPU execution
+            _CPU.isExecuting = true;
         }
     }
     TSOS.Shell = Shell;

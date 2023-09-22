@@ -11,8 +11,7 @@
 
 module TSOS {
     
-    let _Memory = new TSOS.Memory();
-    let _MemoryAccessor = new TSOS.MemoryAccessor(_Memory);
+
 
     export class Shell {
         // Properties
@@ -20,6 +19,8 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
+        private _MemoryAccessor: MemoryAccessor
+
 
         constructor() {
         }
@@ -457,7 +458,7 @@ module TSOS {
 
                 // Load the op codes into memory
                 for (let i = 0; i < opCodes.length; i++) {
-                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
+                    this._MemoryAccessor.write(i, parseInt(opCodes[i], 16));
                 }
 
                 _StdOut.putText("Op codes loaded into memory.");

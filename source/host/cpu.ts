@@ -19,12 +19,13 @@
 
 module TSOS {
 
-    let _Memory = new TSOS.Memory();
-    let _MemoryAccessor = new TSOS.MemoryAccessor(_Memory);
-
     export class Cpu {
 
-        constructor(public PC: number = 0,
+        private _MemoryAccessor: MemoryAccessor
+
+        constructor(
+                    private opFetch: number = 0,
+                    public PC: number = 0,
                     public Acc: number = 0,
                     public Xreg: number = 0,
                     public Yreg: number = 0,
@@ -33,8 +34,10 @@ module TSOS {
 
         }
 
+
         public init(): void {
             this.PC = 0;
+            this.opFetch = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
@@ -42,43 +45,45 @@ module TSOS {
             this.isExecuting = false;
         }
 
+        private fetch(): number {
+            let instruction = this._MemoryAccessor.read(this.PC);
+            this.PC++;
+            return instruction;
+        }
+
+
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
 
+            this.opFetch = this.fetch();
+
+
             // Fetch
-            let opCodeNum = _MemoryAccessor.read(this.PC);
+            let opCodeNum = this.opFetch;
 
             let opCode = opCodeNum.toString(16).toUpperCase().padStart(2, '0');
-            this.PC++;
 
             // Decode and Execute
             switch(opCode) {
-
-                //Load the accumulator with a constant
-                case "A9": 
-                    this.Acc = _MemoryAccessor.read(this.PC);
+                //needed for tests for my commits 
+                case "A9": // LDA with a constant
+                    this.Acc = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
 
-                //Load the accumulator from memory//
-                case "AD": 
+                case "AD": // LDA from memory
                     let address = this.fetchAddress();
-                    this.Acc = _MemoryAccessor.readFromAddress(address);
+                    this.Acc = this._MemoryAccessor.readFromAddress(address);
                     break;
 
-                //Store the accumulator in memory
-                case "8D": 
+                case "8D": // STA (Store the accumulator in memory)
                     let storeAddress = this.fetchAddress();
-                    _MemoryAccessor.write(storeAddress, this.Acc);
+                    this._MemoryAccessor.write(storeAddress, this.Acc);
                     break;
 
-                //Add with carry
-                    //Adds contents of an address to
-                    //the contents of the accumulator and
-                    //keeps the result in the accumulator
-                case "6D": 
+                case "6D": // ADC (Add with carry)
                     let addAddress = this.fetchAddress();
-                    let value = _MemoryAccessor.readFromAddress(addAddress);
+                    let value = this._MemoryAccessor.readFromAddress(addAddress);
                     let result = this.Acc + value;
                     
                     // Handle overflow
@@ -91,51 +96,42 @@ module TSOS {
                     break;
                     
 
-                //Load the X register with a constant
-                case "A2": 
-                    this.Xreg = _MemoryAccessor.read(this.PC);
+                case "A2": // LDX with a constant
+                    this.Xreg = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
 
-                //Load the X register from memory
-                case "AE":
+                case "AE": // LDX from memory
                     let xAddress = this.fetchAddress();
-                    this.Xreg = _MemoryAccessor.readFromAddress(xAddress);
+                    this.Xreg = this._MemoryAccessor.readFromAddress(xAddress);
                     break;
 
-                //Load the Y register with a constant
-                case "A0": 
-                    this.Yreg = _MemoryAccessor.read(this.PC);
+                case "A0": // LDY with a constant
+                    this.Yreg = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
 
-                //Load the Y register from memory
-                case "AC": 
+                case "AC": // LDY from memory
                     let yAddress = this.fetchAddress();
-                    this.Yreg = _MemoryAccessor.readFromAddress(yAddress);
+                    this.Yreg = this._MemoryAccessor.readFromAddress(yAddress);
                     break;
-                    
-                //No Operation 
-                case "EA":
+
+                case "EA": // NOP (No Operation)
                     // Do nothing
                     break;
 
-                //Break (which is really a system call) 
-                case "00": 
+                case "00": // BRK (Break, a system call)
                     // TODO: Implement system call handling
                     break;
 
-                //Compare a byte in memory to the X reg
-                case "EC": 
+                case "EC": // CPX (Compare a byte in memory to the X register)
                     let compareAddress = this.fetchAddress();
-                    let compareValue = _MemoryAccessor.readFromAddress(compareAddress);
-                    //Sets the Z (zero) flag if equal
+                    let compareValue = this._MemoryAccessor.readFromAddress(compareAddress);
                     this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
                     break;
 
-                //Branch n bytes if Z flag = 0
-                case "D0":
-                    let branchValue = _MemoryAccessor.read(this.PC);
+                case "D0": // BNE (Branch n bytes if Z flag = 0)
+                    let branchValue = this._MemoryAccessor.read(this.PC);
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                     } else {
@@ -143,15 +139,13 @@ module TSOS {
                     }
                     break;
 
-                //Increment the value of a byte 
-                case "EE":
+                case "EE": // INC (Increment the value of a byte)
                     let incAddress = this.fetchAddress();
-                    let incValue = _MemoryAccessor.readFromAddress(incAddress);
-                    _MemoryAccessor.write(incAddress, incValue + 1);
+                    let incValue = this._MemoryAccessor.readFromAddress(incAddress);
+                    this._MemoryAccessor.write(incAddress, incValue + 1);
                     break;
 
-                //System Call
-                case "FF": 
+                case "FF": // SYS (System Call)
                     if (this.Xreg === 0x01) {
                         // Print integer stored in the Y register
                         console.log(this.Yreg);
@@ -159,11 +153,11 @@ module TSOS {
                         // Print 00-terminated string stored at the address in the Y register
                         let address = this.Yreg;
                         let str = "";
-                        let byte = _MemoryAccessor.read(address);
+                        let byte = this._MemoryAccessor.read(address);
                         while (byte !== 0x00) {
                             str += String.fromCharCode(byte);
                             address++;
-                            byte = _MemoryAccessor.read(address);
+                            byte = this._MemoryAccessor.read(address);
                         }
                         console.log(str);
                     }
@@ -178,11 +172,14 @@ module TSOS {
 
         // Helper function to fetch a 16-bit address from memory
         private fetchAddress(): number {
-            let lowByte = _MemoryAccessor.read(this.PC);
+            let lowByte = this._MemoryAccessor.read(this.PC);
             this.PC++;
-            let highByte = _MemoryAccessor.read(this.PC);
+            let highByte = this._MemoryAccessor.read(this.PC);
             this.PC++;
             return (highByte << 8) + lowByte;
         }
+
     }
+
+    
 }

@@ -13,5 +13,10 @@ module TSOS {
         public write(address: number, value: number): void {
             this.memory.write(address, value);
         }
+        
+        // Reads a byte from a specific address in memory.
+        public readFromAddress(address: number): number {
+            return this.read(address);
+        }
     }
 }

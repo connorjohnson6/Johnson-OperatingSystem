@@ -33,7 +33,7 @@
    <!-- Other Routines -->
    <script type="text/javascript" src="distrib/utils.js"></script>
    <!-- Uncomment the line below to enable GLaDOS testing. -->
-   <script type="text/javascript" src="https://alanclasses.github.io/TSOS/test/glados-ip2.js"></script>
+   <script type="text/javascript" src="https://alanclasses.github.io/TSOS/test/glados-ip0.js"></script>
    
 </head>
 
@@ -41,74 +41,106 @@
 
 <div id="divMain" style="width:100%;">
 
-   <div id="divRow">
-      <div>Date: <span id="dateContainer"></span></div>
-      <div>Status: <span id="statusContainer"></span></div>
-    </div>
-    
+   <div id="divTop">
+      <div id="divRow">
+         <div>Date: <span id="dateContainer"></span></div>
+         <div>Status: <span id="statusContainer"></span></div>
+      </div>
+      
 
-   <div id="divButtonBar" style="margin:4px;">
-      <input type="button"
-             id = "btnStartOS"
-             name="brnStartOS"
-             class="normal_button"
-             value="Start"
-             tabindex="0"
-             onclick="TSOS.Control.hostBtnStartOS_click(this);">
+      <div id="divButtonBar">
+         <input type="button"
+               id = "btnStartOS"
+               name="brnStartOS"
+               class="normal_button"
+               value="Start"
+               tabindex="0"
+               onclick="TSOS.Control.hostBtnStartOS_click(this);">
 
-      <input type="button"
-             id = "btnHaltOS"
-             name="brnHaltOS"
-             class="normal_button"
-             disabled="disabled"
-             value="Halt"
-             tabindex="1"
-             onclick="TSOS.Control.hostBtnHaltOS_click(this);">
+         <input type="button"
+               id = "btnHaltOS"
+               name="brnHaltOS"
+               class="normal_button"
+               disabled="disabled"
+               value="Halt"
+               tabindex="1"
+               onclick="TSOS.Control.hostBtnHaltOS_click(this);">
 
-      <input type="button"
-             id = "btnReset"
-             name="brnReset"
-             class="normal_button"
-             disabled="disabled"
-             value="Reset"
-             tabindex="2"
-             onclick="TSOS.Control.hostBtnReset_click(this);">
+         <input type="button"
+               id = "btnReset"
+               name="brnReset"
+               class="normal_button"
+               disabled="disabled"
+               value="Reset"
+               tabindex="2"
+               onclick="TSOS.Control.hostBtnReset_click(this);">
+      </div>
    </div>
-
    
-   <div id="divConsole" style="margin: 4px; width: 500px; height: 500px;">
-      <canvas id="display"
-              width="500px"
-              height="500px"
-              tabindex="3">
-      </canvas>
-   </div>
 
-   <div id="divLog" style="margin-left:520px; color: white;">
-      <label>
-         Host Log
-         <br>
-         <textarea name="taHostLog"
-                   id  ="taHostLog"
-                   rows="26"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+   <div id="divContent">
+      <div id="divConsole" style="margin: 4px; width: 500px; height: 500px;">
+         <canvas id="display"
+               width="500px"
+               height="500px"
+               tabindex="3">
+         </canvas>
+      </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px; color: white;">
-      <label>
-         User Program Input
-         <br>
-         <textarea name="taProgramInput"
-                   id  ="taProgramInput"
-                   rows="8"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+      <div class="divRightContainer">
 
+         <div id="divLog" style="margin-left:520px; color: white;">
+            <label>
+               Host Log
+               <br>
+               <textarea name="taHostLog"
+                        id  ="taHostLog"
+                        rows="26"
+                        cols="48"
+               ></textarea>
+            </label>
+         </div>
+         <div id="tableCpu" style="margin-left:520px; color: white;">
+            <table id="divCpu">
+               CPU Log
+               <thead>
+                  <tr>
+                     <th>PC</th>
+                     <th>IR</th>
+                     <th>Acc</th>
+                     <th>X</th>
+                     <th>Y</th>
+                     <th>Z</th>
+                  </tr>
+               </thead>
+               <tbody></tbody>
+            </table>
+         </div>
+
+         <div id="divMemory">
+            <table id="memoryDisplay">
+            </table>
+         </div>
+         
+
+
+         <div id="divUserProgramInput" style="margin-left:520px; color: white;">
+            <label>
+               User Program Input
+               <br>
+               <textarea name="taProgramInput"
+                        id  ="taProgramInput"
+                        rows="8"
+                        cols="48"
+               >A9 00 8D 00 00 EA A9 00 8D 4C 00 A9 00 8D 4C 00 A2 03 EC 4C 00 D0 07 A2 01 EC 00 00 D0 05 A2 00 EC 00 00 D0 26 A0 4D A2 02 FF AC 4C 00 A2 01 FF A9 01 6D 4C 00 8D 4C 00 A2 02 EC 4C 00 D0 05 A0 56 A2 02 FF A2 01 EC 00 00 D0 C5 00 00 63 6F 75 6E 74 69 6E 67 00 68 65 6C 6C 6F 20 77 6F 72 6C 64 00</textarea>
+            </label>
+         </div>
+
+      </div>
+   </div>
 </div>
+
+
 
 
 

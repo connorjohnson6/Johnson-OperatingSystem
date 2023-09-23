@@ -2,11 +2,12 @@
 
 body {
   background: #909193 url(distrib/images/deathstar.jpg) repeat;
-  font-family: Helvetica, Verdana, Arial, sans-serif;
+  font-family: 'Star Wars', sans-serif;
   font-size: 12pt;
   font-weight: normal;
   font-style: normal;
 }
+
 
 h1 {
   color: white;
@@ -24,7 +25,7 @@ h2 {
 }
 
 h3 {
-  font-family: Helvetica, Verdana, Arial, sans-serif;
+  font-family: 'Star Wars', sans-serif;
   font-size: 16pt;
   font-weight: normal;
   font-style: normal;
@@ -42,7 +43,7 @@ h3 {
 
 .footerText {
   color: white;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Star Wars', sans-serif;
   font-size: 8pt;
   text-align: center;
 }
@@ -65,6 +66,51 @@ h3 {
   padding: 10px; /* Add padding for spacing */
   color: white; /* Text color */
 }
+
+
+#divMain {
+  display: flex;
+  flex-direction: column;
+}
+
+#divTop {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#divRow,
+#divButtonBar {
+  width: 100%;
+}
+
+#divContent {
+  display: flex;
+  flex-direction: row;
+}
+
+#divConsole {
+  flex: 1;
+}
+
+.divRightContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#divLog,
+#divCpu,
+#divMemory,
+#divUserProgramInput {
+  flex: 1;
+}
+
+#divCpu > tbody > tr > td {
+  border: #3f5f6e solid 1px;
+}
+
+
 
 /* Create a keyframe animation for the lightsaber effect */
 @keyframes lightsaber {

@@ -11,6 +11,9 @@
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
 
+
+
+
 //Most of this code is going to be from refrenece of chatGPT. I am currently taking comp. Org&Arch in relation to OS
 //so most of this code I am not very familiar with, however I want to note that I am not just giving it a prompt and 
 //accepting the code it produces, I am more making chatGPT be a third teacher through all of this and making it prompt
@@ -30,7 +33,8 @@ module TSOS {
                     public Xreg: number = 0,
                     public Yreg: number = 0,
                     public Zflag: number = 0,
-                    public isExecuting: boolean = false) {
+                    public isExecuting: boolean = false
+                    ) {
 
         }
 
@@ -74,7 +78,7 @@ module TSOS {
                 //Load the accumulator from memory
                 case "AD": 
                     let address = this.fetchAddress();
-                    this.Acc = this._MemoryAccessor.readFromAddress(address);
+                    this.Acc = this._MemoryAccessor.read(address);
                     break;
 
                 //Store the accumulator in memory
@@ -89,7 +93,7 @@ module TSOS {
                     //keeps the result in the accumulator
                 case "6D": 
                     let addAddress = this.fetchAddress();
-                    let value = this._MemoryAccessor.readFromAddress(addAddress);
+                    let value = this._MemoryAccessor.read(addAddress);
                     let result = this.Acc + value;
                     
                     // Handle overflow
@@ -110,7 +114,7 @@ module TSOS {
                 //Load the X register from memory
                 case "AE": 
                     let xAddress = this.fetchAddress();
-                    this.Xreg = this._MemoryAccessor.readFromAddress(xAddress);
+                    this.Xreg = this._MemoryAccessor.read(xAddress);
                     break;
 
                 //Load the Y register with a constant
@@ -122,7 +126,7 @@ module TSOS {
                 //Load the Y register from memory 
                 case "AC": 
                     let yAddress = this.fetchAddress();
-                    this.Yreg = this._MemoryAccessor.readFromAddress(yAddress);
+                    this.Yreg = this._MemoryAccessor.read(yAddress);
                     break;
 
                 //No Operation 
@@ -138,7 +142,7 @@ module TSOS {
                 //Compare a byte in memory to the X reg
                 case "EC": 
                     let compareAddress = this.fetchAddress();
-                    let compareValue = this._MemoryAccessor.readFromAddress(compareAddress);
+                    let compareValue = this._MemoryAccessor.read(compareAddress);
                     //Sets the Z (zero) flag if equal/
                     this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
                     break;
@@ -156,7 +160,7 @@ module TSOS {
                 //Increment the value of a byte
                 case "EE":
                     let incAddress = this.fetchAddress();
-                    let incValue = this._MemoryAccessor.readFromAddress(incAddress);
+                    let incValue = this._MemoryAccessor.read(incAddress);
                     this._MemoryAccessor.write(incAddress, incValue + 1);
                     break;
 
@@ -164,7 +168,7 @@ module TSOS {
                 case "FF": 
                     if (this.Xreg === 0x01) {
                         // Print integer stored in the Y register
-                        console.log(this.Yreg);
+                        _Console.putText(this.Yreg.toString());
                     } else if (this.Xreg === 0x02) {
                         // Print 00-terminated string stored at the address in the Y register
                         let address = this.Yreg;
@@ -175,7 +179,7 @@ module TSOS {
                             address++;
                             byte = this._MemoryAccessor.read(address);
                         }
-                        console.log(str);
+                        _Console.putText(str);
                     }
                     break;
 

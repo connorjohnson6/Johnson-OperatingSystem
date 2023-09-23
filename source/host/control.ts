@@ -23,6 +23,12 @@ module TSOS {
     export class Control {
 
         public static hostInit(): void {
+
+            _CPU =  new Cpu();	
+            _CPU.init();
+            _Memory	= new Memory();
+            _Memory.init();
+            _MemoryAccessor	= new MemoryAccessor();
             // This is called from index.html's onLoad event via the onDocumentLoad function pointer.
 
             // Get a global reference to the canvas.  TODO: Should we move this stuff into a Display Device Driver?
@@ -42,6 +48,9 @@ module TSOS {
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
+
+
+            
             // Check for our testing and enrichment core, which
             // may be referenced here (from index.html) as function Glados().
             if (typeof Glados === "function") {

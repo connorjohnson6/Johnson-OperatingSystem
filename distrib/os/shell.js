@@ -15,8 +15,13 @@ var TSOS;
         commandList = [];
         curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         apologies = "[sorry]";
+        _Memory;
         _MemoryAccessor;
-        constructor() {
+        _Cpu;
+        constructor(memory) {
+            this._Memory = memory;
+            this._MemoryAccessor = new TSOS.MemoryAccessor(this._Memory);
+            this._Cpu = new TSOS.Cpu(this._MemoryAccessor, 0, 0, 0, 0, 0, 0, false);
         }
         init() {
             var sc;
@@ -63,6 +68,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             //load
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- See if your hex log is valid");
+            this.commandList[this.commandList.length] = sc;
+            //run
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "- run tests on OP Code");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -252,6 +260,9 @@ var TSOS;
                     case "load":
                         _StdOut.putText("Check to see if your hex log is valid");
                         break;
+                    case "run":
+                        _StdOut.putText("running to check OP code correctness");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -376,14 +387,43 @@ var TSOS;
             }
         }
         shellRun(args) {
-            if (_CPU.isExecuting) {
+            if (this._Cpu.isExecuting) {
                 _StdOut.putText("CPU is already executing a program.");
                 return;
             }
             _StdOut.putText("Starting program execution...");
             _StdOut.advanceLine();
             // Reset the CPU properties
-            _CPU.init();
+            this._Cpu.init();
+            // Test for LDA (Load the accumulator with a constant)
+            _StdOut.putText("Running test for LDA...");
+            // Load an LDA instruction into memory (opcode for LDA is "A9")
+            this._Memory.write(0, 0xA9);
+            this._Memory.write(1, 42);
+            // Run the CPU cycle to execute LDA
+            this._Cpu.cycle();
+            // Validate the accumulator
+            if (this._Cpu.Acc !== 42) {
+                _StdOut.putText("Test for LDA failed: Accumulator should contain 42");
+            }
+            else {
+                _StdOut.putText("Test for LDA passed");
+            }
+            // Test for STA (Store the accumulator in memory)
+            _StdOut.putText("Running test for STA...");
+            // Load an STA instruction into memory (opcode for STA is "8D")
+            this._Memory.write(2, 0x8D);
+            this._Memory.write(3, 0); // low byte of address
+            this._Memory.write(4, 0); // high byte of address (address is 0x0000)
+            // Run the CPU cycle to execute STA
+            this._Cpu.cycle();
+            // Validate the memory
+            if (this._Memory.read(0) !== 42) {
+                _StdOut.putText("Test for STA failed: Memory location 0 should contain 42");
+            }
+            else {
+                _StdOut.putText("Test for STA passed");
+            }
             // Start the CPU execution
             _CPU.isExecuting = true;
         }

@@ -19,11 +19,9 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
-        private _MemoryAccessor: MemoryAccessor
 
 
-        constructor() {
-        }
+        constructor() {}
 
         public init() {
             var sc: ShellCommand;
@@ -113,6 +111,12 @@ module TSOS {
             sc = new ShellCommand(this.shellLoad,
                                 "load",
                                 "- See if your hex log is valid");
+            this.commandList[this.commandList.length] = sc;
+
+            //run
+            sc = new ShellCommand(this.shellRun,
+                                "run",
+                                "- run tests on OP Code");
             this.commandList[this.commandList.length] = sc;
 
 
@@ -318,6 +322,9 @@ module TSOS {
                     case "load":
                          _StdOut.putText("Check to see if your hex log is valid");
                         break;
+                    case "run":
+                        _StdOut.putText("running to check OP code correctness");
+                        break;
 
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -458,7 +465,7 @@ module TSOS {
 
                 // Load the op codes into memory
                 for (let i = 0; i < opCodes.length; i++) {
-                    this._MemoryAccessor.write(i, parseInt(opCodes[i], 16));
+                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
                 }
 
                 _StdOut.putText("Op codes loaded into memory.");
@@ -478,6 +485,43 @@ module TSOS {
 
             // Reset the CPU properties
             _CPU.init();
+
+
+            // Test for LDA (Load the accumulator with a constant)
+            _StdOut.putText("Running test for LDA...");
+
+            // Load an LDA instruction into memory (opcode for LDA is "A9")
+            _MemoryAccessor.write(0, 0xA9);
+            _MemoryAccessor.write(1, 42);
+
+            // Run the CPU cycle to execute LDA
+            _CPU.cycle();
+
+            // Validate the accumulator
+            if (_CPU.Acc !== 42) {
+                _StdOut.putText("Test for LDA failed: Accumulator should contain 42");
+            } else {
+                _StdOut.putText("Test for LDA passed");
+            }
+
+            // Test for STA (Store the accumulator in memory)
+            _StdOut.putText("Running test for STA...");
+
+            // Load an STA instruction into memory (opcode for STA is "8D")
+            _MemoryAccessor.write(2, 0x8D);
+            _MemoryAccessor.write(3, 0);  // low byte of address
+            _MemoryAccessor.write(4, 0);  // high byte of address (address is 0x0000)
+
+            // Run the CPU cycle to execute STA
+            _CPU.cycle();
+
+            // Validate the memory
+            if (_MemoryAccessor.read(0) !== 42) {
+                _StdOut.putText("Test for STA failed: Memory location 0 should contain 42");
+            } else {
+                _StdOut.putText("Test for STA passed");
+            }
+
 
             // Start the CPU execution
             _CPU.isExecuting = true;

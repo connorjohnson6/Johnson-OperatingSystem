@@ -18,6 +18,7 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
+        _MemoryAccessor;
         opFetch;
         PC;
         Acc;
@@ -25,8 +26,8 @@ var TSOS;
         Yreg;
         Zflag;
         isExecuting;
-        _MemoryAccessor;
-        constructor(opFetch = 0, PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
+        constructor(_MemoryAccessor, opFetch = 0, PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
+            this._MemoryAccessor = _MemoryAccessor;
             this.opFetch = opFetch;
             this.PC = PC;
             this.Acc = Acc;
@@ -57,20 +58,26 @@ var TSOS;
             let opCode = opCodeNum.toString(16).toUpperCase().padStart(2, '0');
             // Decode and Execute
             switch (opCode) {
-                //needed for tests for my commits 
-                case "A9": // LDA with a constant
+                //Load the accumulator with a constant 
+                case "A9":
                     this.Acc = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
-                case "AD": // LDA from memory
+                //Load the accumulator from memory
+                case "AD":
                     let address = this.fetchAddress();
                     this.Acc = this._MemoryAccessor.readFromAddress(address);
                     break;
-                case "8D": // STA (Store the accumulator in memory)
+                //Store the accumulator in memory
+                case "8D":
                     let storeAddress = this.fetchAddress();
                     this._MemoryAccessor.write(storeAddress, this.Acc);
                     break;
-                case "6D": // ADC (Add with carry)
+                //Add with carry
+                //Adds contents of an address to
+                //the contents of the accumulator and
+                //keeps the result in the accumulator
+                case "6D":
                     let addAddress = this.fetchAddress();
                     let value = this._MemoryAccessor.readFromAddress(addAddress);
                     let result = this.Acc + value;
@@ -83,34 +90,43 @@ var TSOS;
                         this.Acc = result;
                     }
                     break;
-                case "A2": // LDX with a constant
+                //Load the X register with a constant 
+                case "A2":
                     this.Xreg = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
-                case "AE": // LDX from memory
+                //Load the X register from memory
+                case "AE":
                     let xAddress = this.fetchAddress();
                     this.Xreg = this._MemoryAccessor.readFromAddress(xAddress);
                     break;
-                case "A0": // LDY with a constant
+                //Load the Y register with a constant
+                case "A0":
                     this.Yreg = this._MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
-                case "AC": // LDY from memory
+                //Load the Y register from memory 
+                case "AC":
                     let yAddress = this.fetchAddress();
                     this.Yreg = this._MemoryAccessor.readFromAddress(yAddress);
                     break;
-                case "EA": // NOP (No Operation)
+                //No Operation 
+                case "EA":
                     // Do nothing
                     break;
-                case "00": // BRK (Break, a system call)
+                //Break (which is really a system call) 
+                case "00":
                     // TODO: Implement system call handling
                     break;
-                case "EC": // CPX (Compare a byte in memory to the X register)
+                //Compare a byte in memory to the X reg
+                case "EC":
                     let compareAddress = this.fetchAddress();
                     let compareValue = this._MemoryAccessor.readFromAddress(compareAddress);
+                    //Sets the Z (zero) flag if equal/
                     this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
                     break;
-                case "D0": // BNE (Branch n bytes if Z flag = 0)
+                //Branch n bytes if Z flag = 0
+                case "D0":
                     let branchValue = this._MemoryAccessor.read(this.PC);
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
@@ -119,12 +135,14 @@ var TSOS;
                         this.PC++;
                     }
                     break;
-                case "EE": // INC (Increment the value of a byte)
+                //Increment the value of a byte
+                case "EE":
                     let incAddress = this.fetchAddress();
                     let incValue = this._MemoryAccessor.readFromAddress(incAddress);
                     this._MemoryAccessor.write(incAddress, incValue + 1);
                     break;
-                case "FF": // SYS (System Call)
+                //System Call 
+                case "FF":
                     if (this.Xreg === 0x01) {
                         // Print integer stored in the Y register
                         console.log(this.Yreg);

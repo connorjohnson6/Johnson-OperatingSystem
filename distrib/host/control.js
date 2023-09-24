@@ -34,6 +34,12 @@ var TSOS;
             // Set focus on the start button.
             // Use the TypeScript cast to HTMLInputElement
             document.getElementById("btnStartOS").focus();
+            //area is not allowing my terminal to operate
+            _CPU = new TSOS.Cpu();
+            _CPU.init();
+            _Memory = new TSOS.Memory();
+            _Memory.init();
+            _MemoryAccessor = new TSOS.MemoryAccessor();
             // Check for our testing and enrichment core, which
             // may be referenced here (from index.html) as function Glados().
             if (typeof Glados === "function") {
@@ -42,6 +48,12 @@ var TSOS;
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+        }
+        //TODO: need to connect this to the html element to update on site
+        static memoryUpdate() {
+        }
+        //TODO: need to connect to html element to update on site
+        static updateCPU() {
         }
         static hostLog(msg, source = "?") {
             // Note the OS CLOCK.

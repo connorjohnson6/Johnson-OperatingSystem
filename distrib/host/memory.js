@@ -1,19 +1,23 @@
 var TSOS;
 (function (TSOS) {
+    //    export class Memory extends Array<number>{
+    //         constructor() {
+    //             super();
+    //         }
+    //         // Initialize an array of 256 elements to represent the 256 bytes of memory.
+    //         // We fill it with zeros to start with a clean slate.
+    //         private memory: number[] = new Array(256).fill(0);
+    //         public init() {
+    //             this.fill(0)
+    //         }
+    //     }
+    // }
     class Memory {
-        // Initialize an array of 256 elements to represent the 256 bytes of memory.
-        // We fill it with zeros to start with a clean slate.
-        memory = new Array(256).fill(0);
-        // Read a byte from a specific address in memory.
-        read(address) {
-            return this.memory[address];
+        memory;
+        constructor() {
+            this.memory = new Array(256).fill(0);
         }
-        // Write a byte to a specific address in memory.
-        write(address, value) {
-            this.memory[address] = value;
-        }
-        // Clear the memory by resetting all bytes to zero.
-        clear() {
+        init() {
             this.memory.fill(0);
         }
     }

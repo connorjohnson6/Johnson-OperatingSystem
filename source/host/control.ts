@@ -22,13 +22,9 @@ module TSOS {
 
     export class Control {
 
+
         public static hostInit(): void {
 
-            _CPU =  new Cpu();	
-            _CPU.init();
-            _Memory	= new Memory();
-            _Memory.init();
-            _MemoryAccessor	= new MemoryAccessor();
             // This is called from index.html's onLoad event via the onDocumentLoad function pointer.
 
             // Get a global reference to the canvas.  TODO: Should we move this stuff into a Display Device Driver?
@@ -49,6 +45,13 @@ module TSOS {
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
 
+            //area is not allowing my terminal to operate
+            _CPU = new Cpu();	
+            _CPU.init();
+            _Memory	= new Memory();
+            _Memory.init();
+            _MemoryAccessor	= new MemoryAccessor();
+
 
             
             // Check for our testing and enrichment core, which
@@ -60,6 +63,18 @@ module TSOS {
                 _GLaDOS.init();
             }
         }
+
+        //TODO: need to connect this to the html element to update on site
+        public static memoryUpdate(){
+
+        }
+
+        //TODO: need to connect to html element to update on site
+        public static updateCPU(){
+
+        }
+
+
 
         public static hostLog(msg: string, source: string = "?"): void {
             // Note the OS CLOCK.

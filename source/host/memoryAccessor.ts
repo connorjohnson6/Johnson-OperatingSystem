@@ -6,7 +6,7 @@ module TSOS {
 
         public init(){}
 
-        // Read a byte from a specific address in memory using the memory's read method.
+        //Read a byte from a specific address in memory using the memory's read method.
         public read(address: number): number {
             return _Memory[address];
         }
@@ -14,7 +14,7 @@ module TSOS {
         // Write a byte to a specific address in memory using the memory's write method.
         public write(address: number, value: number): void {
             _Memory[address] = value;
-            //this.memory.write(address, value);
+            _MemoryAccessor.write(address, value);
     
             //TSOS.Control.updateMemory(address, value);
         }

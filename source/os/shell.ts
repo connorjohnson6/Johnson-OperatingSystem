@@ -459,13 +459,16 @@ module TSOS {
             if(hexValidate.test(taProgramInput)){
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
+                
 
                 // Split the input by spaces to get individual op codes
                 let opCodes = taProgramInput.split(/\s+/);
-
+                
                 // Load the op codes into memory
                 for (let i = 0; i < opCodes.length; i++) {
-                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
+                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16)); //TODO, figure out why this is never reaching
+                    console.log(i, parseInt(opCodes[i], 16));
+                    _StdOut.putText("Did we make it?");
                 }
 
                 _StdOut.putText("Op codes loaded into memory.");
@@ -492,10 +495,13 @@ module TSOS {
 
             // Load an LDA instruction into memory (opcode for LDA is "A9")
             _MemoryAccessor.write(0, 0xA9);
+            _StdOut.putText("Reached 1");
             _MemoryAccessor.write(1, 42);
+            _StdOut.putText("Reached 2");
 
             // Run the CPU cycle to execute LDA
             _CPU.cycle();
+            _StdOut.putText("Reached Cycle");
 
             // Validate the accumulator
             if (_CPU.Acc !== 42) {

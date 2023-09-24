@@ -6,7 +6,7 @@
 var TSOS;
 (function (TSOS) {
     class DeviceDriver {
-        version = '0.07';
+        version = '0.HelpMe<3';
         status = 'unloaded';
         preemptable = false;
         driverEntry = null;

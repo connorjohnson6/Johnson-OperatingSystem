@@ -18,7 +18,6 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        _MemoryAccessor;
         opFetch;
         PC;
         Acc;
@@ -26,8 +25,7 @@ var TSOS;
         Yreg;
         Zflag;
         isExecuting;
-        constructor(_MemoryAccessor, opFetch = 0, PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
-            this._MemoryAccessor = _MemoryAccessor;
+        constructor(opFetch = 0, PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
             this.opFetch = opFetch;
             this.PC = PC;
             this.Acc = Acc;
@@ -46,7 +44,7 @@ var TSOS;
             this.isExecuting = false;
         }
         fetch() {
-            let instruction = this._MemoryAccessor.read(this.PC);
+            let instruction = _MemoryAccessor.read(this.PC);
             this.PC++;
             return instruction;
         }
@@ -60,18 +58,18 @@ var TSOS;
             switch (opCode) {
                 //Load the accumulator with a constant 
                 case "A9":
-                    this.Acc = this._MemoryAccessor.read(this.PC);
+                    this.Acc = _MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
                 //Load the accumulator from memory
                 case "AD":
                     let address = this.fetchAddress();
-                    this.Acc = this._MemoryAccessor.readFromAddress(address);
+                    this.Acc = _MemoryAccessor.read(address);
                     break;
                 //Store the accumulator in memory
                 case "8D":
                     let storeAddress = this.fetchAddress();
-                    this._MemoryAccessor.write(storeAddress, this.Acc);
+                    _MemoryAccessor.write(storeAddress, this.Acc);
                     break;
                 //Add with carry
                 //Adds contents of an address to
@@ -79,7 +77,7 @@ var TSOS;
                 //keeps the result in the accumulator
                 case "6D":
                     let addAddress = this.fetchAddress();
-                    let value = this._MemoryAccessor.readFromAddress(addAddress);
+                    let value = _MemoryAccessor.read(addAddress);
                     let result = this.Acc + value;
                     // Handle overflow
                     if (result > 255) {
@@ -92,23 +90,23 @@ var TSOS;
                     break;
                 //Load the X register with a constant 
                 case "A2":
-                    this.Xreg = this._MemoryAccessor.read(this.PC);
+                    this.Xreg = _MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
                 //Load the X register from memory
                 case "AE":
                     let xAddress = this.fetchAddress();
-                    this.Xreg = this._MemoryAccessor.readFromAddress(xAddress);
+                    this.Xreg = _MemoryAccessor.read(xAddress);
                     break;
                 //Load the Y register with a constant
                 case "A0":
-                    this.Yreg = this._MemoryAccessor.read(this.PC);
+                    this.Yreg = _MemoryAccessor.read(this.PC);
                     this.PC++;
                     break;
                 //Load the Y register from memory 
                 case "AC":
                     let yAddress = this.fetchAddress();
-                    this.Yreg = this._MemoryAccessor.readFromAddress(yAddress);
+                    this.Yreg = _MemoryAccessor.read(yAddress);
                     break;
                 //No Operation 
                 case "EA":
@@ -121,13 +119,13 @@ var TSOS;
                 //Compare a byte in memory to the X reg
                 case "EC":
                     let compareAddress = this.fetchAddress();
-                    let compareValue = this._MemoryAccessor.readFromAddress(compareAddress);
+                    let compareValue = _MemoryAccessor.read(compareAddress);
                     //Sets the Z (zero) flag if equal/
                     this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
                     break;
                 //Branch n bytes if Z flag = 0
                 case "D0":
-                    let branchValue = this._MemoryAccessor.read(this.PC);
+                    let branchValue = _MemoryAccessor.read(this.PC);
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                     }
@@ -138,26 +136,26 @@ var TSOS;
                 //Increment the value of a byte
                 case "EE":
                     let incAddress = this.fetchAddress();
-                    let incValue = this._MemoryAccessor.readFromAddress(incAddress);
-                    this._MemoryAccessor.write(incAddress, incValue + 1);
+                    let incValue = _MemoryAccessor.read(incAddress);
+                    _MemoryAccessor.write(incAddress, incValue + 1);
                     break;
                 //System Call 
                 case "FF":
                     if (this.Xreg === 0x01) {
                         // Print integer stored in the Y register
-                        console.log(this.Yreg);
+                        _Console.putText(this.Yreg.toString());
                     }
                     else if (this.Xreg === 0x02) {
                         // Print 00-terminated string stored at the address in the Y register
                         let address = this.Yreg;
                         let str = "";
-                        let byte = this._MemoryAccessor.read(address);
+                        let byte = _MemoryAccessor.read(address);
                         while (byte !== 0x00) {
                             str += String.fromCharCode(byte);
                             address++;
-                            byte = this._MemoryAccessor.read(address);
+                            byte = _MemoryAccessor.read(address);
                         }
-                        console.log(str);
+                        _Console.putText(str);
                     }
                     break;
                 default:
@@ -168,9 +166,9 @@ var TSOS;
         }
         // Helper function to fetch a 16-bit address from memory
         fetchAddress() {
-            let lowByte = this._MemoryAccessor.read(this.PC);
+            let lowByte = _MemoryAccessor.read(this.PC);
             this.PC++;
-            let highByte = this._MemoryAccessor.read(this.PC);
+            let highByte = _MemoryAccessor.read(this.PC);
             this.PC++;
             return (highByte << 8) + lowByte;
         }

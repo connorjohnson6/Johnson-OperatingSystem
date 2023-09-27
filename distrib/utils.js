@@ -42,6 +42,12 @@ var TSOS;
             }
             return retVal;
         }
+        //keep in utils as this is a changer
+        //inspiration from KeeDos
+        static toHexString(value, length = 0) {
+            const hexString = value.toString(16).toUpperCase();
+            return length ? hexString.padStart(length, "0") : hexString;
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

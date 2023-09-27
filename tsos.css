@@ -67,7 +67,7 @@ h3 {
   color: white; /* Text color */
 }
 
-#divCpu,
+#tableCpu,
 #memoryTable{
   font-family: Georgia, serif;
 }
@@ -124,7 +124,7 @@ th, td {
 }
 
 table, th, td {
-  border: 1px solid black;
+  border: 1px solid white;
 }
 
 

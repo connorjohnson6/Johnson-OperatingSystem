@@ -371,9 +371,7 @@ var TSOS;
                 let opCodes = taProgramInput.split(/\s+/);
                 // Load the op codes into memory
                 for (let i = 0; i < opCodes.length; i++) {
-                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16)); //TODO, figure out why this is never reaching
-                    console.log(i, parseInt(opCodes[i], 16));
-                    _StdOut.putText("Did we make it?");
+                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
                 }
                 _StdOut.putText("Op codes loaded into memory.");
             }
@@ -382,48 +380,16 @@ var TSOS;
             }
         }
         shellRun(args) {
-            if (_CPU.isExecuting) {
-                _StdOut.putText("CPU is already executing a program.");
-                return;
+            _MemoryAccessor.write(10, 55);
+            let value = _MemoryAccessor.read(10);
+            console.log(value);
+            if (value === 55) {
+                _StdOut.putText("MemoryAccessor test passed.");
             }
-            _StdOut.putText("Starting program execution...");
+            else {
+                _StdOut.putText("MemoryAccessor test failed.");
+            }
             _StdOut.advanceLine();
-            // Reset the CPU properties
-            _CPU.init();
-            // Test for LDA (Load the accumulator with a constant)
-            _StdOut.putText("Running test for LDA...");
-            // Load an LDA instruction into memory (opcode for LDA is "A9")
-            _MemoryAccessor.write(0, 0xA9);
-            _StdOut.putText("Reached 1");
-            _MemoryAccessor.write(1, 42);
-            _StdOut.putText("Reached 2");
-            // Run the CPU cycle to execute LDA
-            _CPU.cycle();
-            _StdOut.putText("Reached Cycle");
-            // Validate the accumulator
-            if (_CPU.Acc !== 42) {
-                _StdOut.putText("Test for LDA failed: Accumulator should contain 42");
-            }
-            else {
-                _StdOut.putText("Test for LDA passed");
-            }
-            // Test for STA (Store the accumulator in memory)
-            _StdOut.putText("Running test for STA...");
-            // Load an STA instruction into memory (opcode for STA is "8D")
-            _MemoryAccessor.write(2, 0x8D);
-            _MemoryAccessor.write(3, 0); // low byte of address
-            _MemoryAccessor.write(4, 0); // high byte of address (address is 0x0000)
-            // Run the CPU cycle to execute STA
-            _CPU.cycle();
-            // Validate the memory
-            if (_MemoryAccessor.read(0) !== 42) {
-                _StdOut.putText("Test for STA failed: Memory location 0 should contain 42");
-            }
-            else {
-                _StdOut.putText("Test for STA passed");
-            }
-            // Start the CPU execution
-            _CPU.isExecuting = true;
         }
     }
     TSOS.Shell = Shell;

@@ -43,5 +43,13 @@ module TSOS {
             }
             return retVal;
         }
+
+        //keep in utils as this is a changer
+        //inspiration from KeeDos
+        public static toHexString(value: number, length: number = 0): string {
+            const hexString = value.toString(16).toUpperCase();
+            return length ? hexString.padStart(length, "0") : hexString;
+        }
+
     }
 }

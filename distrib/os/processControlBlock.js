@@ -9,7 +9,7 @@ var TSOS;
         Xreg = 0; // X register
         Yreg = 0; // Y register
         Zflag = 0; // Z flag (zero flag)
-        state = "new"; // State of the process (e.g., "new", "running", "terminated")
+        state = "running" || "executing" || "completed"; // State of the process (e.g., "new", "running", "terminated")
         constructor() { }
     }
     TSOS.PCB = PCB;

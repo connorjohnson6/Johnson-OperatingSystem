@@ -105,9 +105,12 @@
                ></textarea>
             </label>
          </div>
-         <div id="tableCpu" style="margin-left:520px; color: white;">
-            <table id="divCpu">
-               CPU Log
+         
+         <!--Credit for html layout from KeeDOS and jOSh (cpu/memory)-->
+         <div id="divCpu" style="margin-left:520px; color: white;">
+            <h1>CPU Log</h1>
+            <table id="tableCpu">
+              
                <thead>
                      <tr>
                         <th scope="col">PC</th>
@@ -129,27 +132,10 @@
                </table>
          </div>
 
+         
          <div id="divMemory" style="margin-left:520px; color: white;">
+            <h1>Memory</h1>
             <table id="memoryTable">
-               Memory Log
-               <thead>
-                  <tr>
-                     <th scope="col">PC</th>
-                     <th scope="col">IR</th>
-                     <th scope="col">Acc</th>
-                     <th scope="col">X</th>
-                     <th scope="col">Y</th>
-                     <th scope="col">Z</th>
-                  </tr>
-            </thead>
-                  <tr>
-                     <td>0</td>
-                     <td>0</td>
-                     <td>0</td>
-                     <td>0</td>
-                     <td>0</td>
-                     <td>0</td>
-                  <tr>
             </table>
          </div>
          
@@ -163,7 +149,7 @@
                         id  ="taProgramInput"
                         rows="8"
                         cols="48"
-               >A9 00 8D 00 00 EA A9 00 8D 4C 00 A9 00 8D 4C 00 A2 03 EC 4C 00 D0 07 A2 01 EC 00 00 D0 05 A2 00 EC 00 00 D0 26 A0 4D A2 02 FF AC 4C 00 A2 01 FF A9 01 6D 4C 00 8D 4C 00 A2 02 EC 4C 00 D0 05 A0 56 A2 02 FF A2 01 EC 00 00 D0 C5 00 00 63 6F 75 6E 74 69 6E 67 00 68 65 6C 6C 6F 20 77 6F 72 6C 64 00</textarea>
+               >A9 2A 8D 00 00</textarea> <!--Not a bad thing to have :)-->
             </label>
          </div>
 

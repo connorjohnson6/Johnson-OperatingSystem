@@ -45,7 +45,7 @@ module TSOS {
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
 
-            //area is not allowing my terminal to operate
+            //area is not allowing my terminal to operate -- might have fixed it...score!
             _CPU = new Cpu();	
             _CPU.init();
             _Memory	= new Memory();
@@ -53,6 +53,41 @@ module TSOS {
             _MemoryAccessor	= new MemoryAccessor();
 
 
+
+            const memoryTable = document.getElementById('memoryTable')!
+
+            function createTableCell(value) {
+                const cell = document.createElement('td');
+                cell.innerText = value;
+                return cell;
+            }
+            
+            // Creates a table row (tr) with the given address value as its header (th) and a specified number of cells.
+            function createTableRow(addressValue, cellsCount) {
+                const row = document.createElement('tr');
+                const address = document.createElement('th');
+                address.innerText = addressValue;
+                row.appendChild(address);
+            
+                for (let j = 0; j < cellsCount; j++) {
+                    row.appendChild(createTableCell("00"));
+                }
+            
+                return row;
+            }
+            
+            const START = 0x000;
+            const END = 0x2F8;
+            const STEP = 8;
+            const CELLS_PER_ROW = 8;
+            
+            // Loop through the memory address range and create rows for the memory table.
+            for (let i = START; i <= END; i += STEP) {
+                const addressValue = "0x" + Utils.toHexString(i, 3); // Convert the address to a hex string.
+                const row = createTableRow(addressValue, CELLS_PER_ROW);
+                memoryTable.appendChild(row); // Add the created row to the memory table.
+            }
+            
             
             // Check for our testing and enrichment core, which
             // may be referenced here (from index.html) as function Glados().
@@ -65,12 +100,22 @@ module TSOS {
         }
 
         //TODO: need to connect this to the html element to update on site
-        public static memoryUpdate(){
-
+        //credit from looking at the hall of fame KeeDOS
+        public static updateMemory(address: number, value: number): void {
+            const col = (address % 8) + 2;
+            const row = Math.floor(address / 8) + 1;
+            const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${col})`;
+            
+            const cell = document.querySelector<HTMLDataElement>(cellSelector);
+            if (cell) {
+                cell.innerText = Utils.toHexString(value, 2);
+            }
         }
 
+
+
         //TODO: need to connect to html element to update on site
-        public static updateCPU(){
+        public static updateCPU() {
 
         }
 

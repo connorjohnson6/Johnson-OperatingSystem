@@ -10,7 +10,7 @@ module TSOS {
         public Xreg: number = 0;   // X register
         public Yreg: number = 0;   // Y register
         public Zflag: number = 0;  // Z flag (zero flag)
-        public state: string = "new" // State of the process (e.g., "new", "running", "terminated")
+        public state: string = "running" || "executing" || "completed";// State of the process (e.g., "new", "running", "terminated")
 
         
 

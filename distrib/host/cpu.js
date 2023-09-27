@@ -18,16 +18,16 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        opFetch;
         PC;
+        IR;
         Acc;
         Xreg;
         Yreg;
         Zflag;
         isExecuting;
-        constructor(opFetch = 0, PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
-            this.opFetch = opFetch;
+        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
             this.PC = PC;
+            this.IR = IR;
             this.Acc = Acc;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
@@ -36,7 +36,6 @@ var TSOS;
         }
         init() {
             this.PC = 0;
-            this.opFetch = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
@@ -50,9 +49,9 @@ var TSOS;
         }
         cycle() {
             _Kernel.krnTrace('CPU cycle');
-            this.opFetch = this.fetch();
+            this.IR = this.fetch();
             // Fetch
-            let opCodeNum = this.opFetch;
+            let opCodeNum = this.IR;
             let opCode = opCodeNum.toString(16).toUpperCase().padStart(2, '0');
             // Decode and Execute
             switch (opCode) {
@@ -111,6 +110,7 @@ var TSOS;
                 //No Operation 
                 case "EA":
                     // Do nothing
+                    this.PC++;
                     break;
                 //Break (which is really a system call) 
                 case "00":

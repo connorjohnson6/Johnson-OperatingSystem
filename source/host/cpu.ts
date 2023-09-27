@@ -25,8 +25,8 @@ module TSOS {
     export class Cpu {
 
         constructor(
-                    private opFetch: number = 0,
                     public PC: number = 0,
+                    public IR: number = 0,
                     public Acc: number = 0,
                     public Xreg: number = 0,
                     public Yreg: number = 0,
@@ -39,7 +39,6 @@ module TSOS {
 
         public init(): void {
             this.PC = 0;
-            this.opFetch = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
@@ -57,11 +56,11 @@ module TSOS {
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
 
-            this.opFetch = this.fetch();
+            this.IR = this.fetch();
 
 
             // Fetch
-            let opCodeNum = this.opFetch;
+            let opCodeNum = this.IR;
 
             let opCode = opCodeNum.toString(16).toUpperCase().padStart(2, '0');
 
@@ -130,6 +129,7 @@ module TSOS {
                 //No Operation 
                 case "EA": 
                     // Do nothing
+                    this.PC++;
                     break;
 
                 //Break (which is really a system call) 

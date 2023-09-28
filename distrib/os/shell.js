@@ -361,8 +361,9 @@ var TSOS;
             TSOS.Kernel.krnTrapError("test");
         }
         shellLoad(args) {
-            //https://www.tutorialspoint.com/access-an-element-in-type-script#:~:text=Using%20getElementById()%20method,a%20form%20of%20an%20object.
-            let taProgramInput = document.getElementById("taProgramInput").value;
+            // Access the program input from the HTML textarea
+            let taProgramInput1 = document.getElementById("taProgramInput").value;
+            let taProgramInput = taProgramInput1.trim(); //test this later incase there is whitespace
             let hexValidate = /^[0-9A-Fa-f\s]*$/;
             if (hexValidate.test(taProgramInput)) {
                 _StdOut.putText("Hex is valid. Loading into memory...");
@@ -373,23 +374,29 @@ var TSOS;
                 for (let i = 0; i < opCodes.length; i++) {
                     _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
                 }
-                _StdOut.putText("Op codes loaded into memory.");
+                // Assign a PID 
+                let pid = _PIDCounter++;
+                if (pid < 3) {
+                    // Initialize the PCB
+                    let pcb = new TSOS.PCB(pid);
+                    _PCBMap.push(pcb);
+                    //test logs
+                    // console.log(pcb); 
+                    // console.log(pid); 
+                    pcb.init();
+                    _StdOut.putText(`Op codes loaded into memory with PID: ${pid}.`);
+                }
+                else {
+                    //later will result in the memory manager to PID-- once a process is terminated
+                    _StdOut.putText(`No more memory ... Must run a PID to load more input`);
+                }
             }
             else {
                 _StdOut.putText("Hex is not valid.");
             }
         }
+        //TODO: create lol
         shellRun(args) {
-            _MemoryAccessor.write(10, 55);
-            let value = _MemoryAccessor.read(10);
-            console.log(value);
-            if (value === 55) {
-                _StdOut.putText("MemoryAccessor test passed.");
-            }
-            else {
-                _StdOut.putText("MemoryAccessor test failed.");
-            }
-            _StdOut.advanceLine();
         }
     }
     TSOS.Shell = Shell;

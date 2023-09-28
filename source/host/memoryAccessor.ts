@@ -17,7 +17,7 @@ module TSOS {
         public write(address: number, value: number): void {
             _Memory[address] = value;
     
-            TSOS.Control.updateMemory(address, value);
+            TSOS.Memory.updateMemory(address, value);
         }
         
         

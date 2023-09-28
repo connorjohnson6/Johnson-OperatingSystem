@@ -1,16 +1,30 @@
 var TSOS;
 (function (TSOS) {
     class PCB {
-        // The PCB constructor initializes the process with default values.
-        // The state is set to "new" by default, indicating a new process.
-        pid; // Process ID
+        pid = 0; // Process ID
+        location; // Location
         PC = 0; // Program Counter
+        IR = 0; // Instruction Reg
         Acc = 0; // Accumulator
         Xreg = 0; // X register
         Yreg = 0; // Y register
         Zflag = 0; // Z flag (zero flag)
-        state = "running" || "executing" || "completed"; // State of the process (e.g., "new", "running", "terminated")
-        constructor() { }
+        state; // State of the process (e.g., "new", "running", "terminated")
+        constructor(pid) {
+            if (pid !== undefined) {
+                this.pid = pid;
+            }
+        }
+        init() {
+            this.PC = 0;
+            this.location = "Memory";
+            this.Acc = 0;
+            this.Xreg = 0;
+            this.Yreg = 0;
+            this.Zflag = 0;
+            this.state = "Resident";
+            TSOS.Control.updatePCBs();
+        }
     }
     TSOS.PCB = PCB;
 })(TSOS || (TSOS = {}));

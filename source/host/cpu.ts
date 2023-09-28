@@ -46,7 +46,7 @@ module TSOS {
             this.isExecuting = false;
         }
 
-        private fetch(): number {
+        public fetch(): number {
             let instruction = _MemoryAccessor.read(this.PC);
             this.PC++;
             return instruction;

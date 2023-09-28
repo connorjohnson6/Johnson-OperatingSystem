@@ -99,25 +99,48 @@ module TSOS {
             }
         }
 
-        //TODO: need to connect this to the html element to update on site
-        //credit from looking at the hall of fame KeeDOS
-        public static updateMemory(address: number, value: number): void {
-            const col = (address % 8) + 2;
-            const row = Math.floor(address / 8) + 1;
-            const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${col})`;
-            
-            const cell = document.querySelector<HTMLDataElement>(cellSelector);
-            if (cell) {
-                cell.innerText = Utils.toHexString(value, 2);
-            }
+
+        public static updatePCBs() {
+            const pcbTableBody = (<HTMLTableSectionElement>document.querySelector("#tablePCB > tbody"));
+            pcbTableBody.innerHTML = ''; // Clear existing rows
+        
+            _PCBMap.forEach((pcb) => {
+                const row = document.createElement('tr');
+        
+                // Create and append cells for each property of pcb
+                const properties = ['pid', 'state', 'location', 'PC', 'IR', 'Acc', 'Xreg', 'Yreg', 'Zflag'];
+                properties.forEach(prop => {
+                    const cell = document.createElement('td');
+                    if (prop === 'Zflag') {
+                        cell.textContent = pcb[prop] ? '1' : '0';
+                    } else if (['PC', 'IR', 'Acc', 'Xreg', 'Yreg'].includes(prop)) {
+                        cell.textContent = Utils.toHexString(pcb[prop], 2);
+                    } else {
+                        cell.textContent = pcb[prop].toString();
+                    }
+                    row.appendChild(cell);
+                });
+        
+                // Append the row to the table body
+                pcbTableBody.appendChild(row);
+            });
         }
+        
 
+        // public static updateCPU() {
+        //     const cpuTableBody = (<HTMLTableSectionElement>document.querySelector("#tableCpu > tbody"))
+        //     const row = document.createElement('tr')
+        //     row.innerHTML = `
+        //         <td>${Utils.toHexString(_CPU.PC, 2)}</td>
+        //         <td>${Utils.toHexString(_CPU.IR, 2)}</td>
+        //         <td>${Utils.toHexString(_CPU.Acc, 2)}</td>
+        //         <td>${Utils.toHexString(_CPU.Xreg, 2)}</td>
+        //         <td>${Utils.toHexString(_CPU.Yreg, 2)}</td>
+        //         <td>${_CPU.Zflag ? "1" : "0"}</td>
+        //     `
 
-
-        //TODO: need to connect to html element to update on site
-        public static updateCPU() {
-
-        }
+        //     cpuTableBody.replaceChildren(row)
+        // }
 
 
 

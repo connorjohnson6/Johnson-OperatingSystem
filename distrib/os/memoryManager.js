@@ -1,8 +1,7 @@
 var TSOS;
 (function (TSOS) {
     class memoryManager {
-        constructor() {
-        }
+        constructor() { }
     }
     TSOS.memoryManager = memoryManager;
 })(TSOS || (TSOS = {}));

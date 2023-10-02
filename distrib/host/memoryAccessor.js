@@ -10,7 +10,7 @@ var TSOS;
         // Write a byte to a specific address in memory.
         write(address, value) {
             _Memory[address] = value;
-            TSOS.Memory.updateMemory(address, value);
+            TSOS.Control.updateMemory(address, value);
         }
     }
     TSOS.MemoryAccessor = MemoryAccessor;

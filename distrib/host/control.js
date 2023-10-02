@@ -76,6 +76,17 @@ var TSOS;
                 _GLaDOS.init();
             }
         }
+        //credit from looking at the hall of fame KeeDOS
+        //put back all updates back into the control.ts due to Labouseur saying it in class
+        static updateMemory(address, value) {
+            const column = (address % 8) + 2;
+            const row = Math.floor(address / 8) + 1;
+            const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${column})`;
+            const cell = document.querySelector(cellSelector);
+            if (cell) {
+                cell.innerText = TSOS.Utils.toHexString(value, 2);
+            }
+        }
         static updatePCBs() {
             const pcbTableBody = document.querySelector("#tablePCB > tbody");
             pcbTableBody.innerHTML = ''; // Clear existing rows

@@ -71,26 +71,8 @@ module TSOS {
             _Kernel.krnTrace('CPU cycle');
 
             let opCode = this.fetch();
-
-            function fetchAddress(PC: number): number {
-                // Read the low order byte and high order byte from memory.
-                let lowByte = _MemoryAccessor.read(PC);
-                let highByte = _MemoryAccessor.read(PC + 1);
             
-                // Check for undefined or null.
-                if (lowByte == null || highByte == null) {
-                    console.error(`Error reading memory at address ${PC}.`);
-                    return -1;  
-                }
-            
-                // Combine the HOB and LOB to form the address. 
-                // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
-                let address = (highByte << 8) | lowByte;
-            
-                return address;
-            }
-            
-
+            //Testing console.log for results, will get toString() errors
             // if (opCodeNum === undefined || opCodeNum === 0) {
             //     // If you have specific handling for opcode 00, you might want to do it here
             //     if (opCodeNum === 0) {
@@ -118,7 +100,7 @@ module TSOS {
 
                 //Load the accumulator from memory
                 case 0xAD: 
-                    let address = fetchAddress(this.PC);
+                    let address = this.fetchAddress1(this.PC);
 
                     this.Acc = _MemoryAccessor.read(address);
                     break;
@@ -135,7 +117,7 @@ module TSOS {
                     //the contents of the accumulator and
                     //keeps the result in the accumulator
                 case 0x6D: 
-                    let addAddress = fetchAddress(this.PC);
+                    let addAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
                     let value = _MemoryAccessor.read(addAddress);
@@ -157,7 +139,7 @@ module TSOS {
 
                 //Load the X register from memory
                 case 0xAE: 
-                    let xAddress = fetchAddress(this.PC);
+                    let xAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
                     this.Xreg = _MemoryAccessor.read(xAddress);
@@ -170,7 +152,7 @@ module TSOS {
 
                 //Load the Y register from memory 
                 case 0xAC: 
-                    let yAddress = fetchAddress(this.PC);
+                    let yAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
                     this.Yreg = _MemoryAccessor.read(yAddress);
@@ -193,7 +175,7 @@ module TSOS {
 
                 //Compare a byte in memory to the X reg
                 case 0xEC: 
-                    let compareAddress = fetchAddress(this.PC);
+                    let compareAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
                     let compareValue = _MemoryAccessor.read(compareAddress);
@@ -215,7 +197,7 @@ module TSOS {
 
                 //Increment the value of a byte
                 case 0xEE:
-                    let incAddress = fetchAddress(this.PC);
+                    let incAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
                     let incValue = _MemoryAccessor.read(incAddress);
@@ -244,12 +226,32 @@ module TSOS {
         }
 
         // Helper function to fetch a 16-bit address from memory
+        //only using this for 0x8D. For some reason I accidentally didn't change that one
+        //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
         private fetchAddress(): number {
             let lowByte = _MemoryAccessor.read(this.PC);
             this.PC++;
             let highByte = _MemoryAccessor.read(this.PC);
             this.PC++;
             return (highByte << 8) + lowByte;
+        }
+
+        private fetchAddress1(PC: number): number {
+            // Read the low order byte and high order byte from memory.
+            let lowByte = _MemoryAccessor.read(PC);
+            let highByte = _MemoryAccessor.read(PC + 1);
+        
+            // Check for undefined or null.
+            if (lowByte == null || highByte == null) {
+                console.error(`Error reading memory at address ${PC}.`);
+                return -1;  
+            }
+        
+            // Combine the HOB and LOB to form the address. 
+            // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
+            let address = (highByte << 8) | lowByte;
+        
+            return address;
         }
 
     }

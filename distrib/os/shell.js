@@ -337,20 +337,13 @@ var TSOS;
         }
         shellStatus(args) {
             if (args.length > 0) {
-                _OsShell.promptStr = args[0];
+                //switched up status as it was not working/turning the > in the terminal
+                //to the status, which was an interesting problem
+                let userStatus = args.join(" ");
                 // Get the HTML element with the id "statusContainer"
-                const statusContainer = document.getElementById("statusContainer");
-                // Check if the element exists before updating its content
-                if (statusContainer) {
-                    // Create an <p> element
-                    const pElement = document.createElement("p");
-                    // Set the text content of the <p> element to the status text
-                    pElement.textContent = _OsShell.promptStr;
-                    // Clear the previous content of the statusContainer
-                    statusContainer.innerHTML = "";
-                    // Append the <p> element to the statusContainer
-                    statusContainer.appendChild(pElement);
-                }
+                document.getElementById("statusContainer").innerText = `${userStatus}`;
+                //Display status information in the terminal
+                _StdOut.putText(`Status has been set to: ${userStatus}`);
             }
             else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");

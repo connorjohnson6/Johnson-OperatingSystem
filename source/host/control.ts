@@ -87,6 +87,8 @@ module TSOS {
                 const row = createTableRow(addressValue, CELLS_PER_ROW);
                 memoryTable.appendChild(row); // Add the created row to the memory table.
             }
+
+
             
             
             // Check for our testing and enrichment core, which
@@ -99,6 +101,18 @@ module TSOS {
             }
         }
 
+        //credit from looking at the hall of fame KeeDOS
+        //put back all updates back into the control.ts due to Labouseur saying it in class
+        public static updateMemory(address: number, value: number): void {
+            const column = (address % 8) + 2;
+            const row = Math.floor(address / 8) + 1;
+            const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${column})`;
+            
+            const cell = document.querySelector<HTMLDataElement>(cellSelector);
+            if (cell) {
+                cell.innerText = Utils.toHexString(value, 2);
+            }
+        }
 
         public static updatePCBs() {
             const pcbTableBody = (<HTMLTableSectionElement>document.querySelector("#tablePCB > tbody"));

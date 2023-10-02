@@ -43,8 +43,8 @@ var _StdIn = null;
 var _StdOut = null;
 // Processes
 var _PIDCounter = 0;
-//var _PCBMap = new Map<number, TSOS.PCB>();
-var _PCBMap = [];
+var _PCBMap = new Map();
+//var _PCBStatus = [];
 // UI
 var _Console;
 var _OsShell;

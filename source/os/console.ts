@@ -70,7 +70,7 @@
                         let shellCommands: (string)[] = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'bsod', 'load', 'run']
                         this.tabCompletion(shellCommands);
                     }else if(chr === String.fromCharCode(38)){
-                        //handles up arrow
+                        //handles up arrow      
 
                             //This is basically a new way I am trying to implemenmt the .clearRect() 
                             //method bc shit just doesnt wanna be erased

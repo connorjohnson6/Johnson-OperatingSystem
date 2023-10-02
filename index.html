@@ -84,17 +84,24 @@
    
 
    <div id="divContent">
-      <div id="divConsole" style="margin: 4px; width: 500px; height: 500px;">
-         <canvas id="display"
-               width="500px"
-               height="500px"
-               tabindex="3">
-         </canvas>
+
+<!--Start of column1-->
+      <div id="divColumn1">
+
+         <div id="divConsole" style="margin: 4px; width: 500px; height: 500px;">
+            <canvas id="display"
+                  width="500px"
+                  height="500px"
+                  tabindex="3">
+            </canvas>
+         </div>
+
       </div>
 
-      <div class="divRightContainer">
-
-         <div id="divLog" style="margin-left:520px; color: white;">
+<!--Start of column2-->
+      <div id="divColumn2">
+         
+         <div id="divLog" style="color: white;">
             <label>
                Host Log
                <br>
@@ -105,9 +112,25 @@
                ></textarea>
             </label>
          </div>
-         
+
+         <div id="divUserProgramInput" style="color: white;">
+            <label>
+               User Program Input
+               <br>
+               <textarea name="taProgramInput"
+                        id  ="taProgramInput"
+                        rows="8"
+                        cols="48"
+               >A9 03 8D 41 00 A9 01 8D 40 00 AC 40 00 A2 01 FF EE 40 00 AE 40 00 EC 41 00 D0 EF A9 44 8D 42 00 A9 4F 8D 43 00 A9 4E 8D 44 00 A9 45 8D 45 00 A9 00 8D 46 00 A2 02 A0 42 FF 00</textarea> <!--Not a bad thing to have :)-->
+            </label>
+         </div>
+
+      </div>
+
+<!--start of column3-->
+      <div id="divColumn3">
          <!--Credit for html layout from KeeDOS and jOSh (cpu/memory)-->
-         <div id="divCpu" style="margin-left:520px; color: white;">
+         <div id="divCpu" style="color: white;">
             <h1>CPU Log</h1>
             <table id="tableCpu">
               
@@ -125,7 +148,7 @@
             </table>
          </div>
 
-         <div id="divPCB" style="margin-left:520px; color: white;">
+         <div id="divPCB" style="color: white;">
             <h1>PCB Log</h1>
             <table id="tablePCB">
               
@@ -147,27 +170,13 @@
          </div>
 
          
-         <div id="divMemory" style="margin-left:520px; color: white;">
+         <div id="divMemory" style="color: white;">
             <h1>Memory</h1>
             <table id="memoryTable">
             </table>
          </div>
-         
-
-
-         <div id="divUserProgramInput" style="margin-left:520px; color: white;">
-            <label>
-               User Program Input
-               <br>
-               <textarea name="taProgramInput"
-                        id  ="taProgramInput"
-                        rows="8"
-                        cols="48"
-               >A9 2A 8D 00 00</textarea> <!--Not a bad thing to have :)-->
-            </label>
-         </div>
-
       </div>
+
    </div>
 </div>
 

@@ -61,7 +61,7 @@ var TSOS;
                     this.tabCompletion(shellCommands);
                 }
                 else if (chr === String.fromCharCode(38)) {
-                    //handles up arrow
+                    //handles up arrow      
                     //This is basically a new way I am trying to implemenmt the .clearRect() 
                     //method bc shit just doesnt wanna be erased
                     //yes, me and chatGPT are doing this together. buddys the debugging god rn

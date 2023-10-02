@@ -8,13 +8,15 @@ module TSOS {
         public Xreg: number = 0;   // X register
         public Yreg: number = 0;   // Y register
         public Zflag: number = 0;  // Z flag (zero flag)
-        public state: string ; // State of the process (e.g., "new", "running", "terminated")
+        public state: string; // State of the process (e.g., "new", "running", "terminated")
 
         constructor(pid?: number) {
             if (pid !== undefined) {
                 this.pid = pid;
             }
+          
         }
+        
 
         public init() {
             this.PC = 0;
@@ -23,7 +25,6 @@ module TSOS {
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
-            this.state = "Resident";
             TSOS.Control.updatePCBs()
         }
     }

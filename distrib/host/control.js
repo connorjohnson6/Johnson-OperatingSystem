@@ -100,19 +100,25 @@ var TSOS;
                 pcbTableBody.appendChild(row);
             });
         }
-        // public static updateCPU() {
-        //     const cpuTableBody = (<HTMLTableSectionElement>document.querySelector("#tableCpu > tbody"))
-        //     const row = document.createElement('tr')
-        //     row.innerHTML = `
-        //         <td>${Utils.toHexString(_CPU.PC, 2)}</td>
-        //         <td>${Utils.toHexString(_CPU.IR, 2)}</td>
-        //         <td>${Utils.toHexString(_CPU.Acc, 2)}</td>
-        //         <td>${Utils.toHexString(_CPU.Xreg, 2)}</td>
-        //         <td>${Utils.toHexString(_CPU.Yreg, 2)}</td>
-        //         <td>${_CPU.Zflag ? "1" : "0"}</td>
-        //     `
-        //     cpuTableBody.replaceChildren(row)
-        // }
+        static updateCPU() {
+            const cpuTableBody = document.querySelector("#tableCpu > tbody");
+            cpuTableBody.innerHTML = ''; // Clear existing rows
+            const row = document.createElement('tr');
+            // Define CPU properties to display
+            const cpuProperties = ['PC', 'IR', 'Acc', 'Xreg', 'Yreg', 'Zflag'];
+            cpuProperties.forEach(prop => {
+                const cell = document.createElement('td');
+                if (prop === 'Zflag') {
+                    cell.textContent = _CPU[prop] ? '1' : '0';
+                }
+                else {
+                    cell.textContent = TSOS.Utils.toHexString(_CPU[prop], 2);
+                }
+                row.appendChild(cell);
+            });
+            // Append the row to the table body
+            cpuTableBody.appendChild(row);
+        }
         static hostLog(msg, source = "?") {
             // Note the OS CLOCK.
             var clock = _OSclock;

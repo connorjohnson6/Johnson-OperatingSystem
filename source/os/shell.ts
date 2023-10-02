@@ -19,6 +19,7 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
+        
 
 
         constructor() {}
@@ -116,7 +117,7 @@ module TSOS {
             //run
             sc = new ShellCommand(this.shellRun,
                                 "run",
-                                "- run tests on OP Code");
+                                " <PID> - run tests on OP Code");
             this.commandList[this.commandList.length] = sc;
 
 
@@ -454,57 +455,85 @@ module TSOS {
         public shellLoad(args: string[]): void {
             // Access the program input from the HTML textarea
             let taProgramInput1 = (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value;
-
-            let taProgramInput = taProgramInput1.trim(); //test this later incase there is whitespace
-        
+            let taProgramInput = taProgramInput1.trim(); // Remove whitespace
+                
             let hexValidate = /^[0-9A-Fa-f\s]*$/;
-        
+                
             if(hexValidate.test(taProgramInput)){
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
-        
+                
                 // Split the input by spaces to get individual op codes
                 let opCodes = taProgramInput.split(/\s+/);
-                
+                        
                 // Load the op codes into memory
                 for (let i = 0; i < opCodes.length; i++) {
                     _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
                 }
-        
+                
                 // Assign a PID 
                 let pid = _PIDCounter++;
-                
+                        
                 if(pid < 3){
                     // Initialize the PCB
-                    let pcb = new TSOS.PCB(pid);  
-                    _PCBMap.push(pcb);
-
-
-                    //test logs
-                    // console.log(pcb); 
-                    // console.log(pid); 
-
-                
-                    
-                    pcb.init();
-
-                    _StdOut.putText(`Op codes loaded into memory with PID: ${pid}.`);
-
-                }else{
-                    //later will result in the memory manager to PID-- once a process is terminated
-                    _StdOut.putText(`No more memory ... Must run a PID to load more input`);
-                }
+                    let pcb = new TSOS.PCB(pid); 
+                    pcb.state = "Ready";
+                    _PCBMap.set(pid, pcb);
         
-                
+                    // Initialize other PCB properties if necessary
+                    pcb.init();
+        
+                    _StdOut.putText(`Op codes loaded into memory with PID: ${pid}.`);
+                } else {
+                    // Handle the case where there is no more memory or PID limit is reached
+                    _StdOut.putText(`No more memory ... Must run a PID to load more input`);
+                }        
             } else {
                 _StdOut.putText("Hex is not valid.");
             }
         }
         
-        //TODO: create lol
+        
         public shellRun(args: string[]): void {
-  
-       }
+            let pid = parseInt(args[0]);
+            
+            if(args.length > 0 && !isNaN(pid)){
+            
+                let pcb = _PCBMap.get(pid);
+                
+                // Check if pcb is undefined
+                if (!pcb) {
+                    _StdOut.putText(`No PCB found with PID: ${pid}`);
+                    return;
+                }else if (pcb.state === "Running") {
+                    _StdOut.putText(`Process ${pid} is already running.`);
+                }
+                else if (pcb.state === "Terminated") {
+                    _StdOut.putText(`Process ${pid} is terminated.`);
+                }
+                
+                pcb.state = "Running";
+                Control.updatePCBs();
+                // _PCBMap.set(pid, pcb);
+                
+                // //updates the pcb
+                // pcb.init();
+                
+
+                _CPU.isExecuting = true;
+                while (_CPU.isExecuting) {
+                    _CPU.cycle();
+                }
+
+                //_CPU.cpuLog();
+                _StdOut.advanceLine();
+                _StdOut.putText("gotten to this point");
+
+            }else{
+                _StdOut.putText("No PID number found: please enter run <PID>");
+            }
+        }
+        
         
         
         

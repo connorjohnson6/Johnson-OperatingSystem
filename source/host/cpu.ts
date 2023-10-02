@@ -24,14 +24,16 @@ module TSOS {
 
     export class Cpu {
 
+        
+
         constructor(
-                    public PC: number = 0,
-                    public IR: number = 0,
-                    public Acc: number = 0,
-                    public Xreg: number = 0,
-                    public Yreg: number = 0,
-                    public Zflag: number = 0,
-                    public isExecuting: boolean = false
+                    public PC: number = 0, //program counter
+                    public IR: number = 0, //instruction reg
+                    public Acc: number = 0, //accumulator
+                    public Xreg: number = 0, //X reg
+                    public Yreg: number = 0, //Y reg
+                    public Zflag: number = 0, //Z flag
+                    public isExecuting: boolean = false //later for ctr-c
                     ) {
 
         }
@@ -47,40 +49,84 @@ module TSOS {
         }
 
         public fetch(): number {
-            let instruction = _MemoryAccessor.read(this.PC);
-            this.PC++;
-            return instruction;
+            this.IR = _MemoryAccessor.read(this.PC++);
+            return this.IR;
         }
+
+        // public cpuLog() {
+        //     //logging information for each member of CPU class
+        //     console.log("PC: " + TSOS.Utils.toHexString(this.PC) + "\n" +
+        //         "IR: " + TSOS.Utils.toHexString(this.IR) + "\n" +
+        //         "Acc: " + TSOS.Utils.toHexString(this.Acc) + "\n" +
+        //         "xReg: " + TSOS.Utils.toHexString(this.Xreg) + "\n" +
+        //         "yReg: " + TSOS.Utils.toHexString(this.Yreg) + "\n" +
+        //         "zFlag: " + TSOS.Utils.toHexString(this.Zflag));
+        //     console.log("---------------------------------------");
+        // }
+
+        
 
 
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
 
-            this.IR = this.fetch();
+            let opCode = this.fetch();
 
+            function fetchAddress(PC: number): number {
+                // Read the low order byte and high order byte from memory.
+                let lowByte = _MemoryAccessor.read(PC);
+                let highByte = _MemoryAccessor.read(PC + 1);
+            
+                // Check for undefined or null.
+                if (lowByte == null || highByte == null) {
+                    console.error(`Error reading memory at address ${PC}.`);
+                    return -1;  
+                }
+            
+                // Combine the HOB and LOB to form the address. 
+                // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
+                let address = (highByte << 8) | lowByte;
+            
+                return address;
+            }
+            
 
-            // Fetch
-            let opCodeNum = this.IR;
+            // if (opCodeNum === undefined || opCodeNum === 0) {
+            //     // If you have specific handling for opcode 00, you might want to do it here
+            //     if (opCodeNum === 0) {
+            //         // Handle opcode 00 - no operation or halt
+            //         // For example, you might want to set isExecuting to false and return
+            //         this.isExecuting = false;
+            //         console.log('Received halt opcode');
+            //         return;
+            //     }
+            //     console.error('opCodeNum is undefined');
+            //     return;
+            // }
 
-            let opCode = opCodeNum.toString(16).toUpperCase().padStart(2, '0');
+            //const opCodeNum = opCode.toString(16).toUpperCase().padStart(2, '0');
+
+            //console.log(opCodeNum);
+            //console.log(this.cpuLog());
 
             // Decode and Execute
             switch(opCode) {
                 //Load the accumulator with a constant 
-                case "A9":
-                    this.Acc = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                case 0xA9:
+                    this.Acc = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the accumulator from memory
-                case "AD": 
-                    let address = this.fetchAddress();
+                case 0xAD: 
+                    let address = fetchAddress(this.PC);
+
                     this.Acc = _MemoryAccessor.read(address);
                     break;
 
                 //Store the accumulator in memory
-                case "8D": 
+                case 0x8D: 
                     let storeAddress = this.fetchAddress();
+
                     _MemoryAccessor.write(storeAddress, this.Acc);
                     break;
 
@@ -88,8 +134,10 @@ module TSOS {
                     //Adds contents of an address to
                     //the contents of the accumulator and
                     //keeps the result in the accumulator
-                case "6D": 
-                    let addAddress = this.fetchAddress();
+                case 0x6D: 
+                    let addAddress = fetchAddress(this.PC);
+
+                    this.PC += 2;
                     let value = _MemoryAccessor.read(addAddress);
                     let result = this.Acc + value;
                     
@@ -103,89 +151,96 @@ module TSOS {
                     break;
                     
                 //Load the X register with a constant 
-                case "A2": 
-                    this.Xreg = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                case 0xA2: 
+                    this.Xreg = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the X register from memory
-                case "AE": 
-                    let xAddress = this.fetchAddress();
+                case 0xAE: 
+                    let xAddress = fetchAddress(this.PC);
+
+                    this.PC += 2;
                     this.Xreg = _MemoryAccessor.read(xAddress);
                     break;
 
                 //Load the Y register with a constant
-                case "A0": 
-                    this.Yreg = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                case 0xA0: 
+                    this.Yreg = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the Y register from memory 
-                case "AC": 
-                    let yAddress = this.fetchAddress();
+                case 0xAC: 
+                    let yAddress = fetchAddress(this.PC);
+
+                    this.PC += 2;
                     this.Yreg = _MemoryAccessor.read(yAddress);
                     break;
 
                 //No Operation 
-                case "EA": 
+                case 0xEA: 
                     // Do nothing
-                    this.PC++;
                     break;
 
                 //Break (which is really a system call) 
-                case "00": 
-                    // TODO: Implement system call handling
+                case 0x00: 
+                    //TODO: make it so that the status display will change
+                    //this.PC++;
+                    _CPU.isExecuting = false;
+                    console.log("Terminated");
+                    //_PCBMap.state = "" ;
                     break;
 
+
                 //Compare a byte in memory to the X reg
-                case "EC": 
-                    let compareAddress = this.fetchAddress();
+                case 0xEC: 
+                    let compareAddress = fetchAddress(this.PC);
+
+                    this.PC += 2;
                     let compareValue = _MemoryAccessor.read(compareAddress);
                     //Sets the Z (zero) flag if equal/
                     this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
                     break;
 
                 //Branch n bytes if Z flag = 0
-                case "D0": 
-                    let branchValue = _MemoryAccessor.read(this.PC);
+                case 0xD0: 
+                    let branchValue = _MemoryAccessor.read(this.PC++);
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
-                    } else {
-                        this.PC++;
-                    }
+                        //part from KeeDos to test with a working project to see if my project aint shit
+                        if(this.PC > 0xFF){
+                            this.PC -= 0x100;
+                        }
+                    } 
                     break;
 
                 //Increment the value of a byte
-                case "EE":
-                    let incAddress = this.fetchAddress();
+                case 0xEE:
+                    let incAddress = fetchAddress(this.PC);
+
+                    this.PC += 2;
                     let incValue = _MemoryAccessor.read(incAddress);
                     _MemoryAccessor.write(incAddress, incValue + 1);
                     break;
 
                 //System Call 
-                case "FF": 
-                    if (this.Xreg === 0x01) {
+                case 0xFF: 
+                    if (this.Xreg === 1) {
                         // Print integer stored in the Y register
                         _Console.putText(this.Yreg.toString());
-                    } else if (this.Xreg === 0x02) {
+                    } else if (this.Xreg === 2) {
                         // Print 00-terminated string stored at the address in the Y register
                         let address = this.Yreg;
-                        let str = "";
                         let byte = _MemoryAccessor.read(address);
                         while (byte !== 0x00) {
-                            str += String.fromCharCode(byte);
-                            address++;
-                            byte = _MemoryAccessor.read(address);
+                            _Console.putText(String.fromCharCode(byte));
+                            byte = _MemoryAccessor.read(++address);
                         }
-                        _Console.putText(str);
+                        
                     }
                     break;
 
-                default:
-                    // Handle unknown op codes
-                    console.error("Unknown op code:", opCode);
-                    break;
             }
+
         }
 
         // Helper function to fetch a 16-bit address from memory
@@ -198,6 +253,5 @@ module TSOS {
         }
 
     }
-
     
 }

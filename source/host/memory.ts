@@ -10,6 +10,8 @@ module TSOS {
             this.memory.fill(0);
         }
 
+        
+
 
         //credit from looking at the hall of fame KeeDOS
         public static updateMemory(address: number, value: number): void {

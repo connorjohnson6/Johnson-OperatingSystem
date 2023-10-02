@@ -4,37 +4,27 @@ body {
   background: #909193 url(distrib/images/deathstar.jpg) repeat;
   font-family: 'Star Wars', sans-serif;
   font-size: 12pt;
-  font-weight: normal;
-  font-style: normal;
 }
-
 
 h1 {
   color: white;
   font-size: 24pt;
-  font-weight: normal;
-  font-style: normal;
   border-bottom: 1px solid white;
 }
 
 h2 {
   color: white;
   font-size: 20pt;
-  font-weight: normal;
-  font-style: normal;
 }
 
 h3 {
   font-family: 'Star Wars', sans-serif;
   font-size: 16pt;
-  font-weight: normal;
-  font-style: normal;
 }
 
 #display {
-  background-color:#DFDBC3;
+  background-color: #DFDBC3;
   border: 2px solid red;
-  cursor: default;
 }
 
 .normal_button {
@@ -43,48 +33,39 @@ h3 {
 
 .footerText {
   color: white;
-  font-family:' Star Wars', sans-serif;
+  font-family: 'Star Wars', sans-serif;
   font-size: 8pt;
   text-align: center;
 }
-
 
 #divRow {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  align-items: center; /* Center content vertically */
-
-  /* Create the lightsaber background using chatgpt code, was curious to see how close it could get  */
-  background: linear-gradient(90deg, transparent 50%, #00f0ff 50%, #00f0ff);
-  background-size: 200% 100%; /* Make the gradient twice as wide as the container */
-  animation: lightsaber 2s linear infinite; /* Create a moving effect */
-
+  align-items: center;
   border: 1px solid black;
   font-weight: bold;
-  font-family: 'Star Wars', sans-serif;
-  padding: 10px; /* Add padding for spacing */
-  color: white; /* Text color */
+  padding: 10px;
+  color: white;
+  background: linear-gradient(90deg, transparent 50%, #00f0ff 50%, #00f0ff);
+  background-size: 200% 100%;
+  animation: lightsaber 2s linear infinite;
 }
 
 #tableCpu,
 #memoryTable,
-#tablePCB{
+#tablePCB {
   font-family: Georgia, serif;
 }
 
 table {
-  border-collapse: collapse !important;  
-}
-
-table, td {  
-  border: 1px solid white !important;  
+  border-collapse: collapse;  
 }
 
 th, td {
-  padding: 10px !important; 
+  border: 1px solid white;
+  padding: 10px;
 }
-
 
 #divMain {
   display: flex;
@@ -97,40 +78,35 @@ th, td {
   width: 100%;
 }
 
-#divRow,
-#divButtonBar {
-  width: 100%;
-}
-
 #divContent {
   display: flex;
-  flex-direction: row;
+}
+
+#divColumn1, #divColumn2, #divColumn3 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 #divConsole {
-  flex: 1;
-}
-
-.divRightContainer {
-  display: flex;
-  flex-direction: column;
+  margin: 4px;
   flex: 1;
 }
 
 #divLog,
+#divUserProgramInput,
 #divCpu,
-#divMemory,
-#divUserProgramInput {
+#divPCB,
+#divMemory {
+  color: white;
   flex: 1;
 }
 
-table, th, td {
-  border: 1px solid white;
+#divMemory {
+  overflow-y: auto;
+  max-height: 400px;
 }
 
-
-
-/* Create a keyframe animation for the lightsaber effect */
 @keyframes lightsaber {
   0% {
     background-position: 200% 0;

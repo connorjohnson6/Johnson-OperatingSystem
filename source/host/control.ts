@@ -83,7 +83,7 @@ module TSOS {
             
             // Loop through the memory address range and create rows for the memory table.
             for (let i = START; i <= END; i += STEP) {
-                const addressValue = "0x" + Utils.toHexString(i, 3); // Convert the address to a hex string.
+                const addressValue = "0x" + Utils.convertHexString(i, 3); // Convert the address to a hex string.
                 const row = createTableRow(addressValue, CELLS_PER_ROW);
                 memoryTable.appendChild(row); // Add the created row to the memory table.
             }
@@ -110,7 +110,7 @@ module TSOS {
             
             const cell = document.querySelector<HTMLDataElement>(cellSelector);
             if (cell) {
-                cell.innerText = Utils.toHexString(value, 2);
+                cell.innerText = Utils.convertHexString(value, 2);
             }
         }
 
@@ -128,7 +128,7 @@ module TSOS {
                     if (prop === 'Zflag') {
                         cell.textContent = pcb[prop] ? '1' : '0';
                     } else if (['PC', 'IR', 'Acc', 'Xreg', 'Yreg'].includes(prop)) {
-                        cell.textContent = Utils.toHexString(pcb[prop], 2);
+                        cell.textContent = Utils.convertHexString(pcb[prop], 2);
                     } else {
                         cell.textContent = pcb[prop].toString();
                     }
@@ -155,7 +155,7 @@ module TSOS {
                 if (prop === 'Zflag') {
                     cell.textContent = _CPU[prop] ? '1' : '0';
                 } else {
-                    cell.textContent = Utils.toHexString(_CPU[prop], 2);
+                    cell.textContent = Utils.convertHexString(_CPU[prop], 2);
                 }
                 row.appendChild(cell);
             });

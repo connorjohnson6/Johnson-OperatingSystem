@@ -63,7 +63,7 @@ var TSOS;
             const CELLS_PER_ROW = 8;
             // Loop through the memory address range and create rows for the memory table.
             for (let i = START; i <= END; i += STEP) {
-                const addressValue = "0x" + TSOS.Utils.toHexString(i, 3); // Convert the address to a hex string.
+                const addressValue = "0x" + TSOS.Utils.convertHexString(i, 3); // Convert the address to a hex string.
                 const row = createTableRow(addressValue, CELLS_PER_ROW);
                 memoryTable.appendChild(row); // Add the created row to the memory table.
             }
@@ -84,7 +84,7 @@ var TSOS;
             const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${column})`;
             const cell = document.querySelector(cellSelector);
             if (cell) {
-                cell.innerText = TSOS.Utils.toHexString(value, 2);
+                cell.innerText = TSOS.Utils.convertHexString(value, 2);
             }
         }
         static updatePCBs() {
@@ -100,7 +100,7 @@ var TSOS;
                         cell.textContent = pcb[prop] ? '1' : '0';
                     }
                     else if (['PC', 'IR', 'Acc', 'Xreg', 'Yreg'].includes(prop)) {
-                        cell.textContent = TSOS.Utils.toHexString(pcb[prop], 2);
+                        cell.textContent = TSOS.Utils.convertHexString(pcb[prop], 2);
                     }
                     else {
                         cell.textContent = pcb[prop].toString();
@@ -123,7 +123,7 @@ var TSOS;
                     cell.textContent = _CPU[prop] ? '1' : '0';
                 }
                 else {
-                    cell.textContent = TSOS.Utils.toHexString(_CPU[prop], 2);
+                    cell.textContent = TSOS.Utils.convertHexString(_CPU[prop], 2);
                 }
                 row.appendChild(cell);
             });

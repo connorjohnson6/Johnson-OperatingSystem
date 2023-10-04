@@ -23,6 +23,7 @@
 module TSOS {
 
     export class Cpu {
+        public currentPCB: TSOS.PCB = null;
 
         
 
@@ -165,12 +166,22 @@ module TSOS {
 
                 //Break (which is really a system call) 
                 case 0x00: 
-                    //TODO: make it so that the status display will change
-                    //this.PC++;
-                    _CPU.isExecuting = false;
-                    console.log("Terminated");
-                    //_PCBMap.state = "" ;
-                    break;
+                _CPU.isExecuting = false;
+                if (_CPU.currentPCB) {
+                    _CPU.currentPCB.state = "Terminated";
+                    _StdOut.advanceLine();
+
+                    _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
+                    //trying to figure out why the '>' will not show up after this process gets terminated 
+                    //lol im trying to trick you that the '>' is still there, not really to worried about it though
+                    _StdOut.advanceLine();
+                    _StdOut.putText(`Please enter your next command under this message:     >`);
+
+                    _StdOut.advanceLine();
+                } else {
+                    console.error("No current PCB found when trying to terminate process");
+                }
+                break;
 
 
                 //Compare a byte in memory to the X reg
@@ -223,6 +234,28 @@ module TSOS {
 
             }
 
+            this.saveStateToPCB(this.currentPCB);
+
+            TSOS.Control.updateCPU();
+            TSOS.Control.updatePCBs();
+            
+
+        }
+
+        public loadStateFromPCB(pcb: TSOS.PCB): void {
+            this.PC = pcb.PC;
+            this.Acc = pcb.Acc;
+            this.Xreg = pcb.Xreg;
+            this.Yreg = pcb.Yreg;
+            this.Zflag = pcb.Zflag;
+        }
+
+        public saveStateToPCB(pcb: TSOS.PCB): void {
+            pcb.PC = this.PC;
+            pcb.Acc = this.Acc;
+            pcb.Xreg = this.Xreg;
+            pcb.Yreg = this.Yreg;
+            pcb.Zflag = this.Zflag;
         }
 
         // Helper function to fetch a 16-bit address from memory
@@ -253,6 +286,7 @@ module TSOS {
         
             return address;
         }
+
 
     }
     

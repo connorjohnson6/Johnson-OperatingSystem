@@ -489,42 +489,54 @@ module TSOS {
         public shellRun(args: string[]): void {
             let pid = parseInt(args[0]);
             
+            // Check if there are arguments and if the PID is a valid number
             if(args.length > 0 && !isNaN(pid)){
-            
+                
                 let pcb = _PCBMap.get(pid);
                 
                 // Check if pcb is undefined
                 if (!pcb) {
                     _StdOut.putText(`No PCB found with PID: ${pid}`);
                     return;
-                }else if (pcb.state === "Running") {
+                } else if (pcb.state === "Running") {
                     _StdOut.putText(`Process ${pid} is already running.`);
-                }
-                else if (pcb.state === "Terminated") {
+                    return;
+                } else if (pcb.state === "Terminated") {
                     _StdOut.putText(`Process ${pid} is terminated.`);
+                    return;
                 }
-                
+        
+                // Set the current PCB in the CPU
+                _CPU.currentPCB = pcb;
+        
+                // Set PCB state to running and update PCB display
                 pcb.state = "Running";
                 Control.updatePCBs();
-                // _PCBMap.set(pid, pcb);
-                
-                // //updates the pcb
-                // pcb.init();
-                
-
+        
+                // Load CPU state from the PCB before starting execution
+                _CPU.loadStateFromPCB(pcb);
+        
+                // Set CPU execution flag to true
                 _CPU.isExecuting = true;
-                while (_CPU.isExecuting) {
-                    _CPU.cycle();
-                }
+        
+                // no longe rneed this, krnOnCPUClockPulse handle this.
+                // while (_CPU.isExecuting) {
+                //     _CPU.cycle();
+                // }
 
-                //_CPU.cpuLog();
-                _StdOut.advanceLine();
-                _StdOut.putText("gotten to this point");
+                
+                _StdOut.putText("Starting execution for PID " + pid.toString());
+                
+                //if (!_CPU.isExecuting) {
 
-            }else{
+                //}
+            
+            } else {
                 _StdOut.putText("No PID number found: please enter run <PID>");
             }
         }
+        
+        
         
         
         

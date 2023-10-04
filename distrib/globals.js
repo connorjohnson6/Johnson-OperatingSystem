@@ -42,6 +42,7 @@ var _KernelBuffers = null;
 var _StdIn = null;
 var _StdOut = null;
 // Processes
+var _PCB;
 var _PIDCounter = 0;
 var _PCBMap = new Map();
 //var _PCBStatus = [];

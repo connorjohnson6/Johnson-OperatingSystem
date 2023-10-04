@@ -22,6 +22,7 @@ var TSOS;
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
+            this.state = "Resident";
             TSOS.Control.updatePCBs();
         }
     }

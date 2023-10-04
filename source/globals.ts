@@ -56,6 +56,7 @@ var _StdIn:  TSOS.Console = null;
 var _StdOut: TSOS.Console = null;
 
 // Processes
+var _PCB: TSOS.PCB;
 var _PIDCounter = 0;
 var _PCBMap = new Map<number, TSOS.PCB>();
 //var _PCBStatus = [];

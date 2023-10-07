@@ -229,11 +229,16 @@ module TSOS {
         }
 
         public static hostBtnToggleSS_click(btn): void {
-
+            // Toggle single-step mode
+            _CPU.singleStepMode = !_CPU.singleStepMode;
+        
         }
 
         public static hostBtnStep_click(btn): void {
-            
+            // If in single-step mode, perform one CPU cycle
+            if (_CPU.singleStepMode) {
+                _CPU.cycle();
+            }
         }
     }
 }

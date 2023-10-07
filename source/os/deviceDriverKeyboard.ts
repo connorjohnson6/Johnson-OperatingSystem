@@ -9,6 +9,9 @@ module TSOS {
     // Extends DeviceDriver
     export class DeviceDriverKeyboard extends DeviceDriver {
 
+        private ctrlDown: boolean = false; // Add a new property to hold state of Ctrl key
+
+
         constructor() {
             // Override the base method pointers.
 
@@ -33,8 +36,11 @@ module TSOS {
             // Parse the params.  TODO: Check that the params are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted );
             var chr = "";
+
+            
+
 
             //thought this would be better then a bunch of if-else if statements
             //some special charcters will not show up, checked HallOfFame for 
@@ -91,7 +97,45 @@ module TSOS {
             }
 
 
+
+            // If Ctrl key is pressed
+            if (keyCode == 17) {
+                this.ctrlDown = true;
+                return;
+            }
             
+
+            // Check if Ctrl key is down and C is pressed simultaneously
+            if (this.ctrlDown && keyCode == 67) { // 67 is the keyCode for 'C'
+
+                //handles cancellation of the run properly
+                if (_CPU.isExecuting == true) { 
+                    _CPU.isExecuting = false;
+                    _CPU.init();  // re-initialize or clear CPU state
+                    
+                    // Ensure currentPCB is not null before accessing its properties
+                    if (_CPU.currentPCB) {
+                        _CPU.currentPCB.state = "Terminated";
+                        TSOS.Control.updatePCBs();
+                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
+                    } else {
+                        _StdOut.putText(`No current process found.`);
+                    }
+                }
+                
+                _StdOut.advanceLine();  // Move to a new line on console
+                _StdOut.putText(`Please enter your next command under this message:     >`);
+                return;
+            }
+            
+            // Reset the ctrlDown flag for other keys
+            if (keyCode !== 17) {
+                this.ctrlDown = false;
+            }
+            
+
+
+
             // Handling letters (A-Z)
             if ((keyCode >= 65) && (keyCode <= 90)) {
 
@@ -118,7 +162,10 @@ module TSOS {
                 _KernelInputQueue.enqueue(chr);
 
             }
+
             
         }
+
+        
     }
 }

@@ -179,8 +179,14 @@ var TSOS;
             // page from its cache, which is not what we want.
         }
         static hostBtnToggleSS_click(btn) {
+            // Toggle single-step mode
+            _CPU.singleStepMode = !_CPU.singleStepMode;
         }
         static hostBtnStep_click(btn) {
+            // If in single-step mode, perform one CPU cycle
+            if (_CPU.singleStepMode) {
+                _CPU.cycle();
+            }
         }
     }
     TSOS.Control = Control;

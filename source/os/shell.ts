@@ -121,9 +121,6 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
 
-            // ps  - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
-
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -454,32 +451,8 @@ module TSOS {
             if(hexValidate.test(taProgramInput)){
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
+                Kernel.krnLoadsMemory(taProgramInput)
                 
-                // Split the input by spaces to get individual op codes
-                let opCodes = taProgramInput.split(/\s+/);
-                        
-                // Load the op codes into memory
-                for (let i = 0; i < opCodes.length; i++) {
-                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
-                }
-                
-                // Assign a PID 
-                let pid = _PIDCounter++;
-                        
-                if(pid < 3){
-                    // Initialize the PCB
-                    let pcb = new TSOS.PCB(pid); 
-                    pcb.state = "Ready";
-                    _PCBMap.set(pid, pcb);
-        
-                    // Initialize other PCB properties if necessary
-                    pcb.init();
-        
-                    _StdOut.putText(`Op codes loaded into memory with PID: ${pid}.`);
-                } else {
-                    // Handle the case where there is no more memory or PID limit is reached
-                    _StdOut.putText(`No more memory ... Must run a PID to load more input`);
-                }        
             } else {
                 _StdOut.putText("Hex is not valid.");
             }
@@ -505,24 +478,8 @@ module TSOS {
                     _StdOut.putText(`Process ${pid} is terminated.`);
                     return;
                 }
-        
-                // Set the current PCB in the CPU
-                _CPU.currentPCB = pcb;
-        
-                // Set PCB state to running and update PCB display
-                pcb.state = "Running";
-                Control.updatePCBs();
-        
-                // Load CPU state from the PCB before starting execution
-                _CPU.loadStateFromPCB(pcb);
-        
-                // Set CPU execution flag to true
-                _CPU.isExecuting = true;
-        
-                // no longe rneed this, krnOnCPUClockPulse handle this.
-                // while (_CPU.isExecuting) {
-                //     _CPU.cycle();
-                // }
+
+                Kernel.krnRun(pcb)
 
                 
                 _StdOut.putText("Starting execution for PID " + pid.toString());

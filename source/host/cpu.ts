@@ -25,6 +25,8 @@ module TSOS {
     export class Cpu {
         public currentPCB: TSOS.PCB = null;
 
+        public singleStepMode: boolean = false;
+
         
 
         constructor(
@@ -53,7 +55,7 @@ module TSOS {
             this.IR = _MemoryAccessor.read(this.PC++);
             return this.IR;
         }
-
+        //Just some testing for cpu
         // public cpuLog() {
         //     //logging information for each member of CPU class
         //     console.log("PC: " + TSOS.Utils.toHexString(this.PC) + "\n" +
@@ -174,6 +176,7 @@ module TSOS {
                     _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
                     //trying to figure out why the '>' will not show up after this process gets terminated 
                     //lol im trying to trick you that the '>' is still there, not really to worried about it though
+                    //nice little easter egg if you see this i guess
                     _StdOut.advanceLine();
                     _StdOut.putText(`Please enter your next command under this message:     >`);
 
@@ -257,6 +260,7 @@ module TSOS {
             pcb.Yreg = this.Yreg;
             pcb.Zflag = this.Zflag;
         }
+
 
         // Helper function to fetch a 16-bit address from memory
         //only using this for 0x8D. For some reason I accidentally didn't change that one

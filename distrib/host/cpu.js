@@ -26,6 +26,7 @@ var TSOS;
         Zflag;
         isExecuting;
         currentPCB = null;
+        singleStepMode = false;
         constructor(PC = 0, //program counter
         IR = 0, //instruction reg
         Acc = 0, //accumulator
@@ -54,6 +55,7 @@ var TSOS;
             this.IR = _MemoryAccessor.read(this.PC++);
             return this.IR;
         }
+        //Just some testing for cpu
         // public cpuLog() {
         //     //logging information for each member of CPU class
         //     console.log("PC: " + TSOS.Utils.toHexString(this.PC) + "\n" +
@@ -150,6 +152,7 @@ var TSOS;
                         _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
                         //trying to figure out why the '>' will not show up after this process gets terminated 
                         //lol im trying to trick you that the '>' is still there, not really to worried about it though
+                        //nice little easter egg if you see this i guess
                         _StdOut.advanceLine();
                         _StdOut.putText(`Please enter your next command under this message:     >`);
                         _StdOut.advanceLine();

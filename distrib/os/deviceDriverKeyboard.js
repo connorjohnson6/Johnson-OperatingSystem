@@ -7,6 +7,7 @@ var TSOS;
 (function (TSOS) {
     // Extends DeviceDriver
     class DeviceDriverKeyboard extends TSOS.DeviceDriver {
+        ctrlDown = false; // Add a new property to hold state of Ctrl key
         constructor() {
             // Override the base method pointers.
             // The code below cannot run because "this" can only be
@@ -78,6 +79,35 @@ var TSOS;
             }
             else {
                 chr = UNSHIFTED_CHAR_MAPPING[keyCode] || "";
+            }
+            // If Ctrl key is pressed
+            if (keyCode == 17) {
+                this.ctrlDown = true;
+                return;
+            }
+            // Check if Ctrl key is down and C is pressed simultaneously
+            if (this.ctrlDown && keyCode == 67) { // 67 is the keyCode for 'C'
+                //handles cancellation of the run properly
+                if (_CPU.isExecuting == true) {
+                    _CPU.isExecuting = false;
+                    _CPU.init(); // re-initialize or clear CPU state
+                    // Ensure currentPCB is not null before accessing its properties
+                    if (_CPU.currentPCB) {
+                        _CPU.currentPCB.state = "Terminated";
+                        TSOS.Control.updatePCBs();
+                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
+                    }
+                    else {
+                        _StdOut.putText(`No current process found.`);
+                    }
+                }
+                _StdOut.advanceLine(); // Move to a new line on console
+                _StdOut.putText(`Please enter your next command under this message:     >`);
+                return;
+            }
+            // Reset the ctrlDown flag for other keys
+            if (keyCode !== 17) {
+                this.ctrlDown = false;
             }
             // Handling letters (A-Z)
             if ((keyCode >= 65) && (keyCode <= 90)) {

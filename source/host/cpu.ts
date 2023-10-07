@@ -14,11 +14,11 @@
 
 
 
-//Most of this code is going to be from refrenece of chatGPT. I am currently taking comp. Org&Arch in relation to OS
+//Most of this code is going to be from refrenece of chatGPT/hall of fame work. I am currently taking comp. Org&Arch in relation to OS
 //so most of this code I am not very familiar with, however I want to note that I am not just giving it a prompt and 
 //accepting the code it produces, I am more making chatGPT be a third teacher through all of this and making it prompt
 //me with long, in-depth explinations regarding any code it produces so that I can benefit from it and learn from it to get
-//me ready for when I have to complete the 6502 processor with professor Gormanly this semester.
+//me ready for when I have to complete the 6502 virtual processor with professor Gormanly this semester.
 
 module TSOS {
 
@@ -203,6 +203,7 @@ module TSOS {
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                         //part from KeeDos to test with a working project to see if my project aint shit
+                        //loops back to check previous 
                         if(this.PC > 0xFF){
                             this.PC -= 0x100;
                         }

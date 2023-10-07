@@ -1,5 +1,3 @@
-/* TSOS.css */
-
 body {
   background: #909193 url(distrib/images/deathstar.jpg) repeat;
   font-family: 'Star Wars', sans-serif;
@@ -47,9 +45,7 @@ h3 {
   font-weight: bold;
   padding: 10px;
   color: white;
-  background: linear-gradient(90deg, transparent 50%, #00f0ff 50%, #00f0ff);
-  background-size: 200% 100%;
-  animation: lightsaber 2s linear infinite;
+  margin-bottom: 60px; /* Add this line to introduce space below divRow */
 }
 
 #tableCpu,
@@ -91,6 +87,8 @@ th, td {
 #divConsole {
   margin: 4px;
   flex: 1;
+  position: relative; 
+  z-index: 2; 
 }
 
 #divLog,
@@ -107,11 +105,155 @@ th, td {
   max-height: 400px;
 }
 
-@keyframes lightsaber {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+
+
+/*Start of lightsaber css*/
+
+
+.lightsaber{
+  position: absolute;
+  bottom: 38em;
+  left: 20%;
+  transform: translateX(-50%)rotate(90deg);
+  font-size: 10px;
+  z-index: 1;  
+
+}
+
+
+.lightsaber .bottom{
+  width: 3em;
+  height: 11em;
+  background: #c4c4c4;
+  position: relative;
+}
+
+.lightsaber .bottom::before{
+  content: '';
+  width: 130%;
+  height: 2em;
+  position: absolute;
+  bottom: 1em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: inherit;
+}
+
+.lightsaber .bottom::after{
+  content: '';
+  width: 100%;
+  height: 3em;
+  position: absolute;
+  bottom: 4em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333333;
+}
+
+.lightsaber .middle{
+  width: 2.6em;
+  height: 6em;
+  background:
+    linear-gradient(
+    0deg, #333333
+    8%, #8d8d8d 10%, #333333
+    12%, #333333 22%, #8d8d8d
+    24%, #333333 26%, #333333
+    36%, #8d8d8d 38%, #333333
+    40%, #333333 50%, #8d8d8d
+    52%, #333333 54%, #333333
+    64%, #8d8d8d 66%, #333333
+    68%, #333333 78%, #8d8d8d
+    80%, #333333 82%);
+    margin: 0 auto;
+    position: relative;
+
+}
+
+.lightsaber .middle::before{
+  content: '';
+  width: 70%;
+  height: 1em;
+  position: absolute;
+  top: -1em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #c4c4c4;
+}
+
+.lightsaber .top{
+  background: #c4c4c4;
+  height: 1em;
+  width: 3em;
+  margin-bottom: 0.8em;
+  border-radius: 0 0 1em 1em;
+  position: relative;
+}
+
+.lightsaber .top:before{
+  content: '';
+  width: 120%;
+  height: 0.5em;
+  position: absolute;
+  top: -0.5em;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.lightsaber .bottom,
+.lightsaber .bottom::before,
+.lightsaber .top,
+.lightsaber .bottom::before,
+.lightsaber .middle::before{
+  background: 
+    linear-gradient(
+      90deg, rgba(126,126,126,1) 0%,
+      rgba(227,227,227,1)
+      20%, rgba(120,120,120,1)
+      50%, rgba(227,227,227,1)
+      80%, rgba(126,126,126,1) 100%);
+}
+
+.lightsaber .blade{
+  height: 0;
+  width: 1.8;
+  background: #fff;
+  border-radius: 2em 2em 0 0;
+  margin: 0 auto;
+  position: relative;
+  transition: 0.4s;
+}
+
+.lightsaber .blade::before{
+  position: absolute;
+  content: '';
+  width: 100%;
+  height: 100%;
+  background: #03fd4e;
+  filter: blur(15px);
+  z-index: -1;
+}
+
+.lightsaber .bottom .switch-btn{
+  position: absolute;
+  top: 1em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: #000;
+
+}
+
+.lightsaber .blade.active {
+  height: 40em;
+}
+
+.lightsaber .blade::before.active {
+  background: #03fd4e; /* You can adjust the color */
+}
+
+.lightsaber .blade.red::before {
+  background: #ff0000; /* Red Color */
 }

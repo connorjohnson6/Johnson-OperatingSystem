@@ -149,6 +149,7 @@ var TSOS;
                         _StdOut.advanceLine();
                         _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
                         //trying to figure out why the '>' will not show up after this process gets terminated 
+                        //lol im trying to trick you that the '>' is still there, not really to worried about it though
                         _StdOut.advanceLine();
                         _StdOut.putText(`Please enter your next command under this message:     >`);
                         _StdOut.advanceLine();

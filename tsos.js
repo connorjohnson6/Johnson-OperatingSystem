@@ -19,6 +19,12 @@ function updateDate() {
         dateDiv.innerHTML = "<p>".concat(formattedDate, "</p>");
     }
 }
+// const blade = document.querySelector('.blade');
+// if (blade) {
+//     document.querySelector('.switch-btn')?.addEventListener('click', function(){
+//         blade.classList.toggle('blade-height');
+//     });
+// }
 // display the date when the page loads
 updateDate();
 // (1000 milliseconds)

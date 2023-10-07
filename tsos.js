@@ -19,12 +19,29 @@ function updateDate() {
         dateDiv.innerHTML = "<p>".concat(formattedDate, "</p>");
     }
 }
-// const blade = document.querySelector('.blade');
-// if (blade) {
-//     document.querySelector('.switch-btn')?.addEventListener('click', function(){
-//         blade.classList.toggle('blade-height');
-//     });
-// }
+document.addEventListener("DOMContentLoaded", function () {
+    var _a;
+    var blade = document.querySelector('.lightsaber .blade');
+    var btnToggleSS = document.getElementById('btnToggleSS');
+    if (!blade || !(blade instanceof HTMLElement)) {
+        console.error('Could not find the blade element.');
+        return;
+    }
+    if (!btnToggleSS) {
+        console.error('Could not find the btnToggleSS element.');
+        return;
+    }
+    (_a = document.getElementById('btnStartOS')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+        blade.classList.toggle('active');
+    });
+    btnToggleSS.addEventListener('click', function () {
+        blade.classList.toggle('active'); // retract the blade
+        setTimeout(function () {
+            blade.classList.toggle('red'); // change the color
+            blade.classList.toggle('active'); // extend the blade again
+        }, 600); // set timeout for the transition duration of the blade retraction
+    });
+});
 // display the date when the page loads
 updateDate();
 // (1000 milliseconds)

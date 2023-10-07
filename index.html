@@ -98,6 +98,7 @@
       </div>
    </div>
    
+   <div class="lightsaber-container">
       <div class="lightsaber">
          <div class="blade"></div>
          <div class="top"></div>
@@ -106,6 +107,7 @@
             <div class="switch-btn"></div>
          </div>
       </div>
+   </div>
 
 
    <div id="divContent">
@@ -219,26 +221,5 @@
 
 </body>
 
-<script>
-   document.addEventListener("DOMContentLoaded", function() {
-     const blade = document.querySelector('.lightsaber .blade');
-     const btnToggleSS = document.getElementById('btnToggleSS');
-
-   
-     document.getElementById('btnStartOS').addEventListener('click', function() {
-       blade.classList.toggle('active');
-     });
-
-     btnToggleSS.addEventListener('click', function() {
-      blade.classList.toggle('active'); // retract the blade
-
-      setTimeout(function() {
-          blade.classList.toggle('red'); // change the color
-          blade.classList.toggle('active'); // extend the blade again
-      }, 400); // set timeout for the transition duration of the blade retraction
-  });
-
-   });
-   </script>
 
 </html>

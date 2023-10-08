@@ -1,0 +1,103 @@
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Connor Johnson
+% CMPT 424N
+% Fall 2023
+% Lab1/ Git/LaTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{fontspec,xltxtra,polyglossia,titling,graphicx}
+\usepackage{verbatim,gb4e,synttree,multicol} % choose or add what you need
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\setmainfont[Mapping=tex-text]{Times New Roman} % or another similar font
+\setdefaultlanguage{english}
+\setotherlanguages{norsk}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\frenchspacing
+\newcommand{\tig}[1] {\fontspec{Abyssinica SIL} #1} 
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\title{Lab2: OS} 
+\author{Connor H. Johnson \\ connor.johnson1@marist.edu}
+\hyphenation{lem-mat-iz-at-ion uni-code}
+
+\begin{document}
+\begin{center} \vfill
+\textbf{\Large Marist College}
+
+{\large BS in Computer Science
+
+School of Computer Science and Mathematics \vfill
+
+CMPT-424N Operating System 
+
+Alan Labouseur
+
+Fall 2023 
+
+\vfill
+\includegraphics[width=0.5\textwidth]{Marist.png} \vfill
+
+\emph{\Large\thetitle} \vfill 
+\theauthor} \vfill
+
+\end{center} \clearpage
+\maketitle
+
+\begin{center}
+\begin{large}
+    Overview
+\end{large}    
+\end{center}
+
+\begin{center} \noindent
+Within this document, I will be answering the questions providing in the Lab1 document found on \url{https://www.labouseur.com/courses/os/}
+\end{center}
+
+\begin{center}
+    -----------------------------------------------------------------------
+\end{center}
+
+\begin{center}
+\begin{large}
+    Questions
+\end{large}
+\end{center}
+
+
+\begin{footnotesize}
+For more information regarding my code, please visit my repository\footnote{GitHub: \url{https://github.com/connorjohnson6/Johnson-OperatingSystem}} 
+\end{footnotesize}
+
+\section{What is the relationship between a guest operating system and a host operating system in a system like VMware? What factors need to be considered in choosing the host operating system?}
+
+\begin{itemize}
+  \item The guest operating system is actually installed within a virtual machine like VMware. To put that into perspective, when you run a virtual machine on your mac OS you can run a different OS like Windows or Linux as guests. The host operating system is installed on the physical hardware and provides the resources, such as CPU/Memory/Storage, for the virtual machine to operate 
+
+  Factors:
+    \begin{itemize}
+        \item Performance
+        \item Security
+        \item Compatibility
+        \item Support on various topics
+    \end{itemize}
+ 
+\end{itemize}
+
+
+\end{document}

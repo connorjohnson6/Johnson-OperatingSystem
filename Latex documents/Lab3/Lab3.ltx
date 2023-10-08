@@ -1,0 +1,134 @@
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Connor Johnson
+% CMPT 424N
+% Fall 2023
+% Lab1/ Git/LaTeX
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{fontspec,xltxtra,polyglossia,titling,graphicx}
+\usepackage{verbatim,gb4e,synttree,multicol} % choose or add what you need
+\usepackage[colorlinks,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\setmainfont[Mapping=tex-text]{Times New Roman} % or another similar font
+\setdefaultlanguage{english}
+\setotherlanguages{norsk}
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\frenchspacing
+\newcommand{\tig}[1] {\fontspec{Abyssinica SIL} #1} 
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\title{Lab2: OS} 
+\author{Connor H. Johnson \\ connor.johnson1@marist.edu}
+\hyphenation{lem-mat-iz-at-ion uni-code}
+
+\begin{document}
+\begin{center} \vfill
+\textbf{\Large Marist College}
+
+{\large BS in Computer Science
+
+School of Computer Science and Mathematics \vfill
+
+CMPT-424N Operating System 
+
+Alan Labouseur
+
+Fall 2023 
+
+\vfill
+\includegraphics[width=0.5\textwidth]{Marist.png} \vfill
+
+\emph{\Large\thetitle} \vfill 
+\theauthor} \vfill
+
+\end{center} \clearpage
+\maketitle
+
+\begin{center}
+\begin{large}
+    Overview
+\end{large}    
+\end{center}
+
+\begin{center} \noindent
+Within this document, I will be answering the questions providing in the Lab1 document found on \url{https://www.labouseur.com/courses/os/}
+\end{center}
+
+\begin{center}
+    -----------------------------------------------------------------------
+\end{center}
+
+\begin{center}
+\begin{large}
+    Questions
+\end{large}
+\end{center}
+
+\begin{footnotesize}
+For more information regarding my code, please visit my repository\footnote{GitHub: \url{https://github.com/connorjohnson6/Johnson-OperatingSystem}} 
+\end{footnotesize}
+
+\section{Explain the difference between internal and external fragmentation}
+
+\begin{itemize}
+  \item Internal Fragmentation is when the allocated memory is greater than the amount of memory requested. The resulting size difference represents unused memory within the allocated partition.
+
+  \item External Fragmentation is when sufficient total memory is available to fulfill a request, but this memory is not located in a contiguous block.
+   \end{itemize}
+
+
+\section{Given five (5) memory partitions of 100KB, 500KB, 200KB, 300KB, and 600KB (in that order), how would optimal, first-fit, best-fit, and worst-fit algorithms place processes of 212KB, 417KB, 112KB, and 426KB (in that order)?}
+
+\begin{itemize}
+  \item Optimal:
+  
+  \begin{itemize}
+        \item212 KB - 300 KB
+        \item417 KB - 500 KB
+        \item112 KB - 200 KB
+        \item426 KB - 600 KB
+  \end{itemize}
+
+  \item first-fit:
+    \begin{itemize}
+        \item212KB - 500KB
+        \item417KB - 600KB
+        \item112KB - in the remaining 288 KB from first partition
+        \item426KB - No space 
+    \end{itemize}
+
+  \item best-fit:
+    \begin{itemize}
+        \item212 KB - 300 KB
+        \item417 KB - 500 KB
+        \item112 KB - 200 KB
+        \item426 KB - 600 KB
+    \end{itemize}
+
+  \item worst-fit:
+    \begin{itemize}
+        \item212 KB - 600 KB
+        \item417 KB - 500 KB
+        \item112 KB - in the remaining 388 KB from first partition
+        \item426 KB - No space
+    \end{itemize}
+ 
+\end{itemize}
+
+
+\end{document}

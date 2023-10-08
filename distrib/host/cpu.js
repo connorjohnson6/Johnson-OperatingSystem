@@ -10,11 +10,11 @@
      This code references page numbers in the text book:
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
-//Most of this code is going to be from refrenece of chatGPT. I am currently taking comp. Org&Arch in relation to OS
+//Most of this code is going to be from refrenece of chatGPT/hall of fame work. I am currently taking comp. Org&Arch in relation to OS
 //so most of this code I am not very familiar with, however I want to note that I am not just giving it a prompt and 
 //accepting the code it produces, I am more making chatGPT be a third teacher through all of this and making it prompt
 //me with long, in-depth explinations regarding any code it produces so that I can benefit from it and learn from it to get
-//me ready for when I have to complete the 6502 processor with professor Gormanly this semester.
+//me ready for when I have to complete the 6502 virtual processor with professor Gormanly this semester.
 var TSOS;
 (function (TSOS) {
     class Cpu {
@@ -175,6 +175,7 @@ var TSOS;
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                         //part from KeeDos to test with a working project to see if my project aint shit
+                        //loops back to check previous 
                         if (this.PC > 0xFF) {
                             this.PC -= 0x100;
                         }
@@ -185,7 +186,21 @@ var TSOS;
                     let incAddress = this.fetchAddress1(this.PC);
                     this.PC += 2;
                     let incValue = _MemoryAccessor.read(incAddress);
-                    _MemoryAccessor.write(incAddress, incValue + 1);
+                    //looking for potention infite loops due to it exceeding memory limit
+                    if (incValue > 0xFF) {
+                        // Terminate process or take other appropriate action
+                        _CPU.isExecuting = false;
+                        _CPU.init(); // re-initialize or clear CPU state
+                        if (_CPU.currentPCB) {
+                            _CPU.currentPCB.state = "Terminated";
+                            TSOS.Control.updatePCBs();
+                            _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
+                        }
+                        TSOS.Kernel.krnTrapError("Potential infinite loop detected: too many write operations");
+                    }
+                    else {
+                        _MemoryAccessor.write(incAddress, incValue + 1);
+                    }
                     break;
                 //System Call 
                 case 0xFF:

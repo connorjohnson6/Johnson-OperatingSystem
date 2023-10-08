@@ -6,7 +6,7 @@ function Glados() {
    this.version = 2112;
 
    this.init = function() {
-      var msg = "Hello [subject name here]. Let's test project TWO.\n";
+      var msg = "Hello Connor Johnson. Let's test project TWO.\n";
       alert(msg);
    };
 

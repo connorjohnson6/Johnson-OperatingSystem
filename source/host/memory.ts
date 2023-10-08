@@ -18,15 +18,14 @@ module TSOS {
                 
                 // Split the input by spaces to get individual op codes
                 let opCodes = taProgramInput.split(/\s+/);
+
+
+                MemoryManager.memorySpot(opCodes);
                         
-                // Load the op codes into memory
-                for (let i = 0; i < opCodes.length; i++) {
-                    _MemoryAccessor.write(i, parseInt(opCodes[i], 16));
-                }
-                
                 // Assign a PID 
                 let pid = _PIDCounter++;
-                        
+                      
+                //delete later as this will involve memory manager
                 if(pid < 3){
                     // Initialize the PCB
                     let pcb = new TSOS.PCB(pid); 

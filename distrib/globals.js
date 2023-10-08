@@ -41,7 +41,7 @@ var _KernelBuffers = null;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
-// Processes
+// Processe control block
 var _PCB;
 var _PIDCounter = 0;
 var _PCBMap = new Map();

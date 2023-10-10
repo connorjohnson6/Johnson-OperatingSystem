@@ -45,6 +45,7 @@ h3 {
   font-weight: bold;
   padding: 10px;
   color: white;
+  border: none; /* This will remove the border */
   margin-bottom: 60px; /* Add this line to introduce space below divRow */
 }
 
@@ -72,6 +73,8 @@ th, td {
   display: flex;
   flex-direction: column;
   width: 100%;
+  border: none; /* This will remove the border */
+
 }
 
 #divContent {
@@ -111,8 +114,8 @@ th, td {
 
 
 .lightsaber {
-  position: absolute;
-  bottom: 67em;
+  position: fixed;
+  bottom: 88%; /* Adjust as needed */
   left: 1%;
   font-size: 10px;
   transform-origin: bottom center; /* or another appropriate value */

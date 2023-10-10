@@ -43,7 +43,6 @@ var TSOS;
             return retVal;
         }
         //keep in utils as this is a changer
-        //inspiration from KeeDos
         static convertHexString(value, length = 0) {
             let hexString = value.toString(16).toUpperCase();
             while (hexString.length < length) {

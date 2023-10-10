@@ -184,7 +184,7 @@ var TSOS;
         }
         static hostBtnStep_click(btn) {
             // If in single-step mode, perform one CPU cycle
-            if (_CPU.singleStepMode) {
+            if (_CPU.singleStepMode && _CPU.currentPCB.state != "Terminated") {
                 _CPU.cycle();
             }
         }

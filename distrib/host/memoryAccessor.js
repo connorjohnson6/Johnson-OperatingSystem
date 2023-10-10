@@ -20,7 +20,7 @@ var TSOS;
             this.unhighlightMemoryCell(address);
         }
         highlightMemoryCell(address) {
-            console.log("Highlighting address: ", address); // Debugging line
+            //console.log("Highlighting address: ", address); // Debugging line
             const column = (address % 8) + 2;
             const row = Math.floor(address / 8) + 1;
             const cellSelector = `#memoryTable > tr:nth-child(${row}) > td:nth-child(${column})`;

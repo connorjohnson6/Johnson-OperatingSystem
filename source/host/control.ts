@@ -236,7 +236,8 @@ module TSOS {
 
         public static hostBtnStep_click(btn): void {
             // If in single-step mode, perform one CPU cycle
-            if (_CPU.singleStepMode) {
+            //added the terminated so that the user can never exceed the process
+            if (_CPU.singleStepMode && _CPU.currentPCB.state != "Terminated") {
                 _CPU.cycle();
             }
         }

@@ -45,10 +45,12 @@ module TSOS {
         }
 
         //keep in utils as this is a changer
-        //inspiration from KeeDos
         public static convertHexString(value: number, length: number = 0): string {
-            const hexString = value.toString(16).toUpperCase();
-            return length ? hexString.padStart(length, "0") : hexString;
+            let hexString = value.toString(16).toUpperCase();
+            while (hexString.length < length) {
+                hexString = '0' + hexString;
+            }
+            return hexString;
         }
 
     }

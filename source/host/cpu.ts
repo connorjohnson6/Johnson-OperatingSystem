@@ -98,7 +98,8 @@ module TSOS {
             switch(opCode) {
                 //Load the accumulator with a constant 
                 case 0xA9:
-                    this.Acc = _MemoryAccessor.read(this.PC++);
+                    this.Acc = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the accumulator from memory
@@ -137,7 +138,8 @@ module TSOS {
                     
                 //Load the X register with a constant 
                 case 0xA2: 
-                    this.Xreg = _MemoryAccessor.read(this.PC++);
+                    this.Xreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the X register from memory
@@ -150,7 +152,8 @@ module TSOS {
 
                 //Load the Y register with a constant
                 case 0xA0: 
-                    this.Yreg = _MemoryAccessor.read(this.PC++);
+                    this.Yreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the Y register from memory 
@@ -199,11 +202,12 @@ module TSOS {
 
                 //Branch n bytes if Z flag = 0
                 case 0xD0: 
-                    let branchValue = _MemoryAccessor.read(this.PC++);
+                    let branchValue = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                         //part from KeeDos to test with a working project to see if my project aint shit
-                        //loops back to check previous 
+                        //loops back to check previous--needed
                         if(this.PC > 0xFF){
                             this.PC -= 0x100;
                         }
@@ -308,6 +312,7 @@ module TSOS {
         
             // Combine the HOB and LOB to form the address. 
             // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
+            //chatGPT help
             let address = (highByte << 8) | lowByte;
         
             return address;

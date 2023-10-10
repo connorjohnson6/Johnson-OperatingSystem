@@ -45,8 +45,11 @@ var TSOS;
         //keep in utils as this is a changer
         //inspiration from KeeDos
         static convertHexString(value, length = 0) {
-            const hexString = value.toString(16).toUpperCase();
-            return length ? hexString.padStart(length, "0") : hexString;
+            let hexString = value.toString(16).toUpperCase();
+            while (hexString.length < length) {
+                hexString = '0' + hexString;
+            }
+            return hexString;
         }
     }
     TSOS.Utils = Utils;

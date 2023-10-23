@@ -40,6 +40,7 @@ var TSOS;
             _Memory = new TSOS.Memory();
             _Memory.init();
             _MemoryAccessor = new TSOS.MemoryAccessor();
+            _MemoryManager = new TSOS.MemoryManager(); // Initialize the MemoryManager
             const memoryTable = document.getElementById('memoryTable');
             function createTableCell(value) {
                 const cell = document.createElement('td');
@@ -74,6 +75,11 @@ var TSOS;
                 // the global (and properly capitalized) _GLaDOS variable.
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
+            }
+        }
+        static updateMemoryDisplay() {
+            for (let address = 0; address <= 0x2F8; address++) {
+                const value = _MemoryAccessor.read(address);
             }
         }
         //credit from looking at the hall of fame KeeDOS
@@ -184,6 +190,7 @@ var TSOS;
         }
         static hostBtnStep_click(btn) {
             // If in single-step mode, perform one CPU cycle
+            //added the terminated so that the user can never exceed the process
             if (_CPU.singleStepMode && _CPU.currentPCB.state != "Terminated") {
                 _CPU.cycle();
             }

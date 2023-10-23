@@ -11,20 +11,25 @@ module TSOS {
         public init(){}
 
         //Read a byte from a specific address in memory.
-        public read(address: number): number {
-            this.highlightMemoryCell(address);
-            let value = _Memory[address];
-            this.unhighlightMemoryCell(address);
+        public read(address: number, base?: number): number {
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualAddress = address + actualBase;
+            this.highlightMemoryCell(actualAddress);
+            let value = _Memory[actualAddress];
+            this.unhighlightMemoryCell(actualAddress);
             return value;
         }
+        
 
 
         // Write a byte to a specific address in memory.
-        public write(address: number, value: number): void {
-            this.highlightMemoryCell(address);
-            _Memory[address] = value;
-            TSOS.Control.updateMemory(address, value);
-            this.unhighlightMemoryCell(address);
+        public write(address: number, value: number, base?: number): void {
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualAddress = address + actualBase;
+            this.highlightMemoryCell(actualAddress);
+            _Memory[actualAddress] = value;
+            TSOS.Control.updateMemory(actualAddress, value);
+            this.unhighlightMemoryCell(actualAddress);
         }
 
         private highlightMemoryCell(address: number): void {

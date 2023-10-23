@@ -10,9 +10,17 @@ var TSOS;
         Yreg = 0; // Y register
         Zflag = 0; // Z flag (zero flag)
         state = "Resident"; // State of the process (e.g., "new", "running", "terminated")
-        constructor(pid) {
+        base = 0; // Base address of the process in memory
+        limit = 0; // Limit address of the process in memory
+        constructor(pid, base, limit) {
             if (pid !== undefined) {
                 this.pid = pid;
+            }
+            if (base !== undefined) {
+                this.base = base;
+            }
+            if (limit !== undefined) {
+                this.limit = limit;
             }
         }
         static loadRun(pcb) {

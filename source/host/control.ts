@@ -51,6 +51,8 @@ module TSOS {
             _Memory	= new Memory();
             _Memory.init();
             _MemoryAccessor	= new MemoryAccessor();
+            _MemoryManager = new TSOS.MemoryManager(); // Initialize the MemoryManager
+
 
 
 
@@ -98,6 +100,13 @@ module TSOS {
                 // the global (and properly capitalized) _GLaDOS variable.
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
+            }
+        }
+
+
+        public static updateMemoryDisplay(): void {
+            for (let address = 0; address <= 0x2F8; address++) {
+                const value = _MemoryAccessor.read(address); 
             }
         }
 

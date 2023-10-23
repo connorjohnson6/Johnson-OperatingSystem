@@ -11,13 +11,15 @@ var TSOS;
         static loadIntoMemory(taProgramInput) {
             // Split the input by spaces to get individual op codes
             let opCodes = taProgramInput.split(/\s+/);
-            TSOS.MemoryManager.memorySpot(opCodes);
             // Assign a PID 
             let pid = _PIDCounter++;
-            //delete later as this will involve memory manager
             if (pid < 3) {
+                // Load the op codes into memory and assign them to a partition with the PID
+                _MemoryManager.loadProcess(pid, opCodes); // Using the instance of MemoryManager
+                // Find the partition where the op codes were loaded
+                let partition = _MemoryManager.findPartitionByPID(pid);
                 // Initialize the PCB
-                let pcb = new TSOS.PCB(pid);
+                let pcb = new TSOS.PCB(pid, partition.base, partition.limit);
                 pcb.state = "Ready";
                 _PCBMap.set(pid, pcb);
                 // Initialize other PCB properties if necessary

@@ -9,12 +9,19 @@ module TSOS {
         public Yreg: number = 0;   // Y register
         public Zflag: number = 0;  // Z flag (zero flag)
         public state: string = "Resident"; // State of the process (e.g., "new", "running", "terminated")
+        public base: number = 0;   // Base address of the process in memory
+        public limit: number = 0;  // Limit address of the process in memory
 
-        constructor(pid?: number) {
+        constructor(pid?: number, base?: number, limit?: number) {
             if (pid !== undefined) {
                 this.pid = pid;
             }
-          
+            if (base !== undefined) {
+                this.base = base;
+            }
+            if (limit !== undefined) {
+                this.limit = limit;
+            }
         }
 
         public static loadRun(pcb): void {

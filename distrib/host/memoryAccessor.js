@@ -6,18 +6,22 @@ var TSOS;
         constructor() { }
         init() { }
         //Read a byte from a specific address in memory.
-        read(address) {
-            this.highlightMemoryCell(address);
-            let value = _Memory[address];
-            this.unhighlightMemoryCell(address);
+        read(address, base) {
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualAddress = address + actualBase;
+            this.highlightMemoryCell(actualAddress);
+            let value = _Memory[actualAddress];
+            this.unhighlightMemoryCell(actualAddress);
             return value;
         }
         // Write a byte to a specific address in memory.
-        write(address, value) {
-            this.highlightMemoryCell(address);
-            _Memory[address] = value;
-            TSOS.Control.updateMemory(address, value);
-            this.unhighlightMemoryCell(address);
+        write(address, value, base) {
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualAddress = address + actualBase;
+            this.highlightMemoryCell(actualAddress);
+            _Memory[actualAddress] = value;
+            TSOS.Control.updateMemory(actualAddress, value);
+            this.unhighlightMemoryCell(actualAddress);
         }
         highlightMemoryCell(address) {
             //console.log("Highlighting address: ", address); // Debugging line

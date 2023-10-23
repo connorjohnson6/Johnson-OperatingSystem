@@ -73,7 +73,13 @@ module TSOS {
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
 
+            // console.log("Current PCB:", this.currentPCB);
+            // console.log("Program Counter:", this.PC);
+
             let opCode = this.fetch();
+
+            // console.log("Fetched OpCode:", opCode);
+
             
             //Testing console.log for results, will get toString() errors
             // if (opCodeNum === undefined || opCodeNum === 0) {
@@ -174,6 +180,7 @@ module TSOS {
                 _CPU.isExecuting = false;
                 if (_CPU.currentPCB) {
                     _CPU.currentPCB.state = "Terminated";
+                    _MemoryManager.unloadProcess(_CPU.currentPCB.pid); // Unload terminated process
                     _StdOut.advanceLine();
 
                     _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);

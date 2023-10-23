@@ -68,7 +68,10 @@ var TSOS;
         // }
         cycle() {
             _Kernel.krnTrace('CPU cycle');
+            console.log("Current PCB:", this.currentPCB);
+            console.log("Program Counter:", this.PC);
             let opCode = this.fetch();
+            console.log("Fetched OpCode:", opCode);
             //Testing console.log for results, will get toString() errors
             // if (opCodeNum === undefined || opCodeNum === 0) {
             //     // If you have specific handling for opcode 00, you might want to do it here
@@ -151,6 +154,7 @@ var TSOS;
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
                         _CPU.currentPCB.state = "Terminated";
+                        _MemoryManager.unloadProcess(_CPU.currentPCB.pid); // Unload terminated process
                         _StdOut.advanceLine();
                         _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
                         //trying to figure out why the '>' will not show up after this process gets terminated 

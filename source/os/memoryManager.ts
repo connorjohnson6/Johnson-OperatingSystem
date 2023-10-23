@@ -11,14 +11,10 @@ module TSOS {
         
         constructor() {}
         
-        public loadProcess(pid: number, opCodes: string[]): void {
-            console.log("Partitions before loading:", this.partitions); // Log the state of partitions
-            
+        public loadProcess(pid: number, opCodes: string[]): void {            
             // Find an available partition
             const partition = this.partitions.find(p => !p.occupied);
-            
-            console.log("Found partition:", partition); // Log the found partition
-            
+                        
             if (!partition) {
                 _StdOut.putText("Error: No available memory partitions.");
                 return;
@@ -32,20 +28,49 @@ module TSOS {
             
             // Load the op codes into memory considering the base address of the partition
             for (let i = 0; i < opCodes.length; i++) {
-                _MemoryAccessor.write(i, parseInt(opCodes[i], 16), partition.base);
+                // Calculate the actual address where the opcode will be stored
+                const actualAddress = i + partition.base;
+                
+                // Validate that the actual address is within the partition limits
+                if (actualAddress <= partition.limit) {
+                    const opcode = parseInt(opCodes[i], 16);
+                    _MemoryAccessor.write(i, opcode, partition.base);
+                } else {
+                    return;
+                }
             }
+
+            // Updating the partition details
             partition.occupied = true;
             partition.pid = pid;
+
+
+
         }
         
         public unloadProcess(pid: number): void {
             // Find the partition assigned to the process and free it
-            const partition = this.partitions.find(p => p.pid === pid);
+            const partition = this.findPartitionByPID(pid);
             if (partition) {
+
+                
+                // Clear the memory occupied by the process
+                for (let i = partition.base; i <= partition.limit; i++) {
+                    _MemoryAccessor.write(i - partition.base, 0, partition.base);
+                }
+                
+
+                // Update the partition metadata
                 partition.occupied = false;
                 partition.pid = undefined;
+
+                
+                // Update the memory display
+                TSOS.Control.updateMemoryDisplay();
             }
         }
+        
+        
 
         public findPartitionByPID(pid: number): any {
             // Iterating over each partition to find a match with the given PID
@@ -56,5 +81,10 @@ module TSOS {
             }
             return null; // Return null if no matching partition is found
         }
+
+        public findAvailablePartition(): any {
+            return this.partitions.find(p => !p.occupied);
+        }
+        
     }
 }

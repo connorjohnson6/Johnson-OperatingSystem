@@ -13,9 +13,9 @@ var TSOS;
             let opCodes = taProgramInput.split(/\s+/);
             // Assign a PID 
             let pid = _PIDCounter++;
-            if (pid < 3) {
+            if (_MemoryManager.findAvailablePartition()) { // Check for available memory partition
                 // Load the op codes into memory and assign them to a partition with the PID
-                _MemoryManager.loadProcess(pid, opCodes); // Using the instance of MemoryManager
+                _MemoryManager.loadProcess(pid, opCodes);
                 // Find the partition where the op codes were loaded
                 let partition = _MemoryManager.findPartitionByPID(pid);
                 // Initialize the PCB

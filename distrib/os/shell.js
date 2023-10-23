@@ -360,6 +360,7 @@ var TSOS;
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
                 TSOS.Kernel.krnLoadsMemory(taProgramInput);
+                //console.log(taProgramInput)
             }
             else {
                 _StdOut.putText("Hex is not valid.");

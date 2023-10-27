@@ -11,6 +11,13 @@
 
         export class Kernel {
             static krnShutdown: any;
+            private pidCounter: number = 0;
+            private nextPID: number = 0;
+
+
+            constructor() {
+            }
+
             //
             // OS Startup and Shutdown Routines
             //
@@ -25,6 +32,11 @@
                 // Initialize the console.
                 _Console = new Console();             // The command line interface / console I/O device.
                 _Console.init();
+
+                _Scheduler = new TSOS.Scheduler();
+                _Scheduler.init();
+
+                _Dispatcher = new TSOS.Dispatcher();
     
                 // Initialize standard input and output to the _Console.
                 _StdIn  = _Console;
@@ -68,8 +80,7 @@
                 // More?
                 //
                 this.krnTrace("end shutdown OS");
-            }
-    
+            }    
     
             public krnOnCPUClockPulse() {
                 /* This gets called from the host hardware simulation every time there is a hardware clock pulse.
@@ -91,6 +102,12 @@
                 } else {     
                     // If there are no interrupts and there is nothing being executed then just be idle.                  
                     this.krnTrace("Idle");
+                    
+                    // If no process is currently executing, get the next process from the scheduler
+                    let nextProcess = _Scheduler.schedule(); // Assuming schedule() returns the next process to execute
+                    if (nextProcess) {
+                        _Dispatcher.executeProcess(nextProcess);
+                    }
                 }
             }
     
@@ -110,14 +127,57 @@
                 // Put more here.
             }
     
-            public static krnLoadsMemory(taProgramInput) {
-                // Send to memory
-                Memory.loadIntoMemory(taProgramInput);
-            }
+            // public krnLoadsMemory(taProgramInput) {
+            //     // Send to memory
+            //     Memory.loadIntoMemory(taProgramInput);
+
+            //     let pid = _Kernel.getNextPID(); 
+            //     let newPCB = new PCB(pid); 
+            //     _MemoryManager.loadProcess(newPCB, taProgramInput.split(" "));
+            // }
     
-            public static krnRun(pcb) {
-                // run the pcb and cpu
-                PCB.loadRun(pcb);
+            // public krnRun(pcb) {
+            //     // run the pcb and cpu
+            //     _Scheduler.executeProcess(pcb);
+
+            // }
+
+            public getNextPID(): number {
+                return this.nextPID++;
+            }
+
+            public getPCB(pid: number): PCB | null {
+                // First, try to get the PCB from the Scheduler's residentList
+                let pcb = _Scheduler.residentList.get(pid);
+            
+                // If not found in the residentList, try to get it from the global _PCBMap
+                if (!pcb) {
+                    pcb = _PCBMap.get(pid) || null;
+                }
+            
+                return pcb;
+            }
+            
+
+            public static krnLoadProcess(taProgramInput) {
+                let pcb = _MemoryManager.loadProcess(taProgramInput);
+                _Scheduler.addProcess(pcb);
+            }
+
+            public static krnClearMemory() {
+                if (_CPU.isExecuting) {
+                    _StdOut.putText('Cant clear memory when a process is running');
+                }
+                else {
+                    // Collecting all PCBs into an array
+                    let pcbArray = Array.from(_Scheduler.residentList.values());
+                    
+                    // Calling the clearMemory method with the array of PCBs
+                    MemoryAccessor.clearMemory(pcbArray);
+                    
+                    _StdOut.putText('All memory cleared.');
+                    _Kernel.krnTrace('Cleared memory');
+                }
             }
     
             public krnInterruptHandler(irq, params) {
@@ -129,7 +189,13 @@
                 // TODO: Consider using an Interrupt Vector in the future.
                 // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
                 //       Maybe the hardware simulation will grow to support/require that in the future.
+                
                 switch (irq) {
+                    case CONTEXT_SWITCH_IRQ:
+                        let oldPCB = _CPU.currentPCB;
+                        let newPCB = params;
+                        _Dispatcher.contextSwitch(oldPCB, newPCB);
+                        break;
                     case TIMER_IRQ:
                         this.krnTimerISR();               // Kernel built-in routine for timers (not the clock).
                         break;

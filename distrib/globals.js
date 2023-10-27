@@ -13,6 +13,7 @@
 const APP_NAME = "JohnsonTSOS"; // 'cause Bob and I were at a loss for a better name.
 const APP_VERSION = "6ThisHurts<3"; // What did you expect?
 const CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds) so 1000 = 1 second.
+const CONTEXT_SWITCH_IRQ = 2; // New IRQ for context switching
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ = 1;
@@ -46,6 +47,10 @@ var _PCB;
 var _PIDCounter = 0;
 var _PCBMap = new Map();
 //var _PCBStatus = [];
+var _Scheduler; // Global variable for the Scheduler
+var _Dispatcher; // Global variable for the Dispatcher
+var _ReadyQueue; // Global variable for the ready queue
+var _ResidentList = []; // Global array to manage resident processes
 // UI
 var _Console;
 var _OsShell;

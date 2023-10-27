@@ -78,6 +78,13 @@ module TSOS {
 
             let opCode = this.fetch();
 
+
+            if (_Scheduler.schedulingAlgorithm === "rr") {
+                if (_Scheduler.cycles >= _Scheduler.quantum) {
+                    _Scheduler.contextSwitch(); // This might involve saving and loading CPU states
+                }
+            }
+
             // console.log("Fetched OpCode:", opCode);
 
             
@@ -177,10 +184,12 @@ module TSOS {
 
                 //Break (which is really a system call) 
                 case 0x00: 
+                console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
+
                 _CPU.isExecuting = false;
                 if (_CPU.currentPCB) {
                     _CPU.currentPCB.state = "Terminated";
-                    _MemoryManager.unloadProcess(_CPU.currentPCB.pid); // Unload terminated process
+                    _MemoryManager.unloadProcess(_CPU.currentPCB); 
                     _StdOut.advanceLine();
 
                     _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
@@ -188,6 +197,7 @@ module TSOS {
                     //lol im trying to trick you that the '>' is still there, not really to worried about it though
                     //nice little easter egg if you see this i guess
                     _StdOut.advanceLine();
+                    
                     _StdOut.putText(`Please enter your next command under this message:     >`);
 
                     _StdOut.advanceLine();

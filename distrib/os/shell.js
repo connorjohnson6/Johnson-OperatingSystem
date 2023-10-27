@@ -65,6 +65,24 @@ var TSOS;
             //run
             sc = new TSOS.ShellCommand(this.shellRun, "run", " <PID> - run tests on OP Code");
             this.commandList[this.commandList.length] = sc;
+            //clearmem
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- clear all memory partitions");
+            this.commandList[this.commandList.length] = sc;
+            //runall
+            sc = new TSOS.ShellCommand(this.shellRunAll, "runall", "- execute all programs at once");
+            this.commandList[this.commandList.length] = sc;
+            //ps
+            sc = new TSOS.ShellCommand(this.shellPs, "ps", "- display the PID and state of all processes");
+            this.commandList[this.commandList.length] = sc;
+            //kill
+            sc = new TSOS.ShellCommand(this.shellKill, "kill", " <PID> - kill one process");
+            this.commandList[this.commandList.length] = sc;
+            //killall
+            sc = new TSOS.ShellCommand(this.shellKillAll, "killall", "- kill all process");
+            this.commandList[this.commandList.length] = sc;
+            //quantum
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", " <int> - let the user set the Round Robin quantum (measured in cpu cycles)");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -249,10 +267,28 @@ var TSOS;
                         _StdOut.putText("Seems you have an OS error my good sir");
                         break;
                     case "load":
-                        _StdOut.putText("Check to see if your hex log is valid");
+                        _StdOut.putText("loading op codes into memory");
                         break;
                     case "run":
-                        _StdOut.putText("running to check OP code correctness");
+                        _StdOut.putText("running to execute given op codes");
+                        break;
+                    case "clearmem":
+                        _StdOut.putText("clear all spaces in memory");
+                        break;
+                    case "runall":
+                        _StdOut.putText("run all PID operations");
+                        break;
+                    case "ps":
+                        _StdOut.putText("display PID and state of processes");
+                        break;
+                    case "kill":
+                        _StdOut.putText("kill a specific PID processes");
+                        break;
+                    case "killall":
+                        _StdOut.putText("kill all PID processes");
+                        break;
+                    case "quantum":
+                        _StdOut.putText("set speed of execution");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -359,39 +395,97 @@ var TSOS;
             if (hexValidate.test(taProgramInput)) {
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
-                TSOS.Kernel.krnLoadsMemory(taProgramInput);
-                //console.log(taProgramInput)
+                // Generating a unique PID, 
+                let pid = _Kernel.getNextPID();
+                // Create a new PCB object
+                let newPCB = new TSOS.PCB(pid);
+                // Load the program into memory and pass the PCB
+                if (_MemoryManager.loadProcess(newPCB, taProgramInput.split(" "))) {
+                    _StdOut.putText(`Program loaded with PID: ${pid}`);
+                }
+                else {
+                    _StdOut.putText("Program load failed.");
+                }
             }
             else {
                 _StdOut.putText("Hex is not valid.");
             }
         }
         shellRun(args) {
+            if (args.length === 0 || isNaN(parseInt(args[0]))) {
+                _StdOut.putText("Invalid command. Usage: run <PID>");
+                return;
+            }
             let pid = parseInt(args[0]);
-            // Check if there are arguments and if the PID is a valid number
-            if (args.length > 0 && !isNaN(pid)) {
-                let pcb = _PCBMap.get(pid);
-                // Check if pcb is undefined
-                if (!pcb) {
-                    _StdOut.putText(`No PCB found with PID: ${pid}`);
-                    return;
-                }
-                else if (pcb.state === "Running") {
+            let pcb = _Kernel.getPCB(pid); // Make sure this function works correctly
+            if (!pcb) {
+                _StdOut.putText(`No process found with PID: ${pid}`);
+                return;
+            }
+            switch (pcb.state) {
+                case "Running":
                     _StdOut.putText(`Process ${pid} is already running.`);
-                    return;
-                }
-                else if (pcb.state === "Terminated") {
+                    break;
+                case "Terminated":
                     _StdOut.putText(`Process ${pid} is terminated.`);
-                    return;
-                }
-                TSOS.Kernel.krnRun(pcb);
-                _StdOut.putText("Starting execution for PID " + pid.toString());
-                //if (!_CPU.isExecuting) {
-                //}
+                    break;
+                default:
+                    _Scheduler.addProcess(pcb); // Add the process to the scheduler’s ready queue
+                    _Dispatcher.executeProcess(pcb); // Directly execute the process using the dispatcher
+                    _StdOut.putText(`Starting execution for PID ${pid}`);
+                    _StdOut.advanceLine();
+                    break;
+            }
+        }
+        shellClearMem(args) {
+            if (_CPU.isExecuting) {
+                _StdOut.putText("Cannot clear memory while a process is executing.");
             }
             else {
-                _StdOut.putText("No PID number found: please enter run <PID>");
+                _MemoryManager.clearAll(); // Clear all memory partitions
+                _StdOut.putText("Memory cleared.");
             }
+        }
+        shellRunAll(args) {
+            _PCBMap.forEach(pcb => {
+                _Scheduler.addProcess(pcb); // Add all processes to the scheduler’s ready queue
+            });
+            TSOS.Control.updateReadyQueueDisplay(_Scheduler);
+        }
+        shellPs(args) {
+            let activeProcesses = _Scheduler.getActiveProcesses();
+            if (activeProcesses.length > 0) {
+                activeProcesses.forEach(pcb => _StdOut.putText(`PID: ${pcb.pid}, State: ${pcb.state}`));
+            }
+            else {
+                _StdOut.putText("No active processes.");
+            }
+        }
+        shellKill(args) {
+            let pid = parseInt(args[0]);
+            if (!isNaN(pid)) {
+                let pcb = _Kernel.getPCB(pid);
+                if (pcb) {
+                    _MemoryManager.unloadProcess(pcb); // Free up the memory used by this process
+                    _Scheduler.terminateProcess(pid); // Terminate the process
+                    _StdOut.putText(`Terminated process with PID: ${pid}`);
+                }
+                else {
+                    _StdOut.putText("Invalid PID.");
+                }
+            }
+            else {
+                _StdOut.putText("Invalid PID.");
+            }
+        }
+        shellKillAll(args) {
+            _Scheduler.getActiveProcesses().forEach(pcb => {
+                _MemoryManager.unloadProcess(pcb); // Unload each process from memory
+            });
+            _Scheduler.terminateAllProcesses(); // Terminate all processes
+            _StdOut.putText("Terminated all processes.");
+        }
+        shellQuantum(args) {
         }
     }
     TSOS.Shell = Shell;

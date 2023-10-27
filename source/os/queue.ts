@@ -40,5 +40,12 @@ module TSOS {
             }
             return retVal;
         }
+
+        public remove(pcb: PCB): void {
+            const index = this.q.indexOf(pcb);
+            if (index > -1) {
+                this.q.splice(index, 1);
+            }
+        }
     }
 }

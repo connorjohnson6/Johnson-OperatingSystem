@@ -16,6 +16,8 @@ const APP_VERSION: string = "6ThisHurts<3";   // What did you expect?
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds) so 1000 = 1 second.
 
+const CONTEXT_SWITCH_IRQ: number = 2;  // New IRQ for context switching
+
 const TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                               // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ: number = 1;
@@ -61,6 +63,10 @@ var _PIDCounter = 0;
 var _PCBMap = new Map<number, TSOS.PCB>();
 //var _PCBStatus = [];
 
+var _Scheduler: TSOS.Scheduler; // Global variable for the Scheduler
+var _Dispatcher: TSOS.Dispatcher ; // Global variable for the Dispatcher
+var _ReadyQueue: TSOS.Queue ; // Global variable for the ready queue
+var _ResidentList: TSOS.PCB[] = []; // Global array to manage resident processes
 
 
 // UI

@@ -37,6 +37,12 @@ var TSOS;
             }
             return retVal;
         }
+        remove(pcb) {
+            const index = this.q.indexOf(pcb);
+            if (index > -1) {
+                this.q.splice(index, 1);
+            }
+        }
     }
     TSOS.Queue = Queue;
 })(TSOS || (TSOS = {}));

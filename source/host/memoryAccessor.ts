@@ -28,9 +28,36 @@ module TSOS {
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             _Memory[actualAddress] = value;
+            console.log(`Memory content at address ${actualAddress}:`, _Memory[actualAddress]);
+
             TSOS.Control.updateMemory(actualAddress, value);
             this.unhighlightMemoryCell(actualAddress);
         }
+
+
+        public static clearMemory(pcbList: PCB[]): void {
+            for (let i = 0; i < 0x2FF; i++) {
+                _Memory[i] = 0;
+                TSOS.Control.updateMemory(i, 0); // update the UI
+            }
+        
+            // Setting each PCB state to "Terminated"
+            pcbList.forEach(pcb => {
+                pcb.state = "Terminated";
+                // You might also want to unload each process from memory
+                _MemoryManager.unloadProcess(pcb.pid); 
+            });
+        }
+        
+        public clearPartition(base: number, limit: number): void {
+            // Loop through each address in the partition
+            for (let address = base; address < base + limit; address++) {
+                // Write 0 (or any other default value) to each address
+                this.write(address, 0, 0);
+            }
+        }
+        
+
 
         private highlightMemoryCell(address: number): void {
             //console.log("Highlighting address: ", address); // Debugging line

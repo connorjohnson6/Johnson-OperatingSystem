@@ -80,6 +80,7 @@ var TSOS;
         static updateMemoryDisplay() {
             for (let address = 0; address <= 0x2F8; address++) {
                 const value = _MemoryAccessor.read(address);
+                this.updateMemory(address, value); // Update the display for each memory cell
             }
         }
         //credit from looking at the hall of fame KeeDOS
@@ -97,6 +98,7 @@ var TSOS;
             const pcbTableBody = document.querySelector("#tablePCB > tbody");
             pcbTableBody.innerHTML = ''; // Clear existing rows
             _PCBMap.forEach((pcb) => {
+                console.log(`Updating PCB table for PID ${pcb.pid}:`, JSON.stringify(pcb)); // Debugging log
                 const row = document.createElement('tr');
                 // Create and append cells for each property of pcb
                 const properties = ['pid', 'state', 'location', 'PC', 'IR', 'Acc', 'Xreg', 'Yreg', 'Zflag'];
@@ -135,6 +137,29 @@ var TSOS;
             });
             // Append the row to the table body
             cpuTableBody.appendChild(row);
+        }
+        static updateReadyQueueDisplay(scheduler) {
+            const readyQueueTableBody = document.querySelector("#tableReadyQueue > tbody");
+            readyQueueTableBody.innerHTML = ''; // Clear existing rows
+            // Check if scheduler.readyQueue and scheduler.readyQueue.q are defined
+            if (scheduler.readyQueue && scheduler.readyQueue.q) {
+                // Loop through each PCB in the Ready Queue
+                scheduler.readyQueue.q.forEach((pcb) => {
+                    const row = document.createElement('tr');
+                    // Define the properties to display and populate the cells
+                    const properties = ['state', 'location', 'base', 'limit', 'segment', 'priority', 'quantum'];
+                    properties.forEach(prop => {
+                        const cell = document.createElement('td');
+                        cell.textContent = pcb[prop] ? pcb[prop].toString() : "";
+                        row.appendChild(cell);
+                    });
+                    // Append the row to the table body
+                    readyQueueTableBody.appendChild(row);
+                });
+            }
+            else {
+                console.error("Error: scheduler.readyQueue or scheduler.readyQueue.q is undefined.");
+            }
         }
         static hostLog(msg, source = "?") {
             // Note the OS CLOCK.

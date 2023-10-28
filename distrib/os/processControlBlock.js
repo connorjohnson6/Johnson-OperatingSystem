@@ -13,8 +13,12 @@ var TSOS;
         base = 0;
         limit = 0;
         priority = 0;
-        arrivalTime = 0; // Added arrival time property
-        waitTime = 0; // Added wait time property
+        arrivalTime;
+        completionTime = null;
+        burstTime = null;
+        turnaroundTime = null;
+        waitTime = null;
+        quantumRemaining = _Scheduler.quantum;
         constructor(pid, base, limit) {
             if (pid !== undefined) {
                 this.pid = pid;

@@ -550,7 +550,6 @@ module TSOS {
                     break;
                 default:
                     _Scheduler.addProcess(pcb); // Add the process to the scheduler’s ready queue
-                    _Dispatcher.executeProcess(pcb); // Directly execute the process using the dispatcher
                     _StdOut.putText(`Starting execution for PID ${pid}`);
                     _StdOut.advanceLine();
                     break;
@@ -565,12 +564,13 @@ module TSOS {
                 _StdOut.putText("Cannot clear memory while a process is executing.");
             } else {
                 _MemoryManager.clearAll(); // Clear all memory partitions
+                _CPU.currentPCB.state = "Terminated";
+                _MemoryManager.unloadProcess(_CPU.currentPCB); 
                 _StdOut.putText("Memory cleared.");
+                _StdOut.advanceLine();
             }
         }
         
-        
-
         public shellRunAll(args: string[]): void {
             _PCBMap.forEach(pcb => {
                 _Scheduler.addProcess(pcb); // Add all processes to the scheduler’s ready queue
@@ -578,6 +578,7 @@ module TSOS {
             TSOS.Control.updateReadyQueueDisplay(_Scheduler);
 
         }
+        
 
         public shellPs(args: string[]): void {
             let activeProcesses = _Scheduler.getActiveProcesses();
@@ -594,15 +595,21 @@ module TSOS {
             if (!isNaN(pid)) {
                 let pcb = _Kernel.getPCB(pid);
                 if (pcb) {
-                    _MemoryManager.unloadProcess(pcb); // Free up the memory used by this process
-                    _Scheduler.terminateProcess(pid); // Terminate the process
-                    _StdOut.putText(`Terminated process with PID: ${pid}`);
+                    if (pcb.state !== "Terminated") {
+                        _MemoryManager.unloadProcess(pcb); // Free up the memory used by this process
+                        _Scheduler.terminateProcess(pid); // Terminate the process
+                        TSOS.Control.updatePCBs();
+                        _StdOut.putText(`Terminated process with PID: ${pid}`);
+                    } else {
+                        _StdOut.putText(`Process with PID: ${pid} is already terminated.`);
+                    }
                 } else {
-                    _StdOut.putText("Invalid PID.");
+                    _StdOut.putText("Invalid PID. No such process exists.");
                 }
             } else {
-                _StdOut.putText("Invalid PID.");
+                _StdOut.putText("Invalid PID. Please enter a numeric PID.");
             }
+            _StdOut.advanceLine();
         }
         
         
@@ -612,6 +619,7 @@ module TSOS {
                 _MemoryManager.unloadProcess(pcb); // Unload each process from memory
             });
             _Scheduler.terminateAllProcesses(); // Terminate all processes
+            TSOS.Control.updatePCBs();
             _StdOut.putText("Terminated all processes.");
         }
         

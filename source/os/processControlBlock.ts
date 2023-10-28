@@ -12,8 +12,14 @@ module TSOS {
         public base: number = 0;
         public limit: number = 0;
         public priority: number = 0;
-        public arrivalTime: number = 0; // Added arrival time property
-        public waitTime: number = 0; // Added wait time property
+        public arrivalTime: number;
+        public completionTime: number | null = null;
+        public burstTime: number | null = null;
+        public turnaroundTime: number | null = null;
+        public waitTime: number | null = null;
+        public quantumRemaining = _Scheduler.quantum;
+
+
 
         constructor(pid?: number, base?: number, limit?: number) {
             if (pid !== undefined) {

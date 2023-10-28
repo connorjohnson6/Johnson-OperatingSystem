@@ -35,8 +35,6 @@ module TSOS {
 
 
         public schedule(): PCB | null {
-            console.log("Scheduling a new process");
-
             if (this.readyQueue.isEmpty()) {
                 return null;
             }
@@ -102,7 +100,9 @@ module TSOS {
             let pcb = this.residentList.get(pid);
             if (pcb) {
                 // Update the partition status to unoccupied
-                let partition = _MemoryManager.getPartitionByBase(pcb.base);
+                pcb.state = "Terminated";
+            
+                let partition = _MemoryManager.findPartitionByPID(pid);
                 if (partition) {
                     partition.occupied = false;
                     partition.pcb = null;
@@ -111,11 +111,16 @@ module TSOS {
                     _MemoryAccessor.clearPartition(partition.base, partition.limit);
                 }
                 
-                // Set PCB state to terminated
-                pcb.state = "Terminated";
-                
                 // Remove the PCB from the residentList
                 this.residentList.delete(pid);
+                
+                // If the terminated process was currently running, switch context to the next process in the ready queue
+                if (this.runningProcess === pid) {
+                    this.runningProcess = null; // Clear the running process
+                    this.switchContext(); // Switch context to the next process in the ready queue
+                }
+                
+                this.clearReadyQueueIfAllProcessesTerminated(); 
             }
         }
         
@@ -123,6 +128,9 @@ module TSOS {
         public terminateAllProcesses(): void {
             this.residentList.forEach(pcb => pcb.state = "Terminated");
             this.residentList.clear();
+
+            this.clearReadyQueueIfAllProcessesTerminated(); 
+
         }
         
 
@@ -150,6 +158,24 @@ module TSOS {
             _CPU.Zflag = pcb.Zflag;
         
             _CPU.isExecuting = true;
+        }
+
+        public clearReadyQueueIfAllProcessesTerminated(): void {
+            let anyActiveProcess = false; // Flag to check for any active process
+            
+            // Check if any process is in Resident or Ready state
+            this.residentList.forEach(pcb => {
+                if (pcb.state === "Resident" || pcb.state === "Ready") {
+                    anyActiveProcess = true;
+                    console.log(`Active process found with PID: ${pcb.pid} and State: ${pcb.state}`);
+                }
+            });
+            
+            // Clear the ready queue if there's no active process
+            if (!anyActiveProcess) {
+                console.log("No active processes found. Clearing the ready queue.");
+                this.readyQueue = new Queue(); 
+            }
         }
         
         

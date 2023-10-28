@@ -6,7 +6,7 @@
 var TSOS;
 (function (TSOS) {
     class DeviceDriver {
-        version = '0.PullingHair';
+        version = '0.ThrowMeOutAWindow';
         status = 'unloaded';
         preemptable = false;
         driverEntry = null;

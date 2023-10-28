@@ -33,6 +33,14 @@
             return retVal;
         }
 
+        public peek(): any {
+            if (this.q.length > 0) {
+                return this.q[0];
+            } else {
+                return null;
+            }
+        }
+
         public toString() {
             var retVal = "";
             for (var i in this.q) {

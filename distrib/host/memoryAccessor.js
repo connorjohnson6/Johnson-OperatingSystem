@@ -20,7 +20,7 @@ var TSOS;
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             _Memory[actualAddress] = value;
-            console.log(`Memory content at address ${actualAddress}:`, _Memory[actualAddress]);
+            //console.log(`Memory content at address ${actualAddress}:`, _Memory[actualAddress]);
             TSOS.Control.updateMemory(actualAddress, value);
             this.unhighlightMemoryCell(actualAddress);
         }

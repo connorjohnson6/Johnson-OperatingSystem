@@ -59,8 +59,8 @@ h3 {
 
 #tableCpu,
 #memoryTable,
-#tablePCB,
-#tableReadyQueue {
+#tablePCB
+ {
   font-family: Georgia, serif;
 }
 
@@ -107,8 +107,8 @@ th, td {
 #divUserProgramInput,
 #divCpu,
 #divPCB,
-#divMemory,
-#divReadyQueue {
+#divMemory
+ {
   color: white;
   flex: 1;
 }

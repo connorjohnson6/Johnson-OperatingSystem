@@ -16,12 +16,21 @@ var TSOS;
             this.cycles = 0; // Set initial cycles
         }
         switchContext() {
-            if (this.schedulingAlgorithm === "rr" && this.cycles >= this.quantum) {
-                if (!this.readyQueue.isEmpty()) {
-                    let nextProcess = this.readyQueue.dequeue();
-                    this.readyQueue.enqueue(_CPU.currentPCB);
-                    _Dispatcher.contextSwitch(_CPU.currentPCB, nextProcess);
-                    this.cycles = 0;
+            if (this.schedulingAlgorithm === "rr") {
+                this.cycles++; // Increment the cycle counter
+                if (this.cycles >= this.quantum || !_CPU.isExecuting) {
+                    if (!this.readyQueue.isEmpty()) {
+                        let currentProcess = _CPU.currentPCB; // Save the current executing process
+                        this.saveState(currentProcess); // Save its state
+                        currentProcess.state = "Waiting"; // Update its state to Waiting
+                        let nextProcess = this.readyQueue.dequeue(); // Get the next process in the queue
+                        nextProcess.state = "Running"; // Set its state to Running
+                        _Dispatcher.contextSwitch(currentProcess, nextProcess); // Perform the context switch
+                        if (currentProcess.state !== "Terminated") {
+                            this.readyQueue.enqueue(currentProcess); // If it’s not terminated, put it back in the queue
+                        }
+                        this.cycles = 0; // Reset the cycle counter
+                    }
                 }
             }
             else if (this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") {
@@ -31,6 +40,15 @@ var TSOS;
                 }
             }
         }
+        saveState(pcb) {
+            if (pcb) {
+                pcb.PC = _CPU.PC;
+                pcb.Acc = _CPU.Acc;
+                pcb.Xreg = _CPU.Xreg;
+                pcb.Yreg = _CPU.Yreg;
+                pcb.Zflag = _CPU.Zflag;
+            }
+        }
         schedule() {
             if (this.readyQueue.isEmpty()) {
                 return null;
@@ -38,14 +56,10 @@ var TSOS;
             let nextProcess = null;
             switch (this.schedulingAlgorithm) {
                 case "rr":
-                    nextProcess = this.readyQueue.dequeue();
+                    nextProcess = this.roundRobinSchedule();
                     break;
                 case "fcfs":
-                    nextProcess = this.readyQueue.dequeue();
-                    break;
                 case "priority":
-                    // Implement priority scheduling logic here
-                    // For now, it behaves like FCFS
                     nextProcess = this.readyQueue.dequeue();
                     break;
                 default:
@@ -54,13 +68,18 @@ var TSOS;
             }
             return nextProcess;
         }
+        roundRobinSchedule() {
+            // Simply get the next process in the queue
+            return this.readyQueue.dequeue();
+        }
         contextSwitch() {
             if (this.readyQueue.getSize() > 0) {
-                let nextPCB = this.readyQueue.dequeue();
-                _Dispatcher.contextSwitch(_CPU.currentPCB, nextPCB);
-                this.readyQueue.enqueue(_CPU.currentPCB);
-                _CPU.currentPCB = nextPCB;
-                //TSOS.Control.updateReadyQueueDisplay(_Scheduler);
+                let nextPCB = this.schedule();
+                if (nextPCB) {
+                    _Dispatcher.contextSwitch(_CPU.currentPCB, nextPCB);
+                    this.readyQueue.enqueue(_CPU.currentPCB);
+                    _CPU.currentPCB = nextPCB;
+                }
             }
             this.cycles = 0; // Reset the cycle counter after a context switch
         }

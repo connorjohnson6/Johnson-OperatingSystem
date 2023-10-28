@@ -575,8 +575,6 @@ module TSOS {
             _PCBMap.forEach(pcb => {
                 _Scheduler.addProcess(pcb); // Add all processes to the scheduler’s ready queue
             });
-            TSOS.Control.updateReadyQueueDisplay(_Scheduler);
-
         }
         
 

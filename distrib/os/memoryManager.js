@@ -16,27 +16,31 @@ var TSOS;
                 console.error("No available partition found or Input exceeds block size for process:", pcb.pid);
                 return false;
             }
-            // Update the PCB details based on the partition
-            pcb.base = partition.base;
-            pcb.limit = partition.limit;
-            partition.occupied = true;
-            partition.pcb = pcb; // Directly assign the received PCB object
-            // Ensure that the PCB is added to the _PCBMap or updated in it
-            _PCBMap.set(pcb.pid, pcb); // Assuming _PCBMap is a Map
-            // Add the PCB to the scheduler's residentList
-            _Scheduler.residentList.set(pcb.pid, pcb);
-            console.log("Assigned PCB to partition:", partition); // Log after assigning PCB
-            // Call the update function to refresh the DOM
-            TSOS.Control.updatePCBs();
-            console.log("Partition after assignment:", partition);
-            console.log("PCB after assignment:", pcb);
-            // Load the op codes into memory
-            for (let i = 0; i < opCodes.length; i++) {
-                const opcode = parseInt(opCodes[i], 16);
-                _MemoryAccessor.write(i, opcode, partition.base);
+            else {
+                // Update the PCB details based on the partition
+                const segment = this.partitions.indexOf(partition);
+                pcb.segment = segment;
+                pcb.base = partition.base;
+                pcb.limit = partition.limit;
+                partition.occupied = true;
+                partition.pcb = pcb; // Directly assign the received PCB object
+                // Ensure that the PCB is added to the _PCBMap or updated in it
+                _PCBMap.set(pcb.pid, pcb); // Assuming _PCBMap is a Map
+                // Add the PCB to the scheduler's residentList
+                _Scheduler.residentList.set(pcb.pid, pcb);
+                console.log("Assigned PCB to partition:", partition); // Log after assigning PCB
+                // Call the update function to refresh the DOM
+                TSOS.Control.updatePCBs();
+                console.log("Partition after assignment:", partition);
+                console.log("PCB after assignment:", pcb);
+                // Load the op codes into memory
+                for (let i = 0; i < opCodes.length; i++) {
+                    const opcode = parseInt(opCodes[i], 16);
+                    _MemoryAccessor.write(i, opcode, partition.base);
+                }
+                console.log("Partition after loading process:", partition); // Debugging line to check the partition
+                return true; // Successfully loaded the process
             }
-            console.log("Partition after loading process:", partition); // Debugging line to check the partition
-            return true; // Successfully loaded the process
         }
         unloadProcess(pcb) {
             const partition = this.findPartitionByPID(pcb.pid);

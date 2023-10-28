@@ -232,6 +232,11 @@ var TSOS;
                         }
                     }
                     break;
+                default:
+                    console.error(`Unknown opcode: ${opCode}`);
+                    // You might want to terminate the current process or take some other action here
+                    this.isExecuting = false;
+                    break;
             }
             this.saveStateToPCB(this.currentPCB);
             TSOS.Control.updateCPU();

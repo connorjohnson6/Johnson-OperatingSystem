@@ -99,12 +99,15 @@
                     // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 } else if (_CPU.isExecuting && !_CPU.singleStepMode) { 
                     _CPU.cycle();
+                    _Scheduler.switchContext(); // Check if a context switch is needed
+
                 } else {     
                     // If there are no interrupts and there is nothing being executed then just be idle.                  
                     this.krnTrace("Idle");
                     
                     // If no process is currently executing, get the next process from the scheduler
-                    let nextProcess = _Scheduler.schedule(); // Assuming schedule() returns the next process to execute
+                    let nextProcess = _Scheduler.schedule();
+                    // Assuming schedule() returns the next process to execute
                     if (nextProcess) {
                         _Dispatcher.executeProcess(nextProcess);
                     }

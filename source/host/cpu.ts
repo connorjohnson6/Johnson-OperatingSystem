@@ -184,26 +184,26 @@ module TSOS {
 
                 //Break (which is really a system call) 
                 case 0x00: 
-                console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
+                    console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
 
-                _CPU.isExecuting = false;
-                if (_CPU.currentPCB) {
-                    _CPU.currentPCB.state = "Terminated";
-                    _MemoryManager.unloadProcess(_CPU.currentPCB); 
-                    _StdOut.advanceLine();
+                    _CPU.isExecuting = false;
+                    if (_CPU.currentPCB) {
+                        _CPU.currentPCB.state = "Terminated";
+                        _MemoryManager.unloadProcess(_CPU.currentPCB); 
+                        _StdOut.advanceLine();
 
-                    _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
-                    //trying to figure out why the '>' will not show up after this process gets terminated 
-                    //lol im trying to trick you that the '>' is still there, not really to worried about it though
-                    //nice little easter egg if you see this i guess
-                    _StdOut.advanceLine();
-                    
-                    _StdOut.putText(`Please enter your next command under this message:     >`);
+                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
+                        //trying to figure out why the '>' will not show up after this process gets terminated 
+                        //lol im trying to trick you that the '>' is still there, not really to worried about it though
+                        //nice little easter egg if you see this i guess
+                        _StdOut.advanceLine();
+                        
+                        _StdOut.putText(`Please enter your next command under this message:     >`);
 
-                    _StdOut.advanceLine();
-                } else {
-                    console.error("No current PCB found when trying to terminate process");
-                }
+                        _StdOut.advanceLine();
+                    } else {
+                        console.error("No current PCB found when trying to terminate process");
+                    }
                 break;
 
 
@@ -276,6 +276,12 @@ module TSOS {
                         }
                         
                     }
+                    break;
+
+                default:
+                    console.error(`Unknown opcode: ${opCode}`);
+                    // You might want to terminate the current process or take some other action here
+                    this.isExecuting = false;
                     break;
 
             }

@@ -19,6 +19,7 @@ var TSOS;
         turnaroundTime = null;
         waitTime = null;
         quantumRemaining = _Scheduler.quantum;
+        segment = null;
         constructor(pid, base, limit) {
             if (pid !== undefined) {
                 this.pid = pid;

@@ -6,7 +6,7 @@
 
 module TSOS {
     export class DeviceDriver {
-        public version = '0.PullingHair';
+        public version = '0.ThrowMeOutAWindow';
         public status = 'unloaded';
         public preemptable = false;
 

@@ -1,13 +1,11 @@
 var TSOS;
 (function (TSOS) {
     class MemoryAccessor {
-        writeCount = 0;
-        maxWriteCount = 0xFF;
         constructor() { }
         init() { }
         //Read a byte from a specific address in memory.
         read(address, base) {
-            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB.base ? _CPU.currentPCB.base : 0);
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             let value = _Memory[actualAddress];
@@ -16,7 +14,7 @@ var TSOS;
         }
         // Write a byte to a specific address in memory.
         write(address, value, base) {
-            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB.base ? _CPU.currentPCB.base : 0);
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             _Memory[actualAddress] = value;

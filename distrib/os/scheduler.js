@@ -20,10 +20,18 @@ var TSOS;
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
                 if (!this.readyQueue.isEmpty()) {
                     const currentProcess = _CPU.currentPCB;
-                    this.readyQueue.enqueue(currentProcess); // <-- Add the current process back to the queue
+                    this.readyQueue.enqueue(currentProcess); // Add the current process back to the queue
                     const nextProcess = this.readyQueue.dequeue();
                     _Dispatcher.contextSwitch(currentProcess, nextProcess);
                     this.cycles = 0;
+                    if (_CPU.currentPCB) {
+                        if (_CPU.currentPCB.burstTime === null) {
+                            _CPU.currentPCB.burstTime = this.cycles; // Set the burst time to the cycles if it's the process's first run
+                        }
+                        else {
+                            _CPU.currentPCB.burstTime += this.cycles; // Add the cycles if the process has run before
+                        }
+                    }
                 }
             }
             else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
@@ -33,15 +41,15 @@ var TSOS;
                 }
             }
         }
-        saveState(pcb) {
-            if (pcb) {
-                pcb.PC = _CPU.PC;
-                pcb.Acc = _CPU.Acc;
-                pcb.Xreg = _CPU.Xreg;
-                pcb.Yreg = _CPU.Yreg;
-                pcb.Zflag = _CPU.Zflag;
-            }
-        }
+        // private saveState(pcb: PCB): void {
+        //     if (pcb) {
+        //         pcb.PC = _CPU.PC;
+        //         pcb.Acc = _CPU.Acc;
+        //         pcb.Xreg = _CPU.Xreg;
+        //         pcb.Yreg = _CPU.Yreg;
+        //         pcb.Zflag = _CPU.Zflag;
+        //     }
+        // }
         schedule() {
             if (this.readyQueue.isEmpty()) {
                 return null;
@@ -85,7 +93,6 @@ var TSOS;
         }
         killProcess(pid) {
             this.removeProcess(pid);
-            // Additional cleanup might be needed here
         }
         getActiveProcesses() {
             return Array.from(this.residentList.values());
@@ -93,9 +100,18 @@ var TSOS;
         terminateProcess(pid) {
             let pcb = this.residentList.get(pid);
             if (pcb) {
+                pcb.completionTime = _OSclock;
+                pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
+                console.log("Arrival Time:", pcb.arrivalTime);
+                console.log("Completion Time:", _OSclock);
+                if (pcb.burstTime !== null) {
+                    pcb.waitTime = pcb.turnaroundTime - pcb.burstTime;
+                }
                 // Update the partition status to unoccupied
-                pcb.state = "Terminated";
-                let partition = _MemoryManager.findPartitionByPID(pid);
+                if (pcb) {
+                    pcb.state = "Terminated";
+                }
+                let partition = _MemoryManager.findProcessByPID(pid);
                 if (partition) {
                     partition.occupied = false;
                     partition.pcb = null;
@@ -109,7 +125,6 @@ var TSOS;
                     this.runningProcess = null; // Clear the running process
                     this.switchContext(); // Switch context to the next process in the ready queue
                 }
-                this.clearReadyQueueIfAllProcessesTerminated();
             }
         }
         terminateAllProcesses() {
@@ -127,7 +142,6 @@ var TSOS;
             this.schedulingAlgorithm = algorithm;
         }
         executeProcess(pcb) {
-            // Update the PCB state to running
             pcb.state = "Running";
             // Load the PCB context into the CPU
             _CPU.PC = pcb.PC;
@@ -151,6 +165,9 @@ var TSOS;
                 console.log("No active processes found. Clearing the ready queue.");
                 this.readyQueue = new TSOS.Queue();
             }
+        }
+        getProcessByPID(pid) {
+            return this.residentList.get(pid);
         }
     }
     TSOS.Scheduler = Scheduler;

@@ -76,6 +76,10 @@ module TSOS {
             // console.log("Current PCB:", this.currentPCB);
             // console.log("Program Counter:", this.PC);
 
+            // if (_CPU.currentPCB) {
+            //     _CPU.currentPCB.waitTime = _OSclock - _CPU.currentPCB.arrivalTime;
+            // }
+
             let opCode = this.fetch();
 
 
@@ -193,6 +197,16 @@ module TSOS {
                         _StdOut.advanceLine();
 
                         _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
+                        _StdOut.advanceLine();
+
+
+                        _CPU.currentPCB.waitTime = _OSclock - _CPU.currentPCB.arrivalTime;
+                        _CPU.currentPCB.completionTime = _OSclock;
+                        let turnaroundTime = _CPU.currentPCB.completionTime - _CPU.currentPCB.arrivalTime;
+                        
+                        _StdOut.putText(`Turnaround time: ${turnaroundTime}`);
+                        _StdOut.advanceLine();
+                        _StdOut.putText(`Wait time: ${_CPU.currentPCB.waitTime}`);
 
                         _StdOut.advanceLine();
                         
@@ -274,9 +288,13 @@ module TSOS {
                     break;
 
                 default:
-                    console.error(`Unknown opcode: ${opCode}`);
+                    _StdOut.putText(`Unknown opcode: ${opCode}`);
+                    _StdOut.advanceLine();
+                    // _CPU.isExecuting = false;
+                    // _CPU.currentPCB.state = "Terminated";
+                    // TSOS.Control.updatePCBs();
                     // You might want to terminate the current process or take some other action here
-                    this.isExecuting = false;
+                    
                     break;
 
             }
@@ -310,13 +328,25 @@ module TSOS {
         //only using this for 0x8D. For some reason I accidentally didn't change that one
         //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
         private fetchAddress(): number {
+            // Read the low order byte and high order byte from memory.
             let lowByte = _MemoryAccessor.read(this.PC);
             this.PC++;
             let highByte = _MemoryAccessor.read(this.PC);
             this.PC++;
-            return (highByte << 8) + lowByte;
+        
+            // Fetch the partition for the current process
+            let currentPartition = _MemoryManager.findPartitionByPID(_CPU.currentPCB.pid);
+            if(!currentPartition) {
+                console.error("Unable to find partition for the running process.");
+                return -1;
+            }
+        
+            // Calculate the actual address using the partition's base.
+            let address = (highByte + lowByte) + (256 * currentPartition.base);
+        
+            return address;
         }
-
+        
         private fetchAddress1(PC: number): number {
             // Read the low order byte and high order byte from memory.
             let lowByte = _MemoryAccessor.read(PC);
@@ -328,13 +358,19 @@ module TSOS {
                 return -1;  
             }
         
-            // Combine the HOB and LOB to form the address. 
-            // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
-            //chatGPT help
-            let address = (highByte << 8) | lowByte;
+            // Fetch the partition for the current process
+            let currentPartition = _MemoryManager.findPartitionByPID(_CPU.currentPCB.pid);
+            if(!currentPartition) {
+                console.error("Unable to find partition for the running process.");
+                return -1;
+            }
+        
+            // Calculate the actual address using the partition's base.
+            let address = (highByte + lowByte) + (256 * currentPartition.base);
         
             return address;
         }
+        
 
 
     }

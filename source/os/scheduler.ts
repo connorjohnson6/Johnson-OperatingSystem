@@ -22,11 +22,20 @@ module TSOS {
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
                 if (!this.readyQueue.isEmpty()) {
                     const currentProcess = _CPU.currentPCB;
-                    this.readyQueue.enqueue(currentProcess); // <-- Add the current process back to the queue
+                    this.readyQueue.enqueue(currentProcess); // Add the current process back to the queue
                     const nextProcess = this.readyQueue.dequeue();
                     _Dispatcher.contextSwitch(currentProcess, nextProcess);
                     this.cycles = 0;
+
+                    if (_CPU.currentPCB) {
+                        if (_CPU.currentPCB.burstTime === null) {
+                            _CPU.currentPCB.burstTime = this.cycles;  // Set the burst time to the cycles if it's the process's first run
+                        } else {
+                            _CPU.currentPCB.burstTime += this.cycles;  // Add the cycles if the process has run before
+                        }
+                    }
                 }
+
             }else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
                 const nextProcess = this.schedule();
                 if (nextProcess) {
@@ -36,15 +45,15 @@ module TSOS {
         }
         
 
-        private saveState(pcb: PCB): void {
-            if (pcb) {
-                pcb.PC = _CPU.PC;
-                pcb.Acc = _CPU.Acc;
-                pcb.Xreg = _CPU.Xreg;
-                pcb.Yreg = _CPU.Yreg;
-                pcb.Zflag = _CPU.Zflag;
-            }
-        }
+        // private saveState(pcb: PCB): void {
+        //     if (pcb) {
+        //         pcb.PC = _CPU.PC;
+        //         pcb.Acc = _CPU.Acc;
+        //         pcb.Xreg = _CPU.Xreg;
+        //         pcb.Yreg = _CPU.Yreg;
+        //         pcb.Zflag = _CPU.Zflag;
+        //     }
+        // }
 
 
         public schedule(): PCB | null {
@@ -104,7 +113,6 @@ module TSOS {
 
         public killProcess(pid: number): void {
             this.removeProcess(pid);
-            // Additional cleanup might be needed here
         }
 
         public getActiveProcesses(): PCB[] {
@@ -114,10 +122,23 @@ module TSOS {
         public terminateProcess(pid: number): void {
             let pcb = this.residentList.get(pid);
             if (pcb) {
+
+                pcb.completionTime = _OSclock;
+                pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
+
+                console.log("Arrival Time:", pcb.arrivalTime);
+                console.log("Completion Time:", _OSclock);
+                
+                if (pcb.burstTime !== null) {
+                    pcb.waitTime = pcb.turnaroundTime - pcb.burstTime;
+                }
+
                 // Update the partition status to unoccupied
-                pcb.state = "Terminated";
+                if (pcb) {
+                    pcb.state = "Terminated";
+                }
             
-                let partition = _MemoryManager.findPartitionByPID(pid);
+                let partition = _MemoryManager.findProcessByPID(pid);
                 if (partition) {
                     partition.occupied = false;
                     partition.pcb = null;
@@ -133,9 +154,11 @@ module TSOS {
                 if (this.runningProcess === pid) {
                     this.runningProcess = null; // Clear the running process
                     this.switchContext(); // Switch context to the next process in the ready queue
+
+                    
                 }
                 
-                this.clearReadyQueueIfAllProcessesTerminated(); 
+                
             }
         }
         
@@ -162,7 +185,6 @@ module TSOS {
         }
 
         public executeProcess(pcb: PCB): void {
-            // Update the PCB state to running
             pcb.state = "Running";
         
             // Load the PCB context into the CPU
@@ -191,6 +213,10 @@ module TSOS {
                 console.log("No active processes found. Clearing the ready queue.");
                 this.readyQueue = new Queue(); 
             }
+        }
+
+        public getProcessByPID(pid: number): PCB | null {
+            return this.residentList.get(pid);
         }
         
         

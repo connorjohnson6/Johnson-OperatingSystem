@@ -3,16 +3,13 @@ module TSOS {
     
     export class MemoryAccessor {
 
-        private writeCount: number = 0;
-        private maxWriteCount: number = 0xFF; 
-
         constructor() {}
 
         public init(){}
 
         //Read a byte from a specific address in memory.
         public read(address: number, base?: number): number {
-            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB.base ? _CPU.currentPCB.base : 0);
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             let value = _Memory[actualAddress];
@@ -24,7 +21,7 @@ module TSOS {
 
         // Write a byte to a specific address in memory.
         public write(address: number, value: number, base?: number): void {
-            const actualBase = base !== undefined ? base : (_CPU.currentPCB ? _CPU.currentPCB.base : 0);
+            const actualBase = base !== undefined ? base : (_CPU.currentPCB.base ? _CPU.currentPCB.base : 0);
             const actualAddress = address + actualBase;
             this.highlightMemoryCell(actualAddress);
             _Memory[actualAddress] = value;

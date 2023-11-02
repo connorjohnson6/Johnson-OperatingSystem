@@ -25,6 +25,7 @@ var TSOS;
         Yreg;
         Zflag;
         isExecuting;
+        state;
         currentPCB = null;
         singleStepMode = false;
         constructor(PC = 0, //program counter
@@ -33,8 +34,8 @@ var TSOS;
         Xreg = 0, //X reg
         Yreg = 0, //Y reg
         Zflag = 0, //Z flag
-        isExecuting = false //later for ctr-c
-        ) {
+        isExecuting = false, //later for ctr-c
+        state = "Resident" || "Running" || "Terminated") {
             this.PC = PC;
             this.IR = IR;
             this.Acc = Acc;
@@ -42,6 +43,7 @@ var TSOS;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
+            this.state = state;
         }
         init() {
             this.PC = 0;
@@ -50,6 +52,7 @@ var TSOS;
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
+            this.state = "Resident";
         }
         fetch() {
             this.IR = _MemoryAccessor.read(this.PC++);
@@ -159,15 +162,11 @@ var TSOS;
                     console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        _CPU.currentPCB.state = "Terminated";
-                        _MemoryManager.unloadProcess(_CPU.currentPCB);
+                        console.log(`Setting Process ${_CPU.currentPCB.pid} to Terminated`);
+                        const pidToTerminate = _CPU.currentPCB.pid; // Store pid before termination
+                        _Scheduler.terminateProcess(pidToTerminate); // Terminate using Scheduler's method
                         _StdOut.advanceLine();
-                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
-                        //trying to figure out why the '>' will not show up after this process gets terminated 
-                        //lol im trying to trick you that the '>' is still there, not really to worried about it though
-                        //nice little easter egg if you see this i guess
-                        _StdOut.advanceLine();
-                        _StdOut.putText(`Please enter your next command under this message:     >`);
+                        _StdOut.putText(`Process ${pidToTerminate} terminated`);
                         _StdOut.advanceLine();
                     }
                     else {
@@ -206,7 +205,7 @@ var TSOS;
                         _CPU.isExecuting = false;
                         _CPU.init(); // re-initialize or clear CPU state
                         if (_CPU.currentPCB) {
-                            _CPU.currentPCB.state = "Terminated";
+                            this.state = "Terminated";
                             TSOS.Control.updatePCBs();
                             _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
                         }
@@ -260,26 +259,22 @@ var TSOS;
         //only using this for 0x8D. For some reason I accidentally didn't change that one
         //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
         fetchAddress() {
-            let lowByte = _MemoryAccessor.read(this.PC);
+            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
+            let lowByte = _MemoryAccessor.read(this.PC, base);
             this.PC++;
-            let highByte = _MemoryAccessor.read(this.PC);
+            let highByte = _MemoryAccessor.read(this.PC, base);
             this.PC++;
             return (highByte << 8) + lowByte;
         }
         fetchAddress1(PC) {
-            // Read the low order byte and high order byte from memory.
-            let lowByte = _MemoryAccessor.read(PC);
-            let highByte = _MemoryAccessor.read(PC + 1);
-            // Check for undefined or null.
+            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
+            let lowByte = _MemoryAccessor.read(PC, base);
+            let highByte = _MemoryAccessor.read(PC + 1, base);
             if (lowByte == null || highByte == null) {
                 console.error(`Error reading memory at address ${PC}.`);
                 return -1;
             }
-            // Combine the HOB and LOB to form the address. 
-            // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
-            //chatGPT help
-            let address = (highByte << 8) | lowByte;
-            return address;
+            return (highByte << 8) | lowByte;
         }
     }
     TSOS.Cpu = Cpu;

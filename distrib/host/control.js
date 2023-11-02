@@ -103,7 +103,19 @@ var TSOS;
                 const properties = ['pid', 'priority', 'state', 'location', 'segment', 'base', 'limit', 'PC', 'IR', 'Acc', 'Xreg', 'Yreg', 'Zflag'];
                 properties.forEach(prop => {
                     const cell = document.createElement('td');
-                    cell.textContent = pcb[prop].toString();
+                    let cellValue = pcb[prop];
+                    // Convert numeric values to hexadecimal, except for the pid and segment
+                    if (typeof cellValue === 'number' && prop !== 'pid' && prop !== 'segment') {
+                        cell.textContent = TSOS.Utils.convertHexString(cellValue, 2);
+                    }
+                    else if (prop === 'Zflag') {
+                        // Special handling for Zflag to display it as 0 or 1
+                        cell.textContent = cellValue ? '1' : '0';
+                    }
+                    else {
+                        // For non-numeric values, or the pid and segment, display as is
+                        cell.textContent = cellValue.toString();
+                    }
                     row.appendChild(cell);
                 });
                 // Append the row to the table body
@@ -140,6 +152,15 @@ var TSOS;
             var taLog = document.getElementById("taHostLog");
             taLog.value = str + taLog.value;
             // TODO in the future: Optionally update a log database or some streaming service.
+        }
+        static updateQuantumDisplay(newQuantum) {
+            const quantumContainer = document.getElementById("quantumContainer");
+            if (quantumContainer) {
+                quantumContainer.textContent = newQuantum.toString();
+            }
+            else {
+                console.error("Quantum container element not found in the DOM.");
+            }
         }
         //
         // Host Events

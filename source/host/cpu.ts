@@ -36,7 +36,8 @@ module TSOS {
                     public Xreg: number = 0, //X reg
                     public Yreg: number = 0, //Y reg
                     public Zflag: number = 0, //Z flag
-                    public isExecuting: boolean = false //later for ctr-c
+                    public isExecuting: boolean = false, //later for ctr-c
+                    public state: string = "Resident" || "Running" || "Terminated"
                     ) {
 
         }
@@ -49,6 +50,7 @@ module TSOS {
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
+            this.state = "Resident";
         }
 
         public fetch(): number {
@@ -183,28 +185,24 @@ module TSOS {
                     break;
 
                 //Break (which is really a system call) 
-                case 0x00: 
+                case 0x00:
                     console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
-
+                
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        _CPU.currentPCB.state = "Terminated";
-                        _MemoryManager.unloadProcess(_CPU.currentPCB); 
-                        _StdOut.advanceLine();
+                        console.log(`Setting Process ${_CPU.currentPCB.pid} to Terminated`);
 
-                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
-                        //trying to figure out why the '>' will not show up after this process gets terminated 
-                        //lol im trying to trick you that the '>' is still there, not really to worried about it though
-                        //nice little easter egg if you see this i guess
+                        const pidToTerminate = _CPU.currentPCB.pid; // Store pid before termination
+                
+                        _Scheduler.terminateProcess(pidToTerminate); // Terminate using Scheduler's method
+                
                         _StdOut.advanceLine();
-                        
-                        _StdOut.putText(`Please enter your next command under this message:     >`);
-
+                        _StdOut.putText(`Process ${pidToTerminate} terminated`);
                         _StdOut.advanceLine();
                     } else {
                         console.error("No current PCB found when trying to terminate process");
                     }
-                break;
+                    break;
 
 
                 //Compare a byte in memory to the X reg
@@ -246,7 +244,7 @@ module TSOS {
                         _CPU.init();  // re-initialize or clear CPU state
 
                         if (_CPU.currentPCB) {
-                            _CPU.currentPCB.state = "Terminated";
+                            this.state = "Terminated";
                             TSOS.Control.updatePCBs();
                             _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
                         
@@ -315,31 +313,25 @@ module TSOS {
         //only using this for 0x8D. For some reason I accidentally didn't change that one
         //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
         private fetchAddress(): number {
-            let lowByte = _MemoryAccessor.read(this.PC);
+            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
+            let lowByte = _MemoryAccessor.read(this.PC, base);
             this.PC++;
-            let highByte = _MemoryAccessor.read(this.PC);
+            let highByte = _MemoryAccessor.read(this.PC, base);
             this.PC++;
             return (highByte << 8) + lowByte;
         }
-
-        private fetchAddress1(PC: number): number {
-            // Read the low order byte and high order byte from memory.
-            let lowByte = _MemoryAccessor.read(PC);
-            let highByte = _MemoryAccessor.read(PC + 1);
         
-            // Check for undefined or null.
+        private fetchAddress1(PC: number): number {
+            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
+            let lowByte = _MemoryAccessor.read(PC, base);
+            let highByte = _MemoryAccessor.read(PC + 1, base);
             if (lowByte == null || highByte == null) {
                 console.error(`Error reading memory at address ${PC}.`);
                 return -1;  
             }
-        
-            // Combine the HOB and LOB to form the address. 
-            // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
-            //chatGPT help
-            let address = (highByte << 8) | lowByte;
-        
-            return address;
+            return (highByte << 8) | lowByte;
         }
+        
 
 
     }

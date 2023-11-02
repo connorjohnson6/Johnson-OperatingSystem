@@ -436,27 +436,27 @@ var TSOS;
                     break;
             }
         }
+        shellRunAll(args) {
+            _PCBMap.forEach(pcb => {
+                _Scheduler.addProcess(pcb); // Add all processes to the scheduler’s ready queue
+            });
+        }
         shellClearMem(args) {
             if (_CPU.isExecuting) {
                 _StdOut.putText("Cannot clear memory while a process is executing.");
             }
             else {
                 _MemoryManager.clearAll(); // Clear all memory partitions
-                _CPU.currentPCB.state = "Terminated";
                 _MemoryManager.unloadProcess(_CPU.currentPCB);
+                TSOS.Control.updatePCBs();
                 _StdOut.putText("Memory cleared.");
                 _StdOut.advanceLine();
             }
         }
-        shellRunAll(args) {
-            _PCBMap.forEach(pcb => {
-                _Scheduler.addProcess(pcb); // Add all processes to the scheduler’s ready queue
-            });
-        }
         shellPs(args) {
             let activeProcesses = _Scheduler.getActiveProcesses();
             if (activeProcesses.length > 0) {
-                activeProcesses.forEach(pcb => _StdOut.putText(`PID: ${pcb.pid}, State: ${pcb.state}`));
+                activeProcesses.forEach(pcb => _StdOut.putText(`PID: ${pcb.pid}, State: ${pcb.state} \n`));
             }
             else {
                 _StdOut.putText("No active processes.");
@@ -495,6 +495,21 @@ var TSOS;
             _StdOut.putText("Terminated all processes.");
         }
         shellQuantum(args) {
+            if (args.length > 0) {
+                const newQuantum = parseInt(args[0]);
+                // Check if the input is a valid number
+                if (isNaN(newQuantum) || newQuantum <= 0) {
+                    _StdOut.putText("Please enter a valid positive integer for the quantum.");
+                }
+                else {
+                    _Scheduler.setQuantum(newQuantum);
+                    TSOS.Control.updateQuantumDisplay(newQuantum);
+                    _StdOut.putText(`Quantum is now set to ${newQuantum}.`);
+                }
+            }
+            else {
+                _StdOut.putText("Please provide a quantum value.");
+            }
         }
     }
     TSOS.Shell = Shell;

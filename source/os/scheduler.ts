@@ -18,34 +18,40 @@ module TSOS {
         }
 
         public switchContext(): void {
-            if (this.schedulingAlgorithm === "rr") {
-                this.cycles++; // Increment the cycle counter
-        
-                if (this.cycles >= this.quantum || !_CPU.isExecuting) {
-                    if (!this.readyQueue.isEmpty()) {
-                        let currentProcess = _CPU.currentPCB; // Save the current executing process
-                        this.saveState(currentProcess); // Save its state
-                        currentProcess.state = "Waiting"; // Update its state to Waiting
-                        
-                        let nextProcess = this.readyQueue.dequeue(); // Get the next process in the queue
-                        nextProcess.state = "Running"; // Set its state to Running
-        
-                        _Dispatcher.contextSwitch(currentProcess, nextProcess); // Perform the context switch
-                        
-                        if (currentProcess.state !== "Terminated") {
-                            this.readyQueue.enqueue(currentProcess); // If it’s not terminated, put it back in the queue
-                        }
-                        
-                        this.cycles = 0; // Reset the cycle counter
-                    }
+            console.log("Attempting to switch context");
+
+            this.cycles++; // Increment the cycle counter
+            if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
+                if (!this.readyQueue.isEmpty()) {
+                    const currentProcess = _CPU.currentPCB;
+                    this.readyQueue.enqueue(currentProcess); // <-- Add the current process back to the queue
+                    //console.log("Ready queue contents:", JSON.stringify(this.readyQueue));
+
+                    const nextProcess = this.readyQueue.dequeue();
+                    
+                    //console.log("Current process being executed:", currentProcess);
+                    //console.log("Next process to be executed:", nextProcess);
+
+                    //console.log(`Process ${currentProcess} quantum remaining:`, currentProcess.quantumRemaining);
+                    //console.log(`Process ${currentProcess} priority:`, currentProcess.priority);
+
+                    
+                    _Dispatcher.contextSwitch(currentProcess, nextProcess);
+                    this.cycles = 0;
                 }
-            }  else if (this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") {
-                if (_CPU.isExecuting === false && !this.readyQueue.isEmpty()) {
-                    let nextProcess = this.schedule();
-                    //_Dispatcher.executeProcess(nextProcess);
+            if (this.runningProcess) {
+                console.log(`Context switched to PID: ${this.runningProcess}`);
+            } else {
+                console.log("No process found to switch to");
+            }
+            }else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
+                const nextProcess = this.schedule();
+                if (nextProcess) {
+                    _Dispatcher.executeProcess(nextProcess);
                 }
             }
         }
+        
 
         private saveState(pcb: PCB): void {
             if (pcb) {
@@ -98,18 +104,22 @@ module TSOS {
                     _CPU.currentPCB = nextPCB;
                 }
             }
-            
             this.cycles = 0; // Reset the cycle counter after a context switch
         }
+        
 
         public addProcess(pcb: PCB): void {
+            console.log(`Adding PID: ${pcb.pid} to the ready queue`);
             this.readyQueue.enqueue(pcb);
+            console.log(`Process ${pcb.pid} state before execution:`, pcb.state);
+
             pcb.state = "Waiting";
         }
 
         
 
-        public removeProcess(pid): PCB | null {
+        public removeProcess(pcb): PCB | null {
+            console.log(`Removing PID: ${pcb.pid} from the ready queue`);
             return this.readyQueue.dequeue(); // Remove and return the next process from the ready queue
         }
 
@@ -150,6 +160,7 @@ module TSOS {
             }
         }
         
+        
 
         public terminateAllProcesses(): void {
             this.residentList.forEach(pcb => pcb.state = "Terminated");
@@ -186,23 +197,29 @@ module TSOS {
             _CPU.isExecuting = true;
         }
 
+        //long name I know lol
         public clearReadyQueueIfAllProcessesTerminated(): void {
+            //console.log("Checking if all processes in the ready queue are terminated");
+
             let anyActiveProcess = false; // Flag to check for any active process
             
             // Check if any process is in Resident or Ready state
             this.residentList.forEach(pcb => {
                 if (pcb.state === "Resident" || pcb.state === "Ready") {
                     anyActiveProcess = true;
-                    console.log(`Active process found with PID: ${pcb.pid} and State: ${pcb.state}`);
+                    //console.log(`Active process found with PID: ${pcb.pid} and State: ${pcb.state}`);
                 }
             });
             
             // Clear the ready queue if there's no active process
             if (!anyActiveProcess) {
-                console.log("No active processes found. Clearing the ready queue.");
+                console.log("All processes terminated");
+                //console.log("No active processes found. Clearing the ready queue.");
                 this.readyQueue = new Queue(); 
+            }else {
+                console.log("Not all processes terminated");
             }
-        }
+        }        
         
         
     }

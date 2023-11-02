@@ -18,6 +18,8 @@ var TSOS;
                 pcb.Xreg = _CPU.Xreg;
                 pcb.Yreg = _CPU.Yreg;
                 pcb.Zflag = _CPU.Zflag;
+                // Update state of the PCB to "Waiting"
+                pcb.state = "Waiting";
             }
         }
         loadState(pcb) {
@@ -27,13 +29,13 @@ var TSOS;
             _CPU.Yreg = pcb.Yreg;
             _CPU.Zflag = pcb.Zflag;
             _CPU.currentPCB = pcb;
+            // Update the state of the PCB to "Running"
+            pcb.state = "Running";
         }
         contextSwitch(oldPCB, newPCB) {
-            // Save the state of the old process
-            oldPCB.state = "Waiting";
             this.saveState(oldPCB); // Save state of the currently executing process
-            // Load the state of the new process
-            newPCB.state = "Running";
+            oldPCB.state = "Waiting"; // Or any appropriate status you want to assign
+            newPCB.state = "Running"; // Setting the new PCB's state as running
             this.loadState(newPCB); // Load state for the next process to execute
         }
     }

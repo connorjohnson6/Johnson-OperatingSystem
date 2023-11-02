@@ -15,18 +15,19 @@ module TSOS {
             
             const partition = this.findAvailablePartition();
             if (!partition || opCodes.length > MemoryManager.BLOCK_SIZE) {
+                // Handle error: No available memory or Input exceeds block size
                 console.error("No available partition found or Input exceeds block size for process:", pcb.pid);
                 return false;
-            } else {
+            }else{
                 // Update the PCB details based on the partition
                 const segment = this.partitions.indexOf(partition);
-        
+
                 pcb.segment = segment;
                 pcb.base = partition.base;
                 pcb.limit = partition.limit;
                 
                 this.partitions[segment].occupied = true;
-                this.partitions[segment].pcb = pcb;
+                this.partitions[segment].pcb = pcb; // Directly assign the received PCB object
             
                 // Ensure that the PCB is added to the _PCBMap or updated in it
                 _PCBMap.set(pcb.pid, pcb); // Assuming _PCBMap is a Map

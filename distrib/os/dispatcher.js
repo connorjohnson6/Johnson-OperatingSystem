@@ -34,8 +34,6 @@ var TSOS;
         }
         contextSwitch(oldPCB, newPCB) {
             this.saveState(oldPCB); // Save state of the currently executing process
-            oldPCB.state = "Waiting"; // Or any appropriate status you want to assign
-            newPCB.state = "Running"; // Setting the new PCB's state as running
             this.loadState(newPCB); // Load state for the next process to execute
         }
     }

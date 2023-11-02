@@ -21,7 +21,6 @@ module TSOS {
                 
                 // Update state of the PCB to "Waiting"
                 pcb.state = "Waiting";
-
             }
         }
         
@@ -35,16 +34,12 @@ module TSOS {
         
             // Update the state of the PCB to "Running"
             pcb.state = "Running";
-
         }
         
         public contextSwitch(oldPCB, newPCB): void {
             this.saveState(oldPCB); // Save state of the currently executing process
-            oldPCB.state = "Waiting"; // Or any appropriate status you want to assign
-            newPCB.state = "Running"; // Setting the new PCB's state as running
             this.loadState(newPCB); // Load state for the next process to execute
         }
-        
         
     }
 }

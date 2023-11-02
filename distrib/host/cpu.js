@@ -25,7 +25,6 @@ var TSOS;
         Yreg;
         Zflag;
         isExecuting;
-        state;
         currentPCB = null;
         singleStepMode = false;
         constructor(PC = 0, //program counter
@@ -34,8 +33,8 @@ var TSOS;
         Xreg = 0, //X reg
         Yreg = 0, //Y reg
         Zflag = 0, //Z flag
-        isExecuting = false, //later for ctr-c
-        state = "Resident" || "Running" || "Terminated") {
+        isExecuting = false //later for ctr-c
+        ) {
             this.PC = PC;
             this.IR = IR;
             this.Acc = Acc;
@@ -43,7 +42,6 @@ var TSOS;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
-            this.state = state;
         }
         init() {
             this.PC = 0;
@@ -52,7 +50,6 @@ var TSOS;
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
-            this.state = "Resident";
         }
         fetch() {
             this.IR = _MemoryAccessor.read(this.PC++);
@@ -162,11 +159,10 @@ var TSOS;
                     console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        console.log(`Setting Process ${_CPU.currentPCB.pid} to Terminated`);
-                        const pidToTerminate = _CPU.currentPCB.pid; // Store pid before termination
-                        _Scheduler.terminateProcess(pidToTerminate); // Terminate using Scheduler's method
+                        _CPU.currentPCB.state = "Terminated";
+                        _MemoryManager.unloadProcess(_CPU.currentPCB);
                         _StdOut.advanceLine();
-                        _StdOut.putText(`Process ${pidToTerminate} terminated`);
+                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
                         _StdOut.advanceLine();
                     }
                     else {
@@ -205,7 +201,7 @@ var TSOS;
                         _CPU.isExecuting = false;
                         _CPU.init(); // re-initialize or clear CPU state
                         if (_CPU.currentPCB) {
-                            this.state = "Terminated";
+                            _CPU.currentPCB.state = "Terminated";
                             TSOS.Control.updatePCBs();
                             _StdOut.putText(`Process ${_CPU.currentPCB.pid} has been manually terminated`);
                         }
@@ -259,22 +255,26 @@ var TSOS;
         //only using this for 0x8D. For some reason I accidentally didn't change that one
         //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
         fetchAddress() {
-            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
-            let lowByte = _MemoryAccessor.read(this.PC, base);
+            let lowByte = _MemoryAccessor.read(this.PC);
             this.PC++;
-            let highByte = _MemoryAccessor.read(this.PC, base);
+            let highByte = _MemoryAccessor.read(this.PC);
             this.PC++;
             return (highByte << 8) + lowByte;
         }
         fetchAddress1(PC) {
-            let base = _CPU.currentPCB ? _CPU.currentPCB.base : 0;
-            let lowByte = _MemoryAccessor.read(PC, base);
-            let highByte = _MemoryAccessor.read(PC + 1, base);
+            // Read the low order byte and high order byte from memory.
+            let lowByte = _MemoryAccessor.read(PC);
+            let highByte = _MemoryAccessor.read(PC + 1);
+            // Check for undefined or null.
             if (lowByte == null || highByte == null) {
                 console.error(`Error reading memory at address ${PC}.`);
                 return -1;
             }
-            return (highByte << 8) | lowByte;
+            // Combine the HOB and LOB to form the address. 
+            // Left shift the HOB by 8 bits, then bitwise OR with the LOB.
+            //chatGPT help
+            let address = (highByte << 8) | lowByte;
+            return address;
         }
     }
     TSOS.Cpu = Cpu;

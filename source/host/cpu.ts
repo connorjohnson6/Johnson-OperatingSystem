@@ -85,7 +85,7 @@ module TSOS {
 
             if (_Scheduler.schedulingAlgorithm === "rr") {
                 if (_Scheduler.cycles >= _Scheduler.quantum) {
-                    _Scheduler.contextSwitch(); // This might involve saving and loading CPU states
+                    _Scheduler.contextSwitch(); 
                 }
             }
 
@@ -115,20 +115,21 @@ module TSOS {
             switch(opCode) {
                 //Load the accumulator with a constant 
                 case 0xA9:
-                    this.Acc = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                    this.Acc = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the accumulator from memory
                 case 0xAD: 
                     let address = this.fetchAddress1(this.PC);
+                    this.PC += 2;
 
                     this.Acc = _MemoryAccessor.read(address);
                     break;
 
                 //Store the accumulator in memory
                 case 0x8D: 
-                    let storeAddress = this.fetchAddress();
+                    let storeAddress = this.fetchAddress1(this.PC); //this had the origional fetchAddress
+                    this.PC += 2;
 
                     _MemoryAccessor.write(storeAddress, this.Acc);
                     break;
@@ -155,8 +156,7 @@ module TSOS {
                     
                 //Load the X register with a constant 
                 case 0xA2: 
-                    this.Xreg = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                    this.Xreg = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the X register from memory
@@ -169,8 +169,7 @@ module TSOS {
 
                 //Load the Y register with a constant
                 case 0xA0: 
-                    this.Yreg = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                    this.Yreg = _MemoryAccessor.read(this.PC++);
                     break;
 
                 //Load the Y register from memory 
@@ -192,23 +191,22 @@ module TSOS {
 
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        _CPU.currentPCB.state = "Terminated";
-                        _MemoryManager.unloadProcess(_CPU.currentPCB); 
-                        _StdOut.advanceLine();
+                        // _CPU.currentPCB.state = "Terminated";
+                        // _MemoryManager.unloadProcess(_CPU.currentPCB); 
+                        // _StdOut.advanceLine();
 
-                        _StdOut.putText(`Process ${_CPU.currentPCB.pid} terminated`);
-                        _StdOut.advanceLine();
+                        _Scheduler.terminateProcess(_CPU.currentPCB.pid);
+                        
+
+                        /////make this all in the killProcess in scheduler, no need for text output in a cpu
 
 
                         _CPU.currentPCB.waitTime = _OSclock - _CPU.currentPCB.arrivalTime;
                         _CPU.currentPCB.completionTime = _OSclock;
-                        let turnaroundTime = _CPU.currentPCB.completionTime - _CPU.currentPCB.arrivalTime;
                         
-                        _StdOut.putText(`Turnaround time: ${turnaroundTime}`);
-                        _StdOut.advanceLine();
-                        _StdOut.putText(`Wait time: ${_CPU.currentPCB.waitTime}`);
 
-                        _StdOut.advanceLine();
+
+                        
                         
                     } else {
                         console.error("No current PCB found when trying to terminate process");
@@ -223,13 +221,13 @@ module TSOS {
                     this.PC += 2;
                     let compareValue = _MemoryAccessor.read(compareAddress);
                     //Sets the Z (zero) flag if equal/
-                    this.Zflag = (this.Xreg === compareValue) ? 1 : 0;
+                    this.Zflag = this.Xreg === compareValue ? 1 : 0;
                     break;
 
                 //Branch n bytes if Z flag = 0
                 case 0xD0: 
-                    let branchValue = _MemoryAccessor.read(this.PC);
-                    this.PC++;
+                    let branchValue = _MemoryAccessor.read(this.PC++);
+
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                         //part from KeeDos to test with a working project to see if my project aint shit
@@ -245,6 +243,7 @@ module TSOS {
                     let incAddress = this.fetchAddress1(this.PC);
 
                     this.PC += 2;
+                    
                     let incValue = _MemoryAccessor.read(incAddress);
 
                     //looking for potention infite loops due to it exceeding memory limit
@@ -293,7 +292,6 @@ module TSOS {
                     // _CPU.isExecuting = false;
                     // _CPU.currentPCB.state = "Terminated";
                     // TSOS.Control.updatePCBs();
-                    // You might want to terminate the current process or take some other action here
                     
                     break;
 
@@ -326,50 +324,46 @@ module TSOS {
 
         // Helper function to fetch a 16-bit address from memory
         //only using this for 0x8D. For some reason I accidentally didn't change that one
-        //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
-        private fetchAddress(): number {
-            // Read the low order byte and high order byte from memory.
-            let lowByte = _MemoryAccessor.read(this.PC);
-            this.PC++;
-            let highByte = _MemoryAccessor.read(this.PC);
-            this.PC++;
+        // //to fetchAddress1 and it worked. If I change it, it just won't work so Happy Error :)
+        // private fetchAddress(): number {
+        //     // Read the low order byte and high order byte from memory.
+        //     let lowByte = _MemoryAccessor.read(this.PC);
+        //     this.PC++;
+        //     let highByte = _MemoryAccessor.read(this.PC);
+        //     this.PC++;
         
-            // Fetch the partition for the current process
-            let currentPartition = _MemoryManager.findPartitionByPID(_CPU.currentPCB.pid);
-            if(!currentPartition) {
-                console.error("Unable to find partition for the running process.");
-                return -1;
-            }
+        //     // Fetch the partition for the current process
+        //     let currentPartition = _MemoryManager.findPartitionByPID(_CPU.currentPCB.pid);
+        //     if(!currentPartition) {
+        //         console.error("Unable to find partition for the running process.");
+        //         return -1;
+        //     }
         
-            // Calculate the actual address using the partition's base.
-            let address = (highByte + lowByte) + (256 * currentPartition.base);
+        //     // Calculate the actual address using the partition's base.
+        //     let address = (highByte + lowByte) + (256 * currentPartition.base);
         
-            return address;
-        }
+        //     return address;
+        // }
+
+        //fixed this up so that they all read from fetchAddress1 instead of two different fetch addresses
         
         private fetchAddress1(PC: number): number {
             // Read the low order byte and high order byte from memory.
             let lowByte = _MemoryAccessor.read(PC);
             let highByte = _MemoryAccessor.read(PC + 1);
-        
+            
             // Check for undefined or null.
             if (lowByte == null || highByte == null) {
                 console.error(`Error reading memory at address ${PC}.`);
                 return -1;  
             }
-        
-            // Fetch the partition for the current process
-            let currentPartition = _MemoryManager.findPartitionByPID(_CPU.currentPCB.pid);
-            if(!currentPartition) {
-                console.error("Unable to find partition for the running process.");
-                return -1;
-            }
-        
-            // Calculate the actual address using the partition's base.
-            let address = (highByte + lowByte) + (256 * currentPartition.base);
-        
+            
+            // Construct the actual address using little-endian format.
+            let address = (highByte << 8) | lowByte;
+            
             return address;
         }
+        
         
 
 

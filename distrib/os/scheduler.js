@@ -100,31 +100,48 @@ var TSOS;
         terminateProcess(pid) {
             let pcb = this.residentList.get(pid);
             if (pcb) {
+                console.log(`Queue before termination: ${this.readyQueue}`);
+                // Calculate process metrics
                 pcb.completionTime = _OSclock;
                 pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
-                console.log("Arrival Time:", pcb.arrivalTime);
-                console.log("Completion Time:", _OSclock);
                 if (pcb.burstTime !== null) {
                     pcb.waitTime = pcb.turnaroundTime - pcb.burstTime;
                 }
-                // Update the partition status to unoccupied
-                if (pcb) {
-                    pcb.state = "Terminated";
-                }
+                // Update memory partition status
                 let partition = _MemoryManager.findProcessByPID(pid);
                 if (partition) {
                     partition.occupied = false;
                     partition.pcb = null;
-                    // Clear the memory in the partition
                     _MemoryAccessor.clearPartition(partition.base, partition.limit);
                 }
-                // Remove the PCB from the residentList
+                // Remove PCB from resident list
                 this.residentList.delete(pid);
-                // If the terminated process was currently running, switch context to the next process in the ready queue
+                // Check if the terminated process was the one currently running
                 if (this.runningProcess === pid) {
                     this.runningProcess = null; // Clear the running process
-                    this.switchContext(); // Switch context to the next process in the ready queue
+                    // If there are no more processes to run, set CPU to not executing
+                    if (this.readyQueue.isEmpty()) {
+                        _CPU.isExecuting = false;
+                    }
+                    else {
+                        // There are other processes to run, so perform a context switch
+                        this.switchContext();
+                    }
                 }
+                // Update process state and output termination message
+                pcb.state = "Terminated";
+                _MemoryManager.unloadProcess(_CPU.currentPCB);
+                _StdOut.advanceLine();
+                _StdOut.putText(`Process ${pcb.pid} terminated`);
+                _StdOut.advanceLine();
+                _StdOut.putText(`Turnaround time: ${pcb.turnaroundTime}`);
+                _StdOut.advanceLine();
+                _StdOut.putText(`Wait time: ${pcb.waitTime}`);
+                _StdOut.advanceLine();
+                console.log(`Queue after termination: ${this.readyQueue}`);
+            }
+            else {
+                console.log(`No process with PID ${pid} found.`);
             }
         }
         terminateAllProcesses() {

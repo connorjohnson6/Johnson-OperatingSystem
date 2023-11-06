@@ -167,21 +167,6 @@
                 _Scheduler.addProcess(pcb);
             }
 
-            public static krnClearMemory() {
-                if (_CPU.isExecuting) {
-                    _StdOut.putText('Cant clear memory when a process is running');
-                }
-                else {
-                    // Collecting all PCBs into an array
-                    let pcbArray = Array.from(_Scheduler.residentList.values());
-                    
-                    // Calling the clearMemory method with the array of PCBs
-                    MemoryAccessor.clearMemory(pcbArray);
-                    
-                    _StdOut.putText('All memory cleared.');
-                    _Kernel.krnTrace('Cleared memory');
-                }
-            }
     
             public krnInterruptHandler(irq, params) {
                 // This is the Interrupt Handler Routine.  See pages 8 and 560.
@@ -194,11 +179,11 @@
                 //       Maybe the hardware simulation will grow to support/require that in the future.
                 
                 switch (irq) {
-                    // case CONTEXT_SWITCH_IRQ:
-                    //     let oldPCB = _CPU.currentPCB;
-                    //     let newPCB = params;
-                    //     _Dispatcher.contextSwitch(oldPCB, newPCB);
-                    //     break;
+                    case CONTEXT_SWITCH_IRQ:
+                        let oldPCB = _CPU.currentPCB;
+                        let newPCB = params;
+                        _Dispatcher.contextSwitch(oldPCB, newPCB);
+                        break;
                     case TIMER_IRQ:
                         this.krnTimerISR();               // Kernel built-in routine for timers (not the clock).
                         break;

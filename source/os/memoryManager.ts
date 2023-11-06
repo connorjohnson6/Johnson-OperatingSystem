@@ -53,28 +53,43 @@ module TSOS {
         
         
         
-        
-        
         public unloadProcess(pcb: PCB): void {
+            console.log(`Attempting to unload process with PID: ${pcb.pid}`);
+        
+            // Check if the process has already been terminated to avoid repeated unloading
+            if (pcb.state === "Terminated") {
+                console.log(`Process with PID: ${pcb.pid} has already been terminated and unloaded.`);
+                return;
+            }
+        
             const partition = this.findPartitionByPID(pcb.pid);
-            if (partition) {
-                //clear memory/update state when processes is terminated  
-                this.clearMemory(partition.base, partition.limit);
+            
+            // Make sure the partition exists and the pcb matches the partition's pcb before unloading
+            if (partition && partition.occupied && partition.pcb === pcb) {
+                console.log(`Clearing memory for process with PID: ${pcb.pid}`);
+                console.log(`Clearing from base: ${partition.base.toString(16)} to limit: ${partition.limit.toString(16)}`);
+                _MemoryAccessor.clearPartition(partition.base, partition.limit);
+                
+                
+                // Mark the partition as not occupied and remove the pcb from the partition
                 partition.occupied = false;
                 partition.pcb = undefined;
+                
+                // Update the state of the pcb to 'Terminated'
                 pcb.state = "Terminated";
+                
+                // Remove the pcb from PCBMap and the residentList as it's no longer active
                 _PCBMap.delete(pcb.pid);
                 _Scheduler.residentList.delete(pcb.pid);
+                
+                console.log(`Process with PID: ${pcb.pid} unloaded successfully.`);
+            } else {
+                console.error(`No occupied partition found for PID: ${pcb.pid}, or PCB mismatch.`);
             }
         }
         
-
-        public clearMemory(base: number, limit: number): void {
-            //goes through memory and clears
-            for (let i = base; i <= limit; i++) {
-                _MemoryAccessor.write(i - base, 0, base);
-            }
-        }
+        
+        
 
         public findPartitionByPID(pid: number): { base: number, limit: number, occupied: boolean, pcb?: PCB } | null {
             console.log("Searching for partition with PID:", pid);
@@ -91,12 +106,20 @@ module TSOS {
         public clearAll(): void {
             this.partitions.forEach(partition => {
                 if (partition.occupied) {
-                    this.clearMemory(partition.base, partition.limit);
+                    // Call the updated clearMemory with the base and limit of the partition
+                    _MemoryAccessor.clearPartition(partition.base, partition.limit);
+
+                    // Unload the process separately
+                    this.unloadProcess(partition.pcb);
+
                     partition.occupied = false;
                     partition.pcb = undefined;
                 }
             });
         }
+
+        
+        
 
         //some chatGPT suggested methods to help me fix my problem with only PID 1 not being terminated
         public markPartitionAsAvailable(base: number, limit: number): void {

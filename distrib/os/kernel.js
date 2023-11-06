@@ -134,19 +134,6 @@ var TSOS;
             let pcb = _MemoryManager.loadProcess(taProgramInput);
             _Scheduler.addProcess(pcb);
         }
-        static krnClearMemory() {
-            if (_CPU.isExecuting) {
-                _StdOut.putText('Cant clear memory when a process is running');
-            }
-            else {
-                // Collecting all PCBs into an array
-                let pcbArray = Array.from(_Scheduler.residentList.values());
-                // Calling the clearMemory method with the array of PCBs
-                TSOS.MemoryAccessor.clearMemory(pcbArray);
-                _StdOut.putText('All memory cleared.');
-                _Kernel.krnTrace('Cleared memory');
-            }
-        }
         krnInterruptHandler(irq, params) {
             // This is the Interrupt Handler Routine.  See pages 8 and 560.
             // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on. Page 766.
@@ -156,11 +143,11 @@ var TSOS;
             // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
             //       Maybe the hardware simulation will grow to support/require that in the future.
             switch (irq) {
-                // case CONTEXT_SWITCH_IRQ:
-                //     let oldPCB = _CPU.currentPCB;
-                //     let newPCB = params;
-                //     _Dispatcher.contextSwitch(oldPCB, newPCB);
-                //     break;
+                case CONTEXT_SWITCH_IRQ:
+                    let oldPCB = _CPU.currentPCB;
+                    let newPCB = params;
+                    _Dispatcher.contextSwitch(oldPCB, newPCB);
+                    break;
                 case TIMER_IRQ:
                     this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;

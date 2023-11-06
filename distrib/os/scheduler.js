@@ -110,18 +110,8 @@ var TSOS;
                 // Remove PCB from resident list
                 this.residentList.delete(pid);
                 this.removeFromReadyQueue(pid);
-                // Check if the terminated process was the one currently running
-                if (this.runningProcess === pid) {
-                    this.runningProcess = null; // Clear the running process
-                    // If there are no more processes to run, set CPU to not executing
-                    if (this.readyQueue.isEmpty()) {
-                        _CPU.isExecuting = false;
-                    }
-                    else {
-                        // There are other processes to run, so perform a context switch
-                        this.switchContext();
-                    }
-                }
+                // Now unload the process using the correct PCB
+                _MemoryManager.unloadProcess(pcb);
                 // Update process state and output termination message
                 pcb.state = "Terminated";
                 _MemoryManager.unloadProcess(_CPU.currentPCB);
@@ -133,6 +123,16 @@ var TSOS;
                 _StdOut.putText(`Wait time: ${pcb.waitTime}`);
                 _StdOut.advanceLine();
                 console.log(`Ready Queue after termination of PID ${pid}: ` + JSON.stringify(this.readyQueue.toArray().map(pcb => pcb.pid)));
+                // If this process was the running process, switch context
+                if (this.runningProcess === pid) {
+                    this.runningProcess = null;
+                    if (!this.readyQueue.isEmpty()) {
+                        this.switchContext();
+                    }
+                    else {
+                        _CPU.isExecuting = false;
+                    }
+                }
             }
             else {
                 console.log(`No process with PID ${pid} found.`);

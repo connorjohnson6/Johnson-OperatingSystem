@@ -165,7 +165,6 @@ var TSOS;
                         // _MemoryManager.unloadProcess(_CPU.currentPCB); 
                         // _StdOut.advanceLine();
                         _Scheduler.terminateProcess(_CPU.currentPCB.pid);
-                        /////make this all in the killProcess in scheduler, no need for text output in a cpu
                         _CPU.currentPCB.waitTime = _OSclock - _CPU.currentPCB.arrivalTime;
                         _CPU.currentPCB.completionTime = _OSclock;
                     }
@@ -236,7 +235,6 @@ var TSOS;
                     // _CPU.isExecuting = false;
                     // _CPU.currentPCB.state = "Terminated";
                     // TSOS.Control.updatePCBs();
-                    // You might want to terminate the current process or take some other action here
                     break;
             }
             this.saveStateToPCB(this.currentPCB);
@@ -276,6 +274,7 @@ var TSOS;
         //     let address = (highByte + lowByte) + (256 * currentPartition.base);
         //     return address;
         // }
+        //fixed this up so that they all read from fetchAddress1 instead of two different fetch addresses
         fetchAddress1(PC) {
             // Read the low order byte and high order byte from memory.
             let lowByte = _MemoryAccessor.read(PC);

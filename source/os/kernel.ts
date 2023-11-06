@@ -194,11 +194,11 @@
                 //       Maybe the hardware simulation will grow to support/require that in the future.
                 
                 switch (irq) {
-                    case CONTEXT_SWITCH_IRQ:
-                        let oldPCB = _CPU.currentPCB;
-                        let newPCB = params;
-                        _Dispatcher.contextSwitch(oldPCB, newPCB);
-                        break;
+                    // case CONTEXT_SWITCH_IRQ:
+                    //     let oldPCB = _CPU.currentPCB;
+                    //     let newPCB = params;
+                    //     _Dispatcher.contextSwitch(oldPCB, newPCB);
+                    //     break;
                     case TIMER_IRQ:
                         this.krnTimerISR();               // Kernel built-in routine for timers (not the clock).
                         break;

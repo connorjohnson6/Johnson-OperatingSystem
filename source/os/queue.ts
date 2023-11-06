@@ -55,5 +55,11 @@
                 this.q.splice(index, 1);
             }
         }
+
+        public toArray(): any[] {
+            return [...this.q]; // Return a shallow copy of the internal array
+        }
+
+        
     }
 }

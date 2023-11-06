@@ -20,29 +20,22 @@ module TSOS {
         public switchContext(): void {
             this.cycles++; // Increment the cycle counter
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
-                if (!this.readyQueue.isEmpty()) {
-                    const currentProcess = _CPU.currentPCB;
-                    this.readyQueue.enqueue(currentProcess); // Add the current process back to the queue
-                    const nextProcess = this.readyQueue.dequeue();
-                    _Dispatcher.contextSwitch(currentProcess, nextProcess);
-                    this.cycles = 0;
-
-                    if (_CPU.currentPCB) {
-                        if (_CPU.currentPCB.burstTime === null) {
-                            _CPU.currentPCB.burstTime = this.cycles;  // Set the burst time to the cycles if it's the process's first run
-                        } else {
-                            _CPU.currentPCB.burstTime += this.cycles;  // Add the cycles if the process has run before
-                        }
-                    }
+                if (_CPU.currentPCB && _CPU.currentPCB.state !== "Terminated") {
+                    console.log(`Context switch requested for PID: ${_CPU.currentPCB.pid}, State: ${_CPU.currentPCB.state}`);
+                    _Dispatcher.contextSwitch(_CPU.currentPCB, this.readyQueue.peek()); // Trigger context switch
+                } else {
+                    _CPU.isExecuting = false;
+                    this.runningProcess = null; // No process is currently running
                 }
-
-            }else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
-                const nextProcess = this.schedule();
-                if (nextProcess) {
-                    _Dispatcher.executeProcess(nextProcess);
+                this.cycles = 0; // Reset cycles after a context switch
+            } else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
+                let nextPCB = this.schedule();
+                if (nextPCB) {
+                    _Dispatcher.contextSwitch(null, nextPCB); // Start next process
                 }
             }
         }
+        
         
 
         // private saveState(pcb: PCB): void {
@@ -90,17 +83,17 @@ module TSOS {
         public contextSwitch(): void {
             if (this.readyQueue.getSize() > 0) {
                 let nextPCB = this.schedule();
-                if (nextPCB) {
-                    _Dispatcher.contextSwitch(_CPU.currentPCB, nextPCB);
-                    this.readyQueue.enqueue(_CPU.currentPCB);
-                    _CPU.currentPCB = nextPCB;
+                if (nextPCB && _CPU.currentPCB.state !== "Terminated") {
+                    _Dispatcher.contextSwitch(_CPU.currentPCB, nextPCB); // trigger context switch
                 }
             }
-            
             this.cycles = 0; // Reset the cycle counter after a context switch
         }
 
         public addProcess(pcb: PCB): void {
+            // Set the arrival time for the process
+            pcb.arrivalTime = _OSclock; 
+            this.residentList.set(pcb.pid, pcb);
             this.readyQueue.enqueue(pcb);
             pcb.state = "Waiting";
         }
@@ -108,11 +101,8 @@ module TSOS {
         
 
         public removeProcess(pid): PCB | null {
-            return this.readyQueue.dequeue(); // Remove and return the next process from the ready queue
-        }
-
-        public killProcess(pid: number): void {
-            this.removeProcess(pid);
+            // Remove and return the next process from the ready queue
+            return this.readyQueue.dequeue(); 
         }
 
         public getActiveProcesses(): PCB[] {
@@ -121,8 +111,9 @@ module TSOS {
 
         public terminateProcess(pid: number): void {
             let pcb = this.residentList.get(pid);
-            if (pcb) {
-                console.log(`Queue before termination: ${this.readyQueue}`)
+            console.log(`Ready Queue before termination of PID ${pid}: ` + JSON.stringify(this.readyQueue.toArray().map(pcb => pcb.pid)));
+
+            if (pcb && pcb.state !== "Terminated") {
                 // Calculate process metrics
                 pcb.completionTime = _OSclock;
                 pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
@@ -141,6 +132,8 @@ module TSOS {
         
                 // Remove PCB from resident list
                 this.residentList.delete(pid);
+                this.removeFromReadyQueue(pid);
+
 
                 // Check if the terminated process was the one currently running
                 if (this.runningProcess === pid) {
@@ -166,7 +159,7 @@ module TSOS {
 
                 _StdOut.advanceLine();
 
-                console.log(`Queue after termination: ${this.readyQueue}`)
+                console.log(`Ready Queue after termination of PID ${pid}: ` + JSON.stringify(this.readyQueue.toArray().map(pcb => pcb.pid)));
 
 
             } else {
@@ -211,20 +204,12 @@ module TSOS {
         }
 
         public clearReadyQueueIfAllProcessesTerminated(): void {
-            let anyActiveProcess = false; // Flag to check for any active process
-            
-            // Check if any process is in Resident or Ready state
-            this.residentList.forEach(pcb => {
-                if (pcb.state === "Resident" || pcb.state === "Ready") {
-                    anyActiveProcess = true;
-                    console.log(`Active process found with PID: ${pcb.pid} and State: ${pcb.state}`);
-                }
-            });
-            
-            // Clear the ready queue if there's no active process
-            if (!anyActiveProcess) {
+            // Instead of checking every PCB state, leverage the `filter` function
+            let activeProcesses = Array.from(this.residentList.values()).filter(pcb => pcb.state !== "Terminated");
+    
+            if (activeProcesses.length === 0) {
                 console.log("No active processes found. Clearing the ready queue.");
-                this.readyQueue = new Queue(); 
+                this.readyQueue = new Queue();
             }
         }
 
@@ -232,6 +217,21 @@ module TSOS {
             return this.residentList.get(pid);
         }
         
+
+        private removeFromReadyQueue(pid: number): void {
+            let filteredQueue = [];
+            // Remove the given PID from the readyQueue
+            while (!this.readyQueue.isEmpty()) {
+                let pcb = this.readyQueue.dequeue();
+                if (pcb.pid !== pid) {
+                    filteredQueue.push(pcb);
+                }
+            }
+    
+            // Reconstruct the readyQueue without the terminated process
+            this.readyQueue = new Queue(); // Assuming this initializes an empty queue
+            filteredQueue.forEach(pcb => this.readyQueue.enqueue(pcb));
+        }
         
     }
 }

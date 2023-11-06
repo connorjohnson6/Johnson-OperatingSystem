@@ -31,10 +31,26 @@ var TSOS;
             pcb.state = "Running";
         }
         contextSwitch(oldPCB, newPCB) {
-            // Save state of the currently executing process
-            this.saveState(oldPCB);
-            // Load state for the next process to execute
-            this.loadState(newPCB);
+            if (oldPCB !== null && oldPCB.state !== "Terminated") {
+                oldPCB.state = "Waiting";
+                this.saveState(oldPCB);
+                _Scheduler.readyQueue.enqueue(oldPCB); // Re-add the current process if it's not terminated
+            }
+            if (newPCB !== null) {
+                if (_Scheduler.readyQueue.getSize() > 0) {
+                    _Scheduler.readyQueue.dequeue(); // Remove newPCB from the ready queue as it is now current
+                }
+                this.loadState(newPCB);
+                _CPU.currentPCB = newPCB; // Make newPCB the currently executing process
+                newPCB.state = "Running";
+                _CPU.isExecuting = true; // Set the CPU to executing
+                console.log(`Context Switched to PID: ${newPCB.pid}`);
+            }
+            else {
+                // No process is currently running
+                _CPU.isExecuting = false;
+                _CPU.currentPCB = null;
+            }
         }
     }
     TSOS.Dispatcher = Dispatcher;

@@ -198,9 +198,6 @@ module TSOS {
                         _Scheduler.terminateProcess(_CPU.currentPCB.pid);
                         
 
-                        /////make this all in the killProcess in scheduler, no need for text output in a cpu
-
-
                         _CPU.currentPCB.waitTime = _OSclock - _CPU.currentPCB.arrivalTime;
                         _CPU.currentPCB.completionTime = _OSclock;
                         

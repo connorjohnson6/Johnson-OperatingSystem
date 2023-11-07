@@ -19,6 +19,8 @@ module TSOS {
 
         public switchContext(): void {
             this.cycles++; // Increment the cycle counter
+            this.updateWaitTimes(); // Update the wait times for all processes in the ready queue
+
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
                 if (_CPU.currentPCB && _CPU.currentPCB.state !== "Terminated") {
                     console.log(`Context switch requested for PID: ${_CPU.currentPCB.pid}, State: ${_CPU.currentPCB.state}`);
@@ -105,17 +107,14 @@ module TSOS {
             return this.readyQueue.dequeue(); 
         }
 
-        public getActiveProcesses(): PCB[] {
-            return Array.from(this.residentList.values());
-
-        }
 
         public terminateProcess(pid: number): void {
             let pcb = this.residentList.get(pid);
             console.log(`Ready Queue before termination of PID ${pid}: ` + JSON.stringify(this.readyQueue.toArray().map(pcb => pcb.pid)));
 
             if (pcb && pcb.state !== "Terminated") {
-                // Calculate process metrics
+                
+                // Calculate process metrics for turnaround/wait times
                 pcb.completionTime = _OSclock;
                 pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
                 if (pcb.burstTime !== null) {
@@ -136,7 +135,7 @@ module TSOS {
                 this.removeFromReadyQueue(pid);
 
 
-                // Now unload the process using the correct PCB
+                // unload the process using the correct PCB
                 _MemoryManager.unloadProcess(pcb); 
         
                 // Update process state and output termination message
@@ -177,21 +176,33 @@ module TSOS {
             this.residentList.forEach(pcb => pcb.state = "Terminated");
             this.residentList.clear();
 
+            //theres that long name again lol
             this.clearReadyQueueIfAllProcessesTerminated(); 
 
         }
         
+        //getters and setters
 
         public setQuantum(quantum: number): void {
             this.quantum = quantum;
         }
 
-        public getSchedulingAlgorithm(): string {
-            return this.schedulingAlgorithm;
-        }
-
         public setSchedulingAlgorithm(algorithm: string): void {
             this.schedulingAlgorithm = algorithm;
+        }
+
+        public getSchedulingAlgorithm(): string {
+            return this.schedulingAlgorithm;
+
+        }
+
+        public getActiveProcesses(): PCB[] {
+            return Array.from(this.residentList.values());
+
+        }
+
+        public getProcessByPID(pid: number): PCB | null {
+            return this.residentList.get(pid);
         }
 
         public executeProcess(pcb: PCB): void {
@@ -207,8 +218,9 @@ module TSOS {
             _CPU.isExecuting = true;
         }
 
+        //long name huh 
         public clearReadyQueueIfAllProcessesTerminated(): void {
-            // Instead of checking every PCB state, leverage the `filter` function
+            //I had this differenetly but then Mr. Chat GPT decided to change it
             let activeProcesses = Array.from(this.residentList.values()).filter(pcb => pcb.state !== "Terminated");
     
             if (activeProcesses.length === 0) {
@@ -217,9 +229,7 @@ module TSOS {
             }
         }
 
-        public getProcessByPID(pid: number): PCB | null {
-            return this.residentList.get(pid);
-        }
+
         
 
         private removeFromReadyQueue(pid: number): void {
@@ -233,8 +243,16 @@ module TSOS {
             }
     
             // Reconstruct the readyQueue without the terminated process
-            this.readyQueue = new Queue(); // Assuming this initializes an empty queue
+            this.readyQueue = new Queue();
             filteredQueue.forEach(pcb => this.readyQueue.enqueue(pcb));
+        }
+
+        public updateWaitTimes(): void {
+            for (const pcb of this.readyQueue.toArray()) {
+                if (pcb.state !== "Running") {
+                    pcb.waitTime++;
+                }
+            }
         }
         
     }

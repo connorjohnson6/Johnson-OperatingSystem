@@ -100,7 +100,8 @@ var TSOS;
             switch (opCode) {
                 //Load the accumulator with a constant 
                 case 0xA9:
-                    this.Acc = _MemoryAccessor.read(this.PC++);
+                    this.Acc = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
                 //Load the accumulator from memory
                 case 0xAD:
@@ -134,7 +135,8 @@ var TSOS;
                     break;
                 //Load the X register with a constant 
                 case 0xA2:
-                    this.Xreg = _MemoryAccessor.read(this.PC++);
+                    this.Xreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
                 //Load the X register from memory
                 case 0xAE:
@@ -144,7 +146,8 @@ var TSOS;
                     break;
                 //Load the Y register with a constant
                 case 0xA0:
-                    this.Yreg = _MemoryAccessor.read(this.PC++);
+                    this.Yreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
                 //Load the Y register from memory 
                 case 0xAC:
@@ -161,7 +164,7 @@ var TSOS;
                     console.log(`Preparing to terminate Process ${_CPU.currentPCB.pid}`);
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        // _CPU.currentPCB.state = "Terminated";
+                        //_CPU.currentPCB.state = "Terminated";
                         // _MemoryManager.unloadProcess(_CPU.currentPCB); 
                         // _StdOut.advanceLine();
                         _Scheduler.terminateProcess(_CPU.currentPCB.pid);
@@ -182,7 +185,8 @@ var TSOS;
                     break;
                 //Branch n bytes if Z flag = 0
                 case 0xD0:
-                    let branchValue = _MemoryAccessor.read(this.PC++);
+                    let branchValue = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     if (this.Zflag === 0) {
                         this.PC += branchValue;
                         //part from KeeDos to test with a working project to see if my project aint shit

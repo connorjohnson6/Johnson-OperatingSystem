@@ -56,8 +56,9 @@
             }
         }
 
+        //only using for console.logs 
         public toArray(): any[] {
-            return [...this.q]; // Return a shallow copy of the internal array
+            return [...this.q]; 
         }
 
         

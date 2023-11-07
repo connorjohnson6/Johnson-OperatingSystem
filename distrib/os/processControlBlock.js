@@ -17,7 +17,7 @@ var TSOS;
         completionTime = null;
         burstTime = null;
         turnaroundTime = null;
-        waitTime = null;
+        waitTime = 0;
         quantumRemaining = _Scheduler.quantum;
         segment = null;
         constructor(pid, base, limit) {

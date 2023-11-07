@@ -16,7 +16,7 @@ module TSOS {
         public completionTime: number | null = null;
         public burstTime: number | null = null;
         public turnaroundTime: number | null = null;
-        public waitTime: number | null = null;
+        public waitTime: number = 0;
         public quantumRemaining = _Scheduler.quantum;
         public segment: number | null = null;
 

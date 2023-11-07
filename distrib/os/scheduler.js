@@ -17,6 +17,7 @@ var TSOS;
         }
         switchContext() {
             this.cycles++; // Increment the cycle counter
+            this.updateWaitTimes(); // Update the wait times for all processes in the ready queue
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
                 if (_CPU.currentPCB && _CPU.currentPCB.state !== "Terminated") {
                     console.log(`Context switch requested for PID: ${_CPU.currentPCB.pid}, State: ${_CPU.currentPCB.state}`);
@@ -87,14 +88,11 @@ var TSOS;
             // Remove and return the next process from the ready queue
             return this.readyQueue.dequeue();
         }
-        getActiveProcesses() {
-            return Array.from(this.residentList.values());
-        }
         terminateProcess(pid) {
             let pcb = this.residentList.get(pid);
             console.log(`Ready Queue before termination of PID ${pid}: ` + JSON.stringify(this.readyQueue.toArray().map(pcb => pcb.pid)));
             if (pcb && pcb.state !== "Terminated") {
-                // Calculate process metrics
+                // Calculate process metrics for turnaround/wait times
                 pcb.completionTime = _OSclock;
                 pcb.turnaroundTime = pcb.completionTime - pcb.arrivalTime;
                 if (pcb.burstTime !== null) {
@@ -110,7 +108,7 @@ var TSOS;
                 // Remove PCB from resident list
                 this.residentList.delete(pid);
                 this.removeFromReadyQueue(pid);
-                // Now unload the process using the correct PCB
+                // unload the process using the correct PCB
                 _MemoryManager.unloadProcess(pcb);
                 // Update process state and output termination message
                 pcb.state = "Terminated";
@@ -141,16 +139,24 @@ var TSOS;
         terminateAllProcesses() {
             this.residentList.forEach(pcb => pcb.state = "Terminated");
             this.residentList.clear();
+            //theres that long name again lol
             this.clearReadyQueueIfAllProcessesTerminated();
         }
+        //getters and setters
         setQuantum(quantum) {
             this.quantum = quantum;
+        }
+        setSchedulingAlgorithm(algorithm) {
+            this.schedulingAlgorithm = algorithm;
         }
         getSchedulingAlgorithm() {
             return this.schedulingAlgorithm;
         }
-        setSchedulingAlgorithm(algorithm) {
-            this.schedulingAlgorithm = algorithm;
+        getActiveProcesses() {
+            return Array.from(this.residentList.values());
+        }
+        getProcessByPID(pid) {
+            return this.residentList.get(pid);
         }
         executeProcess(pcb) {
             pcb.state = "Running";
@@ -162,16 +168,14 @@ var TSOS;
             _CPU.Zflag = pcb.Zflag;
             _CPU.isExecuting = true;
         }
+        //long name huh 
         clearReadyQueueIfAllProcessesTerminated() {
-            // Instead of checking every PCB state, leverage the `filter` function
+            //I had this differenetly but then Mr. Chat GPT decided to change it
             let activeProcesses = Array.from(this.residentList.values()).filter(pcb => pcb.state !== "Terminated");
             if (activeProcesses.length === 0) {
                 console.log("No active processes found. Clearing the ready queue.");
                 this.readyQueue = new TSOS.Queue();
             }
-        }
-        getProcessByPID(pid) {
-            return this.residentList.get(pid);
         }
         removeFromReadyQueue(pid) {
             let filteredQueue = [];
@@ -183,8 +187,15 @@ var TSOS;
                 }
             }
             // Reconstruct the readyQueue without the terminated process
-            this.readyQueue = new TSOS.Queue(); // Assuming this initializes an empty queue
+            this.readyQueue = new TSOS.Queue();
             filteredQueue.forEach(pcb => this.readyQueue.enqueue(pcb));
+        }
+        updateWaitTimes() {
+            for (const pcb of this.readyQueue.toArray()) {
+                if (pcb.state !== "Running") {
+                    pcb.waitTime++;
+                }
+            }
         }
     }
     TSOS.Scheduler = Scheduler;

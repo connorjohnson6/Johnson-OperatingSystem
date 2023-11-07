@@ -25,13 +25,13 @@ var TSOS;
         static clearMemory(base, limit) {
             for (let i = base; i <= limit; i++) {
                 _Memory[i] = 0;
-                TSOS.Control.updateMemory(i, 0); // update the UI
+                TSOS.Control.updateMemory(i, 0);
             }
         }
         clearPartition(base, limit) {
             // Loop through each address in the partition
             for (let address = base; address < limit; address++) {
-                // Write 0 (or any other default value) to each address
+                // Write 0 to each address
                 this.write(address, 0, 0);
             }
         }

@@ -90,6 +90,7 @@ var TSOS;
             });
         }
         //some chatGPT suggested methods to help me fix my problem with only PID 1 not being terminated
+        //we fixed that shit though babyyyyyy!!!!!!!!!!
         markPartitionAsAvailable(base, limit) {
             let partition = this.findPartition(base, limit);
             if (partition) {

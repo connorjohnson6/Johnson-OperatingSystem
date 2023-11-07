@@ -115,7 +115,8 @@ module TSOS {
             switch(opCode) {
                 //Load the accumulator with a constant 
                 case 0xA9:
-                    this.Acc = _MemoryAccessor.read(this.PC++);
+                    this.Acc = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the accumulator from memory
@@ -156,7 +157,8 @@ module TSOS {
                     
                 //Load the X register with a constant 
                 case 0xA2: 
-                    this.Xreg = _MemoryAccessor.read(this.PC++);
+                    this.Xreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the X register from memory
@@ -169,7 +171,8 @@ module TSOS {
 
                 //Load the Y register with a constant
                 case 0xA0: 
-                    this.Yreg = _MemoryAccessor.read(this.PC++);
+                    this.Yreg = _MemoryAccessor.read(this.PC);
+                    this.PC++;
                     break;
 
                 //Load the Y register from memory 
@@ -191,7 +194,7 @@ module TSOS {
 
                     _CPU.isExecuting = false;
                     if (_CPU.currentPCB) {
-                        // _CPU.currentPCB.state = "Terminated";
+                        //_CPU.currentPCB.state = "Terminated";
                         // _MemoryManager.unloadProcess(_CPU.currentPCB); 
                         // _StdOut.advanceLine();
 
@@ -223,7 +226,8 @@ module TSOS {
 
                 //Branch n bytes if Z flag = 0
                 case 0xD0: 
-                    let branchValue = _MemoryAccessor.read(this.PC++);
+                    let branchValue = _MemoryAccessor.read(this.PC);
+                    this.PC++;
 
                     if (this.Zflag === 0) {
                         this.PC += branchValue;

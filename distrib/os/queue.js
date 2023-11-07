@@ -51,8 +51,9 @@ var TSOS;
                 this.q.splice(index, 1);
             }
         }
+        //only using for console.logs 
         toArray() {
-            return [...this.q]; // Return a shallow copy of the internal array
+            return [...this.q];
         }
     }
     TSOS.Queue = Queue;

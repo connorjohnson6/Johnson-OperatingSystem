@@ -42,6 +42,8 @@
                 _StdIn  = _Console;
                 _StdOut = _Console;
     
+                Control.updateQuantumDisplay(_Scheduler.quantum);
+
                 // Load the Keyboard Device Driver
                 this.krnTrace("Loading the keyboard device driver.");
                 _krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.

@@ -50,6 +50,12 @@
                 _krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
                 this.krnTrace(_krnKeyboardDriver.status);
     
+
+                // Load the Disk Device Driver
+                this.krnTrace("Loading the Disk device driver.");
+                _krnKeyboardDisk = new DeviceDriverDisk();     // Construct it.
+                _krnKeyboardDisk.driverEntry();                // Call the driverEntry() initialization routine.
+                this.krnTrace(_krnKeyboardDisk.status);
                 //
                 // ... more?
                 //
@@ -193,6 +199,7 @@
                         _krnKeyboardDriver.isr(params);   // Kernel mode device driver
                         _StdIn.handleInput();
                         break;
+
                     default:
                         Kernel.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
                 }

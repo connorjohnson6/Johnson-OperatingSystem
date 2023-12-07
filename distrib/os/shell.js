@@ -83,6 +83,9 @@ var TSOS;
             //quantum
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", " <int> - let the user set the Round Robin quantum (measured in cpu cycles)");
             this.commandList[this.commandList.length] = sc;
+            //quantum
+            sc = new TSOS.ShellCommand(this.shellFormat, "format", "Initialize all blocks in all sectors in all tracks");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -290,6 +293,8 @@ var TSOS;
                     case "quantum":
                         _StdOut.putText("set speed of execution");
                         break;
+                    case "format":
+                        _StdOut.putText("Format the disk on the OS");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -509,6 +514,16 @@ var TSOS;
             }
             else {
                 _StdOut.putText("Please provide a quantum value.");
+            }
+        }
+        shellFormat(args) {
+            if (_CPU.isExecuting) {
+                _StdOut.putText("Cannot format disk with a running CPU");
+            }
+            else {
+                _krnKeyboardDisk.format();
+                _IsDiskFormatted = true;
+                _StdOut.putText("Death Star Disk format complete. The force is strong with this one");
             }
         }
     }

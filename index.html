@@ -19,6 +19,7 @@
    <script type="text/javascript" src="distrib/host/memory.js"></script>
    <script type="text/javascript" src="distrib/host/memoryAccessor.js"></script>
    <script type="text/javascript" src="distrib/host/cpu.js"></script>
+   <script type="text/javascript" src="distrib/host/disk.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="distrib/os/interrupt.js"></script>
@@ -26,6 +27,7 @@
    <script type="text/javascript" src="distrib/os/console.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
+   <script type="text/javascript" src="distrib/os/deviceDriverDisk.js"></script>
    <script type="text/javascript" src="distrib/os/queue.js"></script>
    <script type="text/javascript" src="distrib/os/shell.js"></script>
    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
@@ -40,7 +42,7 @@
    <!-- Other Routines -->
    <script type="text/javascript" src="distrib/utils.js"></script>
    <!-- Uncomment the line below to enable GLaDOS testing. -->
-   <script type="text/javascript" src="https://alanclasses.github.io/TSOS/test/glados-ip3.js"></script>
+   <script type="text/javascript" src="https://alanclasses.github.io/TSOS/test/glados-ip0.js"></script>
    
 </head>
 
@@ -160,6 +162,7 @@
 
       </div>
 
+
 <!--start of column3-->
       <div id="divColumn3">
          <!--Credit for html layout from KeeDOS and jOSh (cpu/memory)-->
@@ -217,7 +220,15 @@
 </div>
 
 
-
+<div class="center starwars-theme">
+   <div id="displayDisk" class="hostDisplay">
+      <label>
+         <div id="tableDisk" class="center">
+            <table class="diskDisplayTable" id="diskTable"></table>
+         </div>
+      </label>
+   </div>
+</div>
 
 
 <p class="footerText" style="clear:both;">

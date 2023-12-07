@@ -118,6 +118,49 @@ th, td {
   max-height: 400px;
 }
 
+.diskDisplayTable {
+  color: #ffe81f; 
+  background-color: rgba(0, 0, 0, 0.8); 
+  border: 1px solid transparent; 
+  width: 1000px;
+  text-align: center;
+  margin: auto;
+  font-family: 'Star Jedi', sans-serif; /* Star Wars themed font */
+}
+
+.diskDisplayTable td,
+.diskDisplayTable th {
+  border: 1px solid transparent; /* Make the cell borders transparent */
+}
+
+#tableDisk {
+  width: 113%;
+  max-height: 525px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background-image: url('distrib/images/starwars.jpg'); /* Star Wars-themed background image */
+  background-size: cover;
+  border-radius: 50px;
+}
+
+#tableDisk:hover {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+  text-align: center;
+}
+
+.starwars-theme {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* This makes the background stay in place while the table scrolls */
+}
+
 
 
 /*Start of lightsaber css*/

@@ -41,6 +41,7 @@ var TSOS;
             _Memory.init();
             _MemoryAccessor = new TSOS.MemoryAccessor();
             _MemoryManager = new TSOS.MemoryManager(); // Initialize the MemoryManager
+            _Disk = new TSOS.Disk();
             const memoryTable = document.getElementById('memoryTable');
             function createTableCell(value) {
                 const cell = document.createElement('td');
@@ -161,6 +162,43 @@ var TSOS;
             else {
                 console.error("Quantum container element not found in the DOM.");
             }
+        }
+        static updateDiskDisplay() {
+            // Get the table element from the DOM.
+            let table = document.getElementById("diskTable");
+            // Start building the table body with headers.
+            let tableBody = `
+                <tbody>
+                    <tr>
+                        <th>T:S:B</th>
+                        <th>Used</th>
+                        <th>Next</th>
+                        <th>Data</th>
+                    </tr>`;
+            // Iterate over each track, sector, and block.
+            for (let track = 0; track < _Disk.trackCount; track++) {
+                for (let sector = 0; sector < _Disk.sectorCount; sector++) {
+                    for (let block = 0; block < _Disk.blockCount; block++) {
+                        // Retrieve and parse the data for the current block.
+                        let blockData = sessionStorage.getItem(`${track},${sector},${block}`);
+                        if (blockData) { // Ensure the data is not null.
+                            let dataEntries = blockData.split(" ");
+                            let dataString = dataEntries.slice(4).join(" ").trim(); // Join the data and trim whitespace.
+                            // Construct the table row for the current block.
+                            tableBody += `
+                                <tr>
+                                    <td>${track},${sector},${block}</td>
+                                    <td>${dataEntries[0]}</td>
+                                    <td>${dataEntries[1]},${dataEntries[2]},${dataEntries[3]}</td>
+                                    <td>${dataString}</td>
+                                </tr>`;
+                        }
+                    }
+                }
+            }
+            tableBody += "</tbody>";
+            // Set the table's inner HTML to the new table body.
+            table.innerHTML = tableBody;
         }
         //
         // Host Events

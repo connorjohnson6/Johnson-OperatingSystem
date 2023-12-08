@@ -157,11 +157,22 @@ module TSOS {
                                 " <int> - let the user set the Round Robin quantum (measured in cpu cycles)");
             this.commandList[this.commandList.length] = sc;
 
-            //quantum
+            //format
             sc = new ShellCommand(this.shellFormat,
                                 "format",
                                 "Initialize all blocks in all sectors in all tracks");
             this.commandList[this.commandList.length] = sc;
+            //create
+            sc = new ShellCommand(this.shellCreate,
+                            "create",
+                            " <filename> - Create the file filename");
+            this.commandList[this.commandList.length] = sc;
+            //read
+            sc = new ShellCommand(this.shellRead,
+                            "read",
+                            " <filename> - Read and display the contents of filename");
+            this.commandList[this.commandList.length] = sc;
+        
 
 
             // Display the initial prompt.
@@ -386,7 +397,13 @@ module TSOS {
                         break;
                     case "format":
                         _StdOut.putText("Format the disk on the OS");
-
+                        break;
+                    case "create":
+                        _StdOut.putText("Create a file inside of the disk");
+                        break;
+                    case "read":
+                        _StdOut.putText("Read a file inside of the disk");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -653,6 +670,7 @@ module TSOS {
         }
         
         public shellFormat(args: string[]): void {
+
             if (_CPU.isExecuting) {
                 _StdOut.putText("Cannot format disk with a running CPU");
             }
@@ -661,6 +679,28 @@ module TSOS {
                 _IsDiskFormatted = true;
                 _StdOut.putText("Death Star Disk format complete. The force is strong with this one");
             }
+        }
+
+
+        public shellCreate(args: string[]): void {
+            if (_IsDiskFormatted === false) { 
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            } else if (args.length === 0) {
+                _StdOut.putText("Usage: create <filename> - Please provide a filename.");
+            } else {
+                // Pass the filename to the createFile method of the disk driver.
+                let success = _krnKeyboardDisk.createFile(args[0]);
+                if (success) {
+                    _StdOut.putText(`File '${args[0]}' created successfully.`);
+                    TSOS.Control.updateDiskDisplay(); // Update the disk display to show the new file.
+                } else {
+                    _StdOut.putText(`Failed to create file '${args[0]}'.`);
+                }
+            }
+        }
+
+        public shellRead(args: string[]): void {
+            
         }
         
         

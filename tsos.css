@@ -122,7 +122,7 @@ th, td {
   color: #ffe81f; 
   background-color: rgba(0, 0, 0, 0.8); 
   border: 1px solid transparent; 
-  width: 1000px;
+  width: 100%;
   text-align: center;
   margin: auto;
   font-family: 'Star Jedi', sans-serif; /* Star Wars themed font */
@@ -134,7 +134,7 @@ th, td {
 }
 
 #tableDisk {
-  width: 113%;
+  width: 100%;
   max-height: 525px;
   overflow-x: hidden;
   overflow-y: hidden;

@@ -22,6 +22,18 @@ const TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (inte
                               // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ: number = 1;
 
+// Constants representing the size of each part of the block data
+const USED_SIZE = 1; // 'Used' flag size
+const TSB_SIZE = 3;  // TSB size (Track, Sector, Block)
+const COMMA_SIZE = 2; // Size for two commas
+
+// Calculate the total size for the 'Used' flag and 'Next' TSB
+const METADATA_SIZE = USED_SIZE + TSB_SIZE * 3 + COMMA_SIZE;
+
+// Calculate the start index for the hex filename
+const HEX_START_INDEX = METADATA_SIZE; // Adjust this calculation based on your TSB formatting
+
+
 
 //
 // Global Variables

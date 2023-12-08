@@ -17,6 +17,14 @@ const CONTEXT_SWITCH_IRQ = 2; // New IRQ for context switching
 const TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ = 1;
+// Constants representing the size of each part of the block data
+const USED_SIZE = 1; // 'Used' flag size
+const TSB_SIZE = 3; // TSB size (Track, Sector, Block)
+const COMMA_SIZE = 2; // Size for two commas
+// Calculate the total size for the 'Used' flag and 'Next' TSB
+const METADATA_SIZE = USED_SIZE + TSB_SIZE * 3 + COMMA_SIZE;
+// Calculate the start index for the hex filename
+const HEX_START_INDEX = METADATA_SIZE; // Adjust this calculation based on your TSB formatting
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.

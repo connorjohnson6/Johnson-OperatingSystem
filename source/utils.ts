@@ -53,5 +53,16 @@ module TSOS {
             return hexString;
         }
 
+        //does string now unlike the convertHexString like the one above that only does numbers
+        public static textToHex(text: string): string {
+            let hex: string = "";
+            for (let i = 0; i < text.length; i++) {
+                let charCode = text.charCodeAt(i);
+                let hexChar = charCode.toString(16);
+                hex += hexChar;
+            }
+            return hex;
+        }
+
     }
 }

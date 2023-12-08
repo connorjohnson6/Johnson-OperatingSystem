@@ -230,18 +230,19 @@ module TSOS {
             for (let track = 0; track < _Disk.trackCount; track++) {
                 for (let sector = 0; sector < _Disk.sectorCount; sector++) {
                     for (let block = 0; block < _Disk.blockCount; block++) {
-                        // Retrieve and parse the data for the current block.
-                        let blockData = sessionStorage.getItem(`${track},${sector},${block}`);
-                        if (blockData) { // Ensure the data is not null.
+                        let key = `${track},${sector},${block}`;
+                        let blockData = sessionStorage.getItem(key);
+                        if (blockData) {
                             let dataEntries = blockData.split(" ");
-                            let dataString = dataEntries.slice(4).join(" ").trim(); // Join the data and trim whitespace.
+                            let isInUse = dataEntries[0];
+                            let nextTSB = dataEntries.slice(1, 4).join(",");
+                            let dataString = blockData.substring(HEX_START_INDEX).trim(); // Remove leading and trailing spaces
         
-                            // Construct the table row for the current block.
                             tableBody += `
                                 <tr>
                                     <td>${track},${sector},${block}</td>
-                                    <td>${dataEntries[0]}</td>
-                                    <td>${dataEntries[1]},${dataEntries[2]},${dataEntries[3]}</td>
+                                    <td>${isInUse}</td>
+                                    <td>${nextTSB}</td>
                                     <td>${dataString}</td>
                                 </tr>`;
                         }

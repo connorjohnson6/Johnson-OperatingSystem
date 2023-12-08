@@ -700,8 +700,41 @@ module TSOS {
         }
 
         public shellRead(args: string[]): void {
-            
+            if (_IsDiskFormatted === false) { 
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            } else if (args.length === 0 ) {
+                _StdOut.putText("Usage: read <filename> - Please provide a filename.");
+            } else {
+                const filename = args[0];
+                const dirEntry = _krnKeyboardDisk.findDirEntry(filename);
+                if (!dirEntry) {
+                    _StdOut.putText(`File '${filename}' not found.`);
+                } else {
+                    const dataBlockKey = _krnKeyboardDisk.getDataBlockKey(dirEntry); 
+                    //console.log(`Data block key for '${filename}':`, dataBlockKey);
+                    const dataBlockContent = sessionStorage.getItem(dataBlockKey);
+                    if (dataBlockContent === null) {
+                        _StdOut.putText(`File '${filename}' is empty or the data block does not exist.`);
+                    } else if (this.isFileEmpty(dataBlockContent)) {
+                        _StdOut.putText(`File '${filename}' is empty.`);
+                    } else {
+                        // Read the data from the file
+                        // TODO: Implement the logic to read and output the file's data
+                        _StdOut.putText(`Data from file '${filename}': ${dataBlockContent}`);
+                    }
+                }
+            }
         }
+        
+        // Helper method to check if file is empty
+        private isFileEmpty(dataBlockContent: string): boolean {
+
+            const actualDataContent = dataBlockContent.substring(METADATA_SIZE).trim();
+            
+            // Check if the actual data part of the block is just hyphens, which represents empty data.
+            return actualDataContent.split("").every(char => char === "-");
+        }
+        
         
         
         

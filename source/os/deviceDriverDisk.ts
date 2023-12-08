@@ -82,9 +82,32 @@ module TSOS {
             TSOS.Control.updateDiskDisplay(); // Refresh the disk display.
             return true;
         }
+
+        public findDirEntry(filename: string): string | null {
+            for (let sector = 0; sector < _Disk.sectorCount; sector++) {
+                for (let block = 0; block < _Disk.blockCount; block++) {
+                    //files will always be on track 0
+                    let key = `0,${sector},${block}`;
+                    let blockData = sessionStorage.getItem(key);
+                    if (blockData) {
+                        let hexFileName = TSOS.Utils.textToHex(filename).toUpperCase();
+                        if (blockData.substring(METADATA_SIZE).startsWith(hexFileName)) {
+                            return key; // Found the directory entry, return its TSB key.
+                        }
+                    }
+                }
+            }
+            return null; 
+        }
+
+        // Method to get the data block key from the directory entry
+        public getDataBlockKey(dirEntry: any): string | null {
+            if (dirEntry && dirEntry.dataBlockKey) {
+                return dirEntry.dataBlockKey; // Return the TSB key for the file's data block
+            }
+            return null; // No data block key found in the directory entry
+        }
         
-
-
         private createEmptyBlock(): (number | string)[] {
             let emptyBlockMemory = new Array(64).fill("-"); // Fill the block with a representation of empty space.
             emptyBlockMemory.fill(0, 0, 4); // The first four elements indicate the TSB and usage flag.

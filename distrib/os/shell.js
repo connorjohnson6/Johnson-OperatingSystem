@@ -89,6 +89,9 @@ var TSOS;
             //create
             sc = new TSOS.ShellCommand(this.shellCreate, "create", " <filename> - Create the file filename");
             this.commandList[this.commandList.length] = sc;
+            //read
+            sc = new TSOS.ShellCommand(this.shellRead, "read", " <filename> - Read and display the contents of filename");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -301,6 +304,9 @@ var TSOS;
                         break;
                     case "create":
                         _StdOut.putText("Create a file inside of the disk");
+                        break;
+                    case "read":
+                        _StdOut.putText("Read a file inside of the disk");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -551,6 +557,43 @@ var TSOS;
                     _StdOut.putText(`Failed to create file '${args[0]}'.`);
                 }
             }
+        }
+        shellRead(args) {
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            }
+            else if (args.length === 0) {
+                _StdOut.putText("Usage: read <filename> - Please provide a filename.");
+            }
+            else {
+                const filename = args[0];
+                const dirEntry = _krnKeyboardDisk.findDirEntry(filename);
+                if (!dirEntry) {
+                    _StdOut.putText(`File '${filename}' not found.`);
+                }
+                else {
+                    const dataBlockKey = _krnKeyboardDisk.getDataBlockKey(dirEntry);
+                    console.log(`Data block key for '${filename}':`, dataBlockKey);
+                    const dataBlockContent = sessionStorage.getItem(dataBlockKey);
+                    if (dataBlockContent === null) {
+                        _StdOut.putText(`File '${filename}' is empty or the data block does not exist.`);
+                    }
+                    else if (this.isFileEmpty(dataBlockContent)) {
+                        _StdOut.putText(`File '${filename}' is empty.`);
+                    }
+                    else {
+                        // Read the data from the file
+                        // TODO: Implement the logic to read and output the file's data
+                        _StdOut.putText(`Data from file '${filename}': ${dataBlockContent}`);
+                    }
+                }
+            }
+        }
+        // Helper method to check if file is empty
+        isFileEmpty(dataBlockContent) {
+            const actualDataContent = dataBlockContent.substring(METADATA_SIZE).trim();
+            // Check if the actual data part of the block is just hyphens, which represents empty data.
+            return actualDataContent.split("").every(char => char === "-");
         }
     }
     TSOS.Shell = Shell;

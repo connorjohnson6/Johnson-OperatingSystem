@@ -86,50 +86,57 @@ module TSOS {
         //had chatGPT help me with this one. I had a good read method, just didn't go through
         //multi-lined inputed data, and it ended up infinite looping anyways. 
         //TODO: still need to implemet multi lined reads
+        //Chatgpt really helped me debug this one, but it now can read the full written file
         public readFileData(startingBlockKey: string): string | null {
             let currentBlockKey = startingBlockKey;
-            let fileData = "";
-            let visitedBlocks = new Set(); // Keep track of visited blocks to prevent infinite loops
+            let fileDataHex = ""; // Store hex data from all blocks
+            let visitedBlocks = new Set(); // Track visited blocks to prevent infinite loops
+        
             
-            while (currentBlockKey) {
+            while (currentBlockKey && currentBlockKey !== "---") {
+                // Check if we've visited this block already to prevent an infinite loop
                 if (visitedBlocks.has(currentBlockKey)) {
                     console.error("Infinite loop detected: Block", currentBlockKey, "already visited.");
                     return null;
                 }
-                visitedBlocks.add(currentBlockKey);
-            
+        
+                visitedBlocks.add(currentBlockKey); // Mark this block as visited
+        
                 let blockData = sessionStorage.getItem(currentBlockKey);
                 if (!blockData || blockData.charAt(0) !== "1") {
                     console.error("Invalid or empty block data at key:", currentBlockKey);
-                    break;
+                    return null; // Block is not in use or doesn't exist, stop reading
                 }
-            
-                // Extract only the file content part of the blockData, excluding the metadata
-                let fileContentPart = blockData.substring(METADATA_SIZE).trim();
-                fileData += fileContentPart;
-            
-                // Get the next block key
-                let nextBlockKey = this.getNextBlockKey(blockData); // Implement this method to extract the 'Next' TSB
-                if (nextBlockKey === "---" || !this.isValidTSB(nextBlockKey)) {
-                    // End of the file data
-                    break;
+        
+                // Extract the data part of the block and concatenate it
+                let dataPart = blockData.substring(METADATA_SIZE).trim();
+                fileDataHex += dataPart;
+        
+                // Get the 'Next' block key
+                let nextBlockKey = this.getNextBlockKey(blockData);
+                console.log(`Current block: ${currentBlockKey}, Data: ${dataPart}, Next block: ${nextBlockKey}`);
+
+                if (nextBlockKey === currentBlockKey || !this.isValidTSB(nextBlockKey)) {
+                    break; // If the 'Next' block is the current block or invalid, stop reading
                 } else {
-                    currentBlockKey = nextBlockKey;
+                    currentBlockKey = nextBlockKey; // Move to the next block
                 }
-            
-                console.log(`Read data from block '${currentBlockKey}'. Next block: '${nextBlockKey}'.`);
             }
-            
-            if (fileData === "") {
+        
+            if (fileDataHex === "") {
+                console.error("No data found for file.");
                 return null; // No data found or empty file
             } else {
-                return TSOS.Utils.hexToText(fileData);
+                return TSOS.Utils.hexToText(fileDataHex); // Convert hex data to text and return it
             }
         }
         
         
+        
+        
+        
 
-        public writeFile(filename: string, data: string, currentBlockKey: string = null): boolean {
+        public writeFile(filename: string, data: string, currentBlockKey: string = null, clearBlocks: boolean = true): boolean {
             // Convert the data to a hex string for storage
             const hexData = TSOS.Utils.textToHex(data);
         
@@ -149,7 +156,9 @@ module TSOS {
             }
 
             // Clear the previous data blocks linked to this file
-            this.clearDataBlocks(currentBlockKey);
+            if (clearBlocks) {
+                this.clearDataBlocks(currentBlockKey);
+            }
         
             // Retrieve the current block's data
             let currentBlockData = sessionStorage.getItem(currentBlockKey);
@@ -186,6 +195,82 @@ module TSOS {
         
             return true; // Data was written successfully
         }
+
+        public deleteFile(filename: string): boolean {
+            const dirEntryKey = this.findDirEntry(filename);
+            if (!dirEntryKey) {
+                console.log(`File '${filename}' not found.`);
+                return false;
+            }
+        
+            // Get the key for the file's first data block
+            const dataBlockKey = this.getDataBlockKey(dirEntryKey);
+            if (!dataBlockKey) {
+                console.log(`Data block for file '${filename}' not found.`);
+                return false;
+            }
+        
+            // Clear the data blocks
+            this.clearDataBlocks(dataBlockKey);
+        
+            // Clear the directory entry
+            sessionStorage.setItem(dirEntryKey, this.createEmptyBlock().join(" "));
+            return true;
+        }
+        
+
+        
+        public copyFile(existingFilename: string, newFilename: string): boolean {
+            // Find the directory entry for the existing file.
+            const existingDirEntryKey = _krnKeyboardDisk.findDirEntry(existingFilename);
+            if (!existingDirEntryKey) {
+                _StdOut.putText(`File '${existingFilename}' not found.`);
+                return false;
+            }
+        
+            // Check if the new filename already exists.
+            if (_krnKeyboardDisk.findDirEntry(newFilename)) {
+                _StdOut.putText(`File '${newFilename}' already exists.`);
+                return false;
+            }
+        
+            // Get the first data block key from the directory entry for the existing file.
+            const existingDataBlockKey = _krnKeyboardDisk.getDataBlockKey(existingDirEntryKey);
+            if (!existingDataBlockKey) {
+                _StdOut.putText(`No data block found for file '${existingFilename}'.`);
+                return false;
+            }
+        
+            // Read the data from the existing file's data blocks.
+            let existingFileData = _krnKeyboardDisk.readFileData(existingDataBlockKey);
+            console.log(`Data from file to copy: ${existingFileData}`);
+            if (existingFileData === null) {
+                _StdOut.putText(`Error reading data for file '${existingFilename}'.`);
+                return false;
+            }
+        
+            // Create a new file with the new filename.
+            let createSuccess = _krnKeyboardDisk.createFile(newFilename);
+            console.log(`Created file: ${createSuccess}`);
+            if (!createSuccess) {
+                _StdOut.putText(`Error creating the file '${newFilename}'.`);
+                return false;
+            }
+        
+            // Write the data to the new file's data blocks.
+            let writeSuccess = _krnKeyboardDisk.writeFile(newFilename, existingFileData);
+            console.log(`Data written to new file: ${writeSuccess}`);
+            if (!writeSuccess) {
+                _StdOut.putText(`Error writing data to the file '${newFilename}'.`);
+                return false;
+            }
+        
+            return true;
+        }
+        
+        
+        
+        
         
         
         public renameFile(existingFilename: string, newFilename: string): boolean {
@@ -339,9 +424,12 @@ module TSOS {
         }
 
         private getNextBlockKey(blockData: string): string {
-            // we extract the TSB using substring based on known sizes.
-            return blockData.substring(USED_SIZE, USED_SIZE + TSB_SIZE).trim();
+            // Assuming that the TSB is stored right after the "in use" flag.
+            // You might need to adjust the indices if your actual block data format is different.
+            const nextTSB = blockData.substring(1, METADATA_SIZE).trim();
+            return this.isValidTSB(nextTSB) ? nextTSB : "---";
         }
+        
         
 
         private clearDataBlocks(startingBlockKey: string): void {

@@ -665,25 +665,43 @@ var TSOS;
         shellDelete(args) {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
+                return;
             }
-            else if (args.length < 1) {
+            if (args.length < 1) {
                 _StdOut.putText("Usage: delete <filename> - This will delete the specific disk file");
+                return;
+            }
+            const filename = args[0];
+            const deletionSuccess = _krnKeyboardDisk.deleteFile(filename);
+            if (deletionSuccess) {
+                _StdOut.putText(`File '${filename}' deleted successfully.`);
+                TSOS.Control.updateDiskDisplay(); // Refresh the disk display.
             }
             else {
+                _StdOut.putText(`Failed to delete file '${filename}'.`);
             }
         }
-        ;
         shellCopy(args) {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
             }
             else if (args.length < 2) {
-                _StdOut.putText("Usage: <existing filename> <new filename> to copy a file from disk an duplicate");
+                _StdOut.putText("Usage: copy <existing filename> <new filename> - to copy a file on the disk.");
             }
             else {
+                const existingFilename = args[0];
+                const newFilename = args[1];
+                // Call the copyFile method which does the actual copying
+                const success = _krnKeyboardDisk.copyFile(existingFilename, newFilename);
+                if (success) {
+                    _StdOut.putText(`File '${existingFilename}' copied to '${newFilename}' successfully.`);
+                    TSOS.Control.updateDiskDisplay(); // Refresh the disk display
+                }
+                else {
+                    _StdOut.putText(`Failed to copy file '${existingFilename}'.`);
+                }
             }
         }
-        ;
         shellRename(args) {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");

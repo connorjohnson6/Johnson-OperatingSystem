@@ -188,6 +188,46 @@ module TSOS {
         }
         
         
+        public renameFile(existingFilename: string, newFilename: string): boolean {
+            const dirEntryKey = _krnKeyboardDisk.findDirEntry(existingFilename);
+            if (!dirEntryKey) {
+                _StdOut.putText(`File '${existingFilename}' not found.`);
+                return false;
+            }
+        
+            if (_krnKeyboardDisk.findDirEntry(newFilename)) {
+                _StdOut.putText(`File '${newFilename}' already exists.`);
+                return false;
+            }
+        
+            let dirBlockData = sessionStorage.getItem(dirEntryKey);
+            if (dirBlockData) {
+                const hexNewFilename = TSOS.Utils.textToHex(newFilename).toUpperCase();
+                const updatedDirBlockData = dirBlockData.substring(0, HEX_START_INDEX) + hexNewFilename.padEnd(_Disk.blockMemory - HEX_START_INDEX, " ");
+                sessionStorage.setItem(dirEntryKey, updatedDirBlockData);
+                return true;
+            } else {
+                _StdOut.putText(`Error reading directory entry for file '${existingFilename}'.`);
+                return false;
+            }
+        }
+
+        public listAllFiles(): string[] {
+            let fileList: string[] = [];
+            // Assuming track 0 is reserved for directory entries
+            for (let sector = 0; sector < _Disk.sectorCount; sector++) {
+                for (let block = 0; block < _Disk.blockCount; block++) {
+                    let key = `0,${sector},${block}`;
+                    let blockData = sessionStorage.getItem(key);
+                    if (blockData && blockData[0] === "1") { // If the block is in use
+                        let fileNameHex = blockData.substring(METADATA_SIZE).trim();
+                        let fileName = TSOS.Utils.hexToText(fileNameHex);
+                        fileList.push(fileName);
+                    }
+                }
+            }
+            return fileList;
+        }
         
     
         public findDirEntry(filename: string): string | null {

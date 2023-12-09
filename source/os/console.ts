@@ -67,7 +67,7 @@
 
                     }else if(chr === String.fromCharCode(9)){
                         //handles the tab command
-                        let shellCommands: (string)[] = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'bsod', 'load', 'run', 'clearmem', 'runall', 'ps', 'kill', 'killall', 'quantum', 'format', 'create', 'read', 'write']
+                        let shellCommands: (string)[] = ['ver', 'help', 'shutdown', 'cls', 'man', 'trace', 'rot13', 'prompt', 'date', 'wherami', 'game', 'status', 'bsod', 'load', 'run', 'clearmem', 'runall', 'ps', 'kill', 'killall', 'quantum', 'format', 'create', 'read', 'write', 'delete', 'copy', 'rename', 'ls']
                         this.tabCompletion(shellCommands);
                     }else if(chr === String.fromCharCode(38)){
                         //handles up arrow      

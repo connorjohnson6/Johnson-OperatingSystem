@@ -69,6 +69,9 @@ var TSOS;
             TSOS.Control.updateDiskDisplay(); // Refresh the disk display.
             return true;
         }
+        //had chatGPT help me with this one. I had a good read method, just didn't go through
+        //multi-lined inputed data, and it ended up infinite looping anyways. 
+        //TODO: still need to implemet multi lined reads
         readFileData(startingBlockKey) {
             let currentBlockKey = startingBlockKey;
             let fileData = "";
@@ -153,6 +156,44 @@ var TSOS;
             }
             return true; // Data was written successfully
         }
+        renameFile(existingFilename, newFilename) {
+            const dirEntryKey = _krnKeyboardDisk.findDirEntry(existingFilename);
+            if (!dirEntryKey) {
+                _StdOut.putText(`File '${existingFilename}' not found.`);
+                return false;
+            }
+            if (_krnKeyboardDisk.findDirEntry(newFilename)) {
+                _StdOut.putText(`File '${newFilename}' already exists.`);
+                return false;
+            }
+            let dirBlockData = sessionStorage.getItem(dirEntryKey);
+            if (dirBlockData) {
+                const hexNewFilename = TSOS.Utils.textToHex(newFilename).toUpperCase();
+                const updatedDirBlockData = dirBlockData.substring(0, HEX_START_INDEX) + hexNewFilename.padEnd(_Disk.blockMemory - HEX_START_INDEX, " ");
+                sessionStorage.setItem(dirEntryKey, updatedDirBlockData);
+                return true;
+            }
+            else {
+                _StdOut.putText(`Error reading directory entry for file '${existingFilename}'.`);
+                return false;
+            }
+        }
+        listAllFiles() {
+            let fileList = [];
+            // Assuming track 0 is reserved for directory entries
+            for (let sector = 0; sector < _Disk.sectorCount; sector++) {
+                for (let block = 0; block < _Disk.blockCount; block++) {
+                    let key = `0,${sector},${block}`;
+                    let blockData = sessionStorage.getItem(key);
+                    if (blockData && blockData[0] === "1") { // If the block is in use
+                        let fileNameHex = blockData.substring(METADATA_SIZE).trim();
+                        let fileName = TSOS.Utils.hexToText(fileNameHex);
+                        fileList.push(fileName);
+                    }
+                }
+            }
+            return fileList;
+        }
         findDirEntry(filename) {
             for (let sector = 0; sector < _Disk.sectorCount; sector++) {
                 for (let block = 0; block < _Disk.blockCount; block++) {
@@ -173,11 +214,9 @@ var TSOS;
         getDataBlockKey(dirEntryKey) {
             const dirEntryData = sessionStorage.getItem(dirEntryKey);
             if (dirEntryData) {
-                // Assuming the "In Use" flag takes the first character, and the TSB of the next block starts from the second character.
                 const nextTSB = dirEntryData.substring(1, METADATA_SIZE).trim(); // Trim to remove any padding spaces.
-                // The nextTSB would look like "0,1,1" if the next data block is at track 0, sector 1, block 1.
                 // You need to validate if it's a valid TSB and return it.
-                if (this.isValidTSB(nextTSB)) { // You need to implement this method to validate TSB.
+                if (this.isValidTSB(nextTSB)) {
                     return nextTSB;
                 }
             }
@@ -189,18 +228,18 @@ var TSOS;
             // Check if the actual data part of the block is just hyphens, which represents empty data.
             return actualDataContent.split("").every(char => char === "-");
         }
-        // Implement a method to validate the TSB format (e.g., "0,1,1").
+        // was having some trouble with TSB information within my table, so just added
+        // just incase of stupidity
         isValidTSB(tsb) {
             const parts = tsb.split(",");
             if (parts.length === 3) {
-                // Implement further checks as needed to validate track, sector, and block numbers.
                 return true;
             }
             return false;
         }
         createEmptyBlock() {
-            let emptyBlockMemory = new Array(64).fill("-"); // Fill the block with a representation of empty space.
-            emptyBlockMemory.fill(0, 0, 4); // The first four elements indicate the TSB and usage flag.
+            let emptyBlockMemory = new Array(64).fill("-"); // Fill the block with 'empty space'.
+            emptyBlockMemory.fill(0, 0, 4);
             return emptyBlockMemory;
         }
         searchForFile(filename) {
@@ -254,8 +293,7 @@ var TSOS;
             return null; // No available data blocks found.
         }
         getNextBlockKey(blockData) {
-            // Assuming the 'Next' TSB follows the 'Used' flag and is separated by commas,
-            // we extract the 'Next' TSB using substring based on known sizes.
+            // we extract the TSB using substring based on known sizes.
             return blockData.substring(USED_SIZE, USED_SIZE + TSB_SIZE).trim();
         }
         clearDataBlocks(startingBlockKey) {

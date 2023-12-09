@@ -84,7 +84,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", " <int> - let the user set the Round Robin quantum (measured in cpu cycles)");
             this.commandList[this.commandList.length] = sc;
             //format
-            sc = new TSOS.ShellCommand(this.shellFormat, "format", "Initialize all blocks in all sectors in all tracks");
+            sc = new TSOS.ShellCommand(this.shellFormat, "format", "- Initialize all blocks in all sectors in all tracks");
             this.commandList[this.commandList.length] = sc;
             //create
             sc = new TSOS.ShellCommand(this.shellCreate, "create", " <filename> - Create the file filename");
@@ -94,6 +94,18 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             //read
             sc = new TSOS.ShellCommand(this.shellWrite, "write", " <filename> \"data\" - Write the data inside the quotes to filename");
+            this.commandList[this.commandList.length] = sc;
+            //delete
+            sc = new TSOS.ShellCommand(this.shellDelete, "delete", " <filename> - Remove filename from storage");
+            this.commandList[this.commandList.length] = sc;
+            //copy
+            sc = new TSOS.ShellCommand(this.shellCopy, "copy", " <existing filename> <new filename> - Copy");
+            this.commandList[this.commandList.length] = sc;
+            //rename
+            sc = new TSOS.ShellCommand(this.shellRename, "rename", " <existing filename> <new filename> - Rename");
+            this.commandList[this.commandList.length] = sc;
+            //ls
+            sc = new TSOS.ShellCommand(this.shellLs, "ls", "- list the files currently on the disk");
             this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
@@ -312,7 +324,19 @@ var TSOS;
                         _StdOut.putText("Read a file inside of the disk");
                         break;
                     case "write":
-                        _StdOut.putText("write to a created file");
+                        _StdOut.putText("Write to a created file");
+                        break;
+                    case "delete":
+                        _StdOut.putText("Delete to a delete a file from disk");
+                        break;
+                    case "copy":
+                        _StdOut.putText("Copy a file from disk and duplicate");
+                        break;
+                    case "rename":
+                        _StdOut.putText("Rename a file from disk");
+                        break;
+                    case "ls":
+                        _StdOut.putText("Ls to list out all current files on disk");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -635,6 +659,61 @@ var TSOS;
                     else {
                         _StdOut.putText(`File '${filename}' not found.`);
                     }
+                }
+            }
+        }
+        shellDelete(args) {
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            }
+            else if (args.length < 1) {
+                _StdOut.putText("Usage: delete <filename> - This will delete the specific disk file");
+            }
+            else {
+            }
+        }
+        ;
+        shellCopy(args) {
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            }
+            else if (args.length < 2) {
+                _StdOut.putText("Usage: <existing filename> <new filename> to copy a file from disk an duplicate");
+            }
+            else {
+            }
+        }
+        ;
+        shellRename(args) {
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            }
+            else if (args.length < 2) {
+                _StdOut.putText("Usage: rename <existing filename> <new filename> - to rename a file on the disk.");
+            }
+            else {
+                const existingFilename = args[0];
+                const newFilename = args[1];
+                // Call the renameFile method which does the actual renaming
+                const success = _krnKeyboardDisk.renameFile(existingFilename, newFilename);
+                if (success) {
+                    _StdOut.putText(`File renamed from '${existingFilename}' to '${newFilename}' successfully.`);
+                    TSOS.Control.updateDiskDisplay(); // Refresh the disk display
+                }
+            }
+        }
+        shellLs(args) {
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+                return;
+            }
+            const fileList = _krnKeyboardDisk.listAllFiles();
+            if (fileList.length === 0) {
+                _StdOut.putText("No files found on the disk.");
+            }
+            else {
+                for (const file of fileList) {
+                    _StdOut.putText(file + " ");
                 }
             }
         }

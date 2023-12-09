@@ -60,6 +60,17 @@ var TSOS;
             }
             return hex;
         }
+        static hexToText(hexString) {
+            var hex = hexString.toString(); //force conversion
+            var str = '';
+            for (var i = 0; i < hex.length; i += 2) {
+                str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+            }
+            return str;
+        }
+        static replaceAt(value, index, replacement) {
+            return value.substring(0, index) + replacement + value.substring(index + replacement.length);
+        }
     }
     TSOS.Utils = Utils;
 })(TSOS || (TSOS = {}));

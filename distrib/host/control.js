@@ -185,14 +185,14 @@ var TSOS;
                             let dataEntries = blockData.split(" ");
                             let isInUse = dataEntries[0];
                             let nextTSB = dataEntries.slice(1, 4).join(",");
-                            let dataString = blockData.substring(HEX_START_INDEX).trim(); // Remove leading and trailing spaces
+                            let dataString = blockData.substring(HEX_START_INDEX).trim();
                             tableBody += `
-                                <tr>
-                                    <td>${track},${sector},${block}</td>
-                                    <td>${isInUse}</td>
-                                    <td>${nextTSB}</td>
-                                    <td>${dataString}</td>
-                                </tr>`;
+                            <tr>
+                                <td>${track},${sector},${block}</td>
+                                <td>${isInUse}</td>
+                                <td>${nextTSB}</td>
+                                <td>${dataString}</td>
+                            </tr>`;
                         }
                     }
                 }

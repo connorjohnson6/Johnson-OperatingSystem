@@ -34,6 +34,7 @@ var _Memory;
 var _MemoryAccessor;
 var _Disk;
 var _IsDiskFormatted = false;
+var _IsFull = true;
 //Softeware (OS)
 var _MemoryManager = null;
 var _OSclock = 0; // Page 23.

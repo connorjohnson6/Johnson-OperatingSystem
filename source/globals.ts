@@ -45,6 +45,8 @@ var _Memory: TSOS.Memory;
 var _MemoryAccessor: TSOS.MemoryAccessor;
 var _Disk: TSOS.Disk;
 var _IsDiskFormatted: boolean = false;
+var _IsFull = true;
+
 
 
 //Softeware (OS)

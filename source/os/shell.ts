@@ -172,7 +172,11 @@ module TSOS {
                             "read",
                             " <filename> - Read and display the contents of filename");
             this.commandList[this.commandList.length] = sc;
-        
+            //read
+            sc = new ShellCommand(this.shellWrite,
+                            "write",
+                            " <filename> \"data\" - Write the data inside the quotes to filename");
+            this.commandList[this.commandList.length] = sc;    
 
 
             // Display the initial prompt.
@@ -403,6 +407,9 @@ module TSOS {
                         break;
                     case "read":
                         _StdOut.putText("Read a file inside of the disk");
+                        break;
+                    case "write":
+                        _StdOut.putText("write to a created file");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -688,7 +695,7 @@ module TSOS {
             } else if (args.length === 0) {
                 _StdOut.putText("Usage: create <filename> - Please provide a filename.");
             } else {
-                // Pass the filename to the createFile method of the disk driver.
+                // Pass the filename to the createFile method of t
                 let success = _krnKeyboardDisk.createFile(args[0]);
                 if (success) {
                     _StdOut.putText(`File '${args[0]}' created successfully.`);
@@ -706,34 +713,75 @@ module TSOS {
                 _StdOut.putText("Usage: read <filename> - Please provide a filename.");
             } else {
                 const filename = args[0];
-                const dirEntry = _krnKeyboardDisk.findDirEntry(filename);
-                if (!dirEntry) {
+                const dirEntryKey = _krnKeyboardDisk.findDirEntry(filename);
+                if (!dirEntryKey) {
                     _StdOut.putText(`File '${filename}' not found.`);
                 } else {
-                    const dataBlockKey = _krnKeyboardDisk.getDataBlockKey(dirEntry); 
-                    //console.log(`Data block key for '${filename}':`, dataBlockKey);
-                    const dataBlockContent = sessionStorage.getItem(dataBlockKey);
-                    if (dataBlockContent === null) {
-                        _StdOut.putText(`File '${filename}' is empty or the data block does not exist.`);
-                    } else if (this.isFileEmpty(dataBlockContent)) {
-                        _StdOut.putText(`File '${filename}' is empty.`);
+                    const dataBlockKey = _krnKeyboardDisk.getDataBlockKey(dirEntryKey);
+                    if (dataBlockKey) {
+                        let fileData = _krnKeyboardDisk.readFileData(dataBlockKey);
+                        if (fileData !== null) {
+                            _StdOut.putText(`Data from file '${filename}': ${fileData}`);
+                        } else {
+                            _StdOut.putText(`Error reading the file '${filename}'.`);
+                        }
                     } else {
-                        // Read the data from the file
-                        // TODO: Implement the logic to read and output the file's data
-                        _StdOut.putText(`Data from file '${filename}': ${dataBlockContent}`);
+                        _StdOut.putText(`No data block found for file '${filename}'.`);
                     }
                 }
             }
         }
         
-        // Helper method to check if file is empty
-        private isFileEmpty(dataBlockContent: string): boolean {
+        
 
-            const actualDataContent = dataBlockContent.substring(METADATA_SIZE).trim();
-            
-            // Check if the actual data part of the block is just hyphens, which represents empty data.
-            return actualDataContent.split("").every(char => char === "-");
+
+        public shellWrite(args: string[]): void {
+            //console.log('args:', args);
+        
+            if (_IsDiskFormatted === false) {
+                _StdOut.putText("Please format the disk first by entering 'format'");
+            } else if (args.length < 2) {
+                _StdOut.putText("Usage: write <filename> \"data\" - Please provide a filename and data enclosed in quotes.");
+            } else {
+                const filename = args[0];
+                let data = args.slice(1).join(' ');
+                data = data.replace(/[\u0000-\u001F\u007F-\u009F\u0010]+/g, ''); // Remove control characters
+                //console.log(`just data ${data}`);
+        
+                if (!(data.startsWith('"') && data.endsWith('"'))) {
+                    _StdOut.putText("Please enclose the data in quotes.");
+                } else {
+                    data = data.substring(1, data.length - 1); // Remove the surrounding quotes from the data
+                    //console.log(`data after removed quotes: ${data}`);
+        
+                    // Find the directory entry for the file
+                    const dirEntryKey = _krnKeyboardDisk.findDirEntry(filename);
+                    if (dirEntryKey) {
+                        // Get the key for the data block from the directory entry
+                        const dataBlockKey = _krnKeyboardDisk.getDataBlockKey(dirEntryKey);
+                        if (dataBlockKey) {
+                            if (_krnKeyboardDisk.writeFile(filename, data, dataBlockKey)) {
+                                _Kernel.krnTrace(`File '${filename}' written successfully.`);
+                                _StdOut.putText(`File '${filename}' written successfully.`);
+                                TSOS.Control.updateDiskDisplay();
+                            } else {
+                                _StdOut.putText(`Error writing to file '${filename}'.`);
+                            }
+                        } else {
+                            _StdOut.putText(`No data block found for file '${filename}'.`);
+                        }
+                    } else {
+                        _StdOut.putText(`File '${filename}' not found.`);
+                    }
+                }
+            }
         }
+        
+        
+        
+        
+        
+        
         
         
         

@@ -47,7 +47,7 @@ module TSOS {
             //ascii values too and they have the same
             const SHIFTED_CHAR_MAPPING = {
                 '48': ')',
-                '49': '!',
+                '49': '!', 
                 '50': '@',
                 '51': '#',
                 '52': '$',
@@ -63,6 +63,10 @@ module TSOS {
                 '190': '>',
                 '191': '?',
                 '192': '~',
+                '222': '\"',
+                '219': '{',
+                '220': '|',
+                '221': '}',
             };
          
             const UNSHIFTED_CHAR_MAPPING = {
@@ -86,7 +90,7 @@ module TSOS {
                 '219': '{',
                 '220': '|',
                 '221': '}',
-                '222': '"'
+                '222': '\''
             
             };
 

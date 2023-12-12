@@ -562,27 +562,34 @@ module TSOS {
         
         public shellLoad(args: string[]): void {
             // Access the program input from the HTML textarea
-            let taProgramInput1 = (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value;
-            let taProgramInput = taProgramInput1.trim(); // Remove whitespace
-                        
+            let taProgramInput = (<HTMLTextAreaElement>document.getElementById("taProgramInput")).value.trim();
             let hexValidate = /^[0-9A-Fa-f\s]*$/;
-                        
+        
             if (hexValidate.test(taProgramInput)) {
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
         
-                // Generating a unique PID, 
-                let pid = _Kernel.getNextPID(); 
-                
-                // Create a new PCB object
-                let newPCB = new PCB(pid); 
-                
-                // Load the program into memory and pass the PCB
-                if (_MemoryManager.loadProcess(newPCB, taProgramInput.split(" "))) {
+                // Generating a unique PID and creating a new PCB object
+                let pid = _Kernel.getNextPID();
+                let newPCB = new PCB(pid);
+        
+                // Check if disk is formatted and memory is full
+                if (_IsDiskFormatted && !_MemoryManager.findAvailablePartition()) {
+                    // Bypass memory partition check and write to disk
+                    let filename = `.swap${pid}`;
+                    //let success = this.writeToDisk(filename, taProgramInput); // You need to implement this method
+                    let success = _krnKeyboardDisk.createFile(filename);
+                    if (success) {
+                        _StdOut.putText(`Program loaded into disk with PID: ${pid}`);
+                        TSOS.Control.updateDiskDisplay(); 
+                    } else {
+                        _StdOut.putText("Failed to load program into disk.");
+                    }
+                } else if (_MemoryManager.loadProcess(newPCB, taProgramInput.split(" "))) {
                     _StdOut.putText(`Program loaded with PID: ${pid}`);
-
                 } else {
                     _StdOut.putText("Program load failed.");
+                    _StdOut.putText("Please format the disk to load more programs.");
                 }
             } else {
                 _StdOut.putText("Hex is not valid.");
@@ -726,6 +733,8 @@ module TSOS {
                 _StdOut.putText("Please format the disk first by entering 'format'");
             } else if (args.length === 0) {
                 _StdOut.putText("Usage: create <filename> - Please provide a filename.");
+            } else if (args[0].charAt(0) === '.'){
+                _StdOut.putText("User created files starting with '.' is illegal")
             } else {
                 // Pass the filename to the createFile method of t
                 let success = _krnKeyboardDisk.createFile(args[0]);
@@ -835,6 +844,8 @@ module TSOS {
         public shellCopy(args: string[]): void {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
+            } else if (args[0].charAt(0) === '.'){
+                _StdOut.putText("User created files starting with '.' is illegal")
             } else if (args.length < 2) {
                 _StdOut.putText("Usage: copy <existing filename> <new filename> - to copy a file on the disk.");
             } else {
@@ -857,6 +868,8 @@ module TSOS {
         public shellRename(args: string[]): void {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
+            } else if (args[0].charAt(0) === '.'){
+                _StdOut.putText("User created files starting with '.' is illegal")
             } else if (args.length < 2) {
                 _StdOut.putText("Usage: rename <existing filename> <new filename> - to rename a file on the disk.");
             } else {

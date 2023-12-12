@@ -237,7 +237,7 @@ var TSOS;
         displayBSOD() {
             // Load the BSOD image
             let bsodImage = new Image();
-            bsodImage.src = "./distrib/images/BSOD_Message.png";
+            bsodImage.src = "./distrib/images/Just_wrong.webp";
             bsodImage.onload = function () {
                 // Clear the console
                 _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);

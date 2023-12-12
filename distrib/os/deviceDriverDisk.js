@@ -72,6 +72,7 @@ var TSOS;
         //had chatGPT help me with this one. I had a good read method, just didn't go through
         //multi-lined inputed data, and it ended up infinite looping anyways. 
         //TODO: still need to implemet multi lined reads
+        //Chatgpt really helped me debug this one, but it now can read the full written file
         readFileData(startingBlockKey) {
             let currentBlockKey = startingBlockKey;
             let fileDataHex = ""; // Store hex data from all blocks

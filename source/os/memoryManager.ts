@@ -16,13 +16,13 @@ module TSOS {
             console.log("Received PCB at start:", JSON.stringify(pcb));
 
             const partition = this.findAvailablePartition();
-            
+            console.log(`Partition: ${partition}`)
             // Check if there's no available partition or if the opCodes exceed the block size
             if (!partition || opCodes.length > MemoryManager.BLOCK_SIZE) {
                 console.error("No available partition found or Input exceeds block size for process:", pcb.pid);
                 return false;
-            }
-
+            } 
+            
             //assinging properties to the PCB based off of the availble/found partitions
             const segment = this.partitions.indexOf(partition);
             pcb.segment = segment;

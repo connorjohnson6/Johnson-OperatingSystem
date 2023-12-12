@@ -288,7 +288,7 @@
                 public displayBSOD(): void {
                     // Load the BSOD image
                     let bsodImage = new Image();
-                    bsodImage.src = "./distrib/images/BSOD_Message.png"; 
+                    bsodImage.src = "./distrib/images/Just_wrong.webp"; 
                 
                     bsodImage.onload = function() {
                         // Clear the console

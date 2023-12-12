@@ -101,7 +101,6 @@ module TSOS {
             }
 
 
-
             // If Ctrl key is pressed
             if (keyCode == 17) {
                 this.ctrlDown = true;
@@ -151,12 +150,19 @@ module TSOS {
                 _KernelInputQueue.enqueue(chr);
 
             //space, enter, backspace
-            }else if ((keyCode == 32) || (keyCode == 13) || (keyCode == 8)){ //TODO: backspace check
+            } else if ((keyCode == 32) || (keyCode == 13) || (keyCode == 8)){ //TODO: backspace check
                 
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             
-            }else { // Handling other special keys
+            } else if ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 186 && keyCode <= 222)) { // Range covering numbers and special characters
+                if (isShifted) {
+                    chr = SHIFTED_CHAR_MAPPING[keyCode] || "";
+                } else {
+                    chr = UNSHIFTED_CHAR_MAPPING[keyCode] || "";
+                }
+                _KernelInputQueue.enqueue(chr);
+            } else { // Handling other special keys
                
                 if (isShifted) {
                     chr = SHIFTED_CHAR_MAPPING[keyCode] || String.fromCharCode(keyCode);

@@ -442,21 +442,25 @@ var TSOS;
             if (hexValidate.test(taProgramInput)) {
                 _StdOut.putText("Hex is valid. Loading into memory...");
                 _StdOut.advanceLine();
-                // Generating a unique PID and creating a new PCB object
                 let pid = _Kernel.getNextPID();
                 let newPCB = new TSOS.PCB(pid);
-                // Check if disk is formatted and memory is full
+                newPCB.opCodes = taProgramInput;
                 if (_IsDiskFormatted && !_MemoryManager.findAvailablePartition()) {
-                    // Bypass memory partition check and write to disk
                     let filename = `.swap${pid}`;
-                    //let success = this.writeToDisk(filename, taProgramInput); // You need to implement this method
-                    let success = _krnKeyboardDisk.createFile(filename);
-                    if (success) {
-                        _StdOut.putText(`Program loaded into disk with PID: ${pid}`);
-                        TSOS.Control.updateDiskDisplay();
+                    // Create a file on the disk
+                    if (_krnKeyboardDisk.createFile(filename)) {
+                        // Write the user's input to the created file
+                        if (_krnKeyboardDisk.writeFile(filename, taProgramInput)) {
+                            _StdOut.putText(`Program loaded into disk with PID: ${pid}`);
+                            TSOS.Control.updateDiskDisplay();
+                            _MemoryManager.loadDisk(newPCB);
+                        }
+                        else {
+                            _StdOut.putText("Failed to load program into disk.");
+                        }
                     }
                     else {
-                        _StdOut.putText("Failed to load program into disk.");
+                        _StdOut.putText("Failed to create file on disk.");
                     }
                 }
                 else if (_MemoryManager.loadProcess(newPCB, taProgramInput.split(" "))) {
@@ -592,7 +596,7 @@ var TSOS;
                 _StdOut.putText("User created files starting with '.' is illegal");
             }
             else {
-                // Pass the filename to the createFile method of t
+                // Pass the filename to the createFile method
                 let success = _krnKeyboardDisk.createFile(args[0]);
                 if (success) {
                     _StdOut.putText(`File '${args[0]}' created successfully.`);
@@ -700,6 +704,9 @@ var TSOS;
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
             }
+            else if (args[0].charAt(0) === '.') {
+                _StdOut.putText("User created files starting with '.' is illegal");
+            }
             else if (args.length < 2) {
                 _StdOut.putText("Usage: copy <existing filename> <new filename> - to copy a file on the disk.");
             }
@@ -720,6 +727,9 @@ var TSOS;
         shellRename(args) {
             if (_IsDiskFormatted === false) {
                 _StdOut.putText("Please format the disk first by entering 'format'");
+            }
+            else if (args[0].charAt(0) === '.') {
+                _StdOut.putText("User created files starting with '.' is illegal");
             }
             else if (args.length < 2) {
                 _StdOut.putText("Usage: rename <existing filename> <new filename> - to rename a file on the disk.");

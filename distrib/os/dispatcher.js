@@ -52,6 +52,22 @@ var TSOS;
                 _CPU.currentPCB = null;
             }
         }
+        // Roll in a PCB from Disk to Memory
+        rollIn(newPCB) {
+            if (newPCB) {
+                console.log(`[RollIn] Rolling in PID: ${newPCB.pid}`);
+                newPCB.location = 'Memory';
+                console.log(`[RollIn] PID: ${newPCB.pid} location set to 'Memory'`);
+            }
+        }
+        // Roll out a PCB from Memory to Disk
+        rollOut(oldPCB) {
+            if (oldPCB) {
+                console.log(`[RollOut] Rolling out PID: ${oldPCB.pid}`);
+                oldPCB.location = 'Disk';
+                console.log(`[RollOut] PID: ${oldPCB.pid} location set to 'Disk'`);
+            }
+        }
     }
     TSOS.Dispatcher = Dispatcher;
 })(TSOS || (TSOS = {}));

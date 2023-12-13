@@ -380,6 +380,29 @@ var TSOS;
                 }
             }
         }
+        loadFromDisk(pcb, partition) {
+            let filename = `.swap${pcb.pid}`;
+            let dirEntryKey = this.findDirEntry(filename);
+            if (!dirEntryKey) {
+                console.error(`Swap file '${filename}' not found.`);
+                return false;
+            }
+            let dataBlockKey = this.getDataBlockKey(dirEntryKey);
+            if (!dataBlockKey) {
+                console.error(`No data block found for file '${filename}'.`);
+                return false;
+            }
+            let fileData = this.readFileData(dataBlockKey);
+            if (fileData === null) {
+                console.error(`Error reading data for file '${filename}'.`);
+                return false;
+            }
+            // Load the data into the specified memory partition
+            _MemoryManager.loadIntoPartition(partition, fileData);
+            // Delete the swap file as it's no longer needed
+            this.deleteFile(filename);
+            return true;
+        }
     }
     TSOS.DeviceDriverDisk = DeviceDriverDisk;
 })(TSOS || (TSOS = {}));

@@ -28,6 +28,7 @@ module TSOS {
             pcb.segment = segment;
             pcb.base = partition.base;
             pcb.limit = partition.limit;
+            pcb.location = "Memory";
 
             this.partitions[segment].occupied = true;
             this.partitions[segment].pcb = pcb;
@@ -50,6 +51,37 @@ module TSOS {
             console.log("Partition after loading process:", partition);
             return true;
         }
+
+        public loadDisk(pcb: PCB): boolean {
+            let filename = `.swap${pcb.pid}`;
+        
+            // Check if the swap file exists for this PCB
+            let fileExists = _krnKeyboardDisk.findDirEntry(filename);
+            if (!fileExists) {
+                _StdOut.putText(`No file found for .swap${pcb.pid} on disk.`);
+                return false;
+            }
+        
+            // Update PCB properties
+            pcb.location = "Disk";
+            pcb.segment = NaN; // just going to use NaN since its not coming from memory
+            pcb.base = NaN;
+            pcb.limit = NaN;
+        
+
+            _PCBMap.set(pcb.pid, pcb);
+            _Scheduler.residentList.set(pcb.pid, pcb);
+
+            
+            // Update any relevant displays or logs
+            TSOS.Control.updatePCBs(); 
+            _IsDiskLoaded = true;
+        
+            console.log(`Process with PID: ${pcb.pid} loaded from disk.`);
+            return true;
+        }
+
+        
         
         
         
@@ -143,6 +175,34 @@ module TSOS {
             const foundPartition = this.findPartitionByPID(pid);
             return foundPartition?.pcb || null;
         }
+
+        // Method to load op codes into a specific memory partition
+        public loadIntoPartition(partition: { base: number, limit: number, occupied: boolean, pcb?: PCB }, opCodes: string): boolean {
+        if (partition.occupied) {
+            console.error(`Partition is already occupied. Cannot load process.`);
+            return false;
+        }
+
+        // Split the op codes string into an array of op codes
+        let opCodesArray = opCodes.split(" ");
+
+        // Check if the opCodes exceed the block size
+        if (opCodesArray.length > MemoryManager.BLOCK_SIZE) {
+            console.error("Input exceeds block size.");
+            return false;
+        }
+
+        // Load the op codes into memory
+        for (let i = 0; i < opCodesArray.length; i++) {
+            const opcode = parseInt(opCodesArray[i], 16);
+            _MemoryAccessor.write(i, opcode, partition.base);
+        }
+
+        // Mark the partition as occupied
+        partition.occupied = true;
+
+        return true;
+    }
         
     }
 }

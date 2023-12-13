@@ -19,6 +19,7 @@ module TSOS {
         public waitTime: number = 0;
         public quantumRemaining = _Scheduler.quantum;
         public segment: number | null = null;
+        public opCodes: string = ""; 
 
 
 

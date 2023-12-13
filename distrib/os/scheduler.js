@@ -20,31 +20,51 @@ var TSOS;
             this.updateWaitTimes(); // Update the wait times for all processes in the ready queue
             if (this.schedulingAlgorithm === "rr" && (this.cycles >= this.quantum || !_CPU.isExecuting)) {
                 if (_CPU.currentPCB && _CPU.currentPCB.state !== "Terminated") {
-                    console.log(`Context switch requested for PID: ${_CPU.currentPCB.pid}, State: ${_CPU.currentPCB.state}`);
-                    _Dispatcher.contextSwitch(_CPU.currentPCB, this.readyQueue.peek()); // Trigger context switch
+                    console.log(`[RR] Context switch requested for PID: ${_CPU.currentPCB.pid}, State: ${_CPU.currentPCB.state}`);
+                    // Get the next PCB in the ready queue
+                    let nextPCB = this.readyQueue.peek();
+                    // Check if disk input is true and next PCB is on disk
+                    if (_IsDiskLoaded === true && nextPCB && nextPCB.location === 'Disk') {
+                        console.log(`[RR] Next PCB with PID: ${nextPCB.pid} is on Disk, rolling in`);
+                        _Dispatcher.rollIn(nextPCB);
+                        // Roll out the current PCB if it's not the same as the next PCB
+                        if (_CPU.currentPCB.pid !== nextPCB.pid) {
+                            _Dispatcher.rollOut(_CPU.currentPCB);
+                        }
+                    }
+                    // Proceed with regular context switch
+                    _Dispatcher.contextSwitch(_CPU.currentPCB, nextPCB);
+                    console.log(`[RR] Context switch executed between PID: ${_CPU.currentPCB.pid} and PID: ${nextPCB ? nextPCB.pid : 'null'}`);
                 }
                 else {
                     _CPU.isExecuting = false;
-                    this.runningProcess = null; // No process is currently running
+                    this.runningProcess = null;
+                    console.log("[RR] No current process or process terminated. Stopping execution.");
                 }
                 this.cycles = 0; // Reset cycles after a context switch
+                console.log("[RR] Cycles reset after context switch");
             }
             else if ((this.schedulingAlgorithm === "fcfs" || this.schedulingAlgorithm === "priority") && !_CPU.isExecuting) {
+                // Handle FCFS and Priority scheduling
                 let nextPCB = this.schedule();
                 if (nextPCB) {
                     _Dispatcher.contextSwitch(null, nextPCB); // Start next process
+                    console.log(`[FCFS/Priority] Context switch to PID: ${nextPCB.pid}`);
+                }
+                else {
+                    console.log("[FCFS/Priority] No process scheduled.");
                 }
             }
         }
-        // private saveState(pcb: PCB): void {
-        //     if (pcb) {
-        //         pcb.PC = _CPU.PC;
-        //         pcb.Acc = _CPU.Acc;
-        //         pcb.Xreg = _CPU.Xreg;
-        //         pcb.Yreg = _CPU.Yreg;
-        //         pcb.Zflag = _CPU.Zflag;
-        //     }
-        // }
+        getLastPCB() {
+            // Check if the ready queue is empty
+            if (this.readyQueue.isEmpty()) {
+                return null;
+            }
+            // Get the last element from the ready queue
+            const queueArray = this.readyQueue.toArray();
+            return queueArray[queueArray.length - 1];
+        }
         schedule() {
             if (this.readyQueue.isEmpty()) {
                 return null;

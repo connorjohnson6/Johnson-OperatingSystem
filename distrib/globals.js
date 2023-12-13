@@ -34,6 +34,7 @@ var _Memory;
 var _MemoryAccessor;
 var _Disk;
 var _IsDiskFormatted = false;
+var _IsDiskLoaded = false;
 var _IsFull = true;
 //Softeware (OS)
 var _MemoryManager = null;

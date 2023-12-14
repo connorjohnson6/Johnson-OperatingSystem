@@ -31,11 +31,11 @@ module TSOS {
                     // Check if disk input is true and next PCB is on disk
                     if (_IsDiskLoaded === true && nextPCB && nextPCB.location === 'Disk') {
                         console.log(`[RR] Next PCB with PID: ${nextPCB.pid} is on Disk, rolling in`);
-                        _Dispatcher.rollIn(nextPCB, /* partition (if needed) */);
+                        _Dispatcher.rollOut(_CPU.currentPCB);
         
                         // Roll out the current PCB if it's not the same as the next PCB
                         if (_CPU.currentPCB.pid !== nextPCB.pid) {
-                            _Dispatcher.rollOut(_CPU.currentPCB);
+                            _Dispatcher.rollIn(nextPCB);
                         }
 
 

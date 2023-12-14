@@ -57,6 +57,12 @@ var TSOS;
             if (newPCB) {
                 console.log(`[RollIn] Rolling in PID: ${newPCB.pid}`);
                 newPCB.location = 'Memory';
+                console.log(`Preparing to roll in PID: .swap${newPCB.pid}`);
+                //used for loading in the disk information to memory
+                let pcbData = _krnKeyboardDisk.readFileData(`.swap${newPCB.pid}`);
+                let filename = '.swap' + newPCB.pid;
+                _krnKeyboardDisk.deleteFile(filename);
+                TSOS.Control.updateDiskDisplay();
                 console.log(`[RollIn] PID: ${newPCB.pid} location set to 'Memory'`);
             }
         }
@@ -65,6 +71,10 @@ var TSOS;
             if (oldPCB) {
                 console.log(`[RollOut] Rolling out PID: ${oldPCB.pid}`);
                 oldPCB.location = 'Disk';
+                let filename = '.swap' + oldPCB.pid;
+                _krnKeyboardDisk.createFile(filename);
+                _krnKeyboardDisk.writeFile(filename, oldPCB.opCodes);
+                TSOS.Control.updateDiskDisplay();
                 console.log(`[RollOut] PID: ${oldPCB.pid} location set to 'Disk'`);
             }
         }
